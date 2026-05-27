@@ -1,0 +1,644 @@
+/**
+ * Cyberpunk Design System - Custom CSS Effects and Animations
+ * 
+ * This file contains all custom CSS classes for cyberpunk visual effects,
+ * animations, and interactive elements.
+ * 
+ * All animations use CSS transitions for performance (60fps target)
+ * and are designed for modern browsers with hardware acceleration.
+ */
+
+/* ============================================
+   NEON GLOW EFFECTS
+   ============================================ */
+
+.glow-text {
+  text-shadow:
+    0 0 10px var(--color-neon-cyan),
+    0 0 20px var(--color-neon-purple),
+    0 0 30px var(--color-neon-cyan);
+}
+
+.glow-text-purple {
+  text-shadow:
+    0 0 10px var(--color-neon-purple),
+    0 0 20px var(--color-neon-pink),
+    0 0 30px var(--color-neon-purple);
+}
+
+.glow-text-blue {
+  text-shadow:
+    0 0 10px var(--color-neon-blue),
+    0 0 20px var(--color-neon-cyan),
+    0 0 30px var(--color-neon-blue);
+}
+
+.glow-text-green {
+  text-shadow:
+    0 0 10px var(--color-neon-green),
+    0 0 20px var(--color-neon-cyan),
+    0 0 30px var(--color-neon-green);
+}
+
+.glow-border {
+  box-shadow:
+    0 0 15px var(--color-neon-cyan),
+    inset 0 0 10px color-mix(in oklch, var(--color-neon-cyan) 10%, transparent);
+}
+
+.glow-border-purple {
+  box-shadow:
+    0 0 15px var(--color-neon-purple),
+    inset 0 0 10px color-mix(in oklch, var(--color-neon-purple) 10%, transparent);
+}
+
+.glow-border-blue {
+  box-shadow:
+    0 0 15px var(--color-neon-blue),
+    inset 0 0 10px color-mix(in oklch, var(--color-neon-blue) 10%, transparent);
+}
+
+.glow-border-green {
+  box-shadow:
+    0 0 15px var(--color-neon-green),
+    inset 0 0 10px color-mix(in oklch, var(--color-neon-green) 10%, transparent);
+}
+
+.hover-glow-border {
+  transition: box-shadow 0.2s ease;
+}
+
+.hover-glow-border:hover {
+  box-shadow:
+    0 0 15px var(--color-neon-cyan),
+    inset 0 0 10px color-mix(in oklch, var(--color-neon-cyan) 10%, transparent);
+}
+
+/* ============================================
+   GLASSMORPHISM PANELS
+   ============================================ */
+
+.glass-panel {
+  background: var(--color-glass-surface);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--color-glass-border);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.glass-panel-light {
+  background: color-mix(in oklch, var(--color-glass-surface) 80%, transparent);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--color-glass-border);
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.glass-panel-dark {
+  background: color-mix(in oklch, var(--color-glass-surface) 60%, transparent);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--color-glass-border);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* ============================================
+   BACKGROUND PATTERNS
+   ============================================ */
+
+/* Neon Grid Background */
+.neon-grid {
+  background-image:
+    linear-gradient(rgba(96, 247, 252, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(96, 247, 252, 0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: grid-pulse 4s ease-in-out infinite;
+}
+
+.neon-grid-purple {
+  background-image:
+    linear-gradient(rgba(192, 132, 252, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(192, 132, 252, 0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: grid-pulse 4s ease-in-out infinite;
+}
+
+@keyframes grid-pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+/* Blueprint Surface */
+.blueprint-surface {
+  background:
+    linear-gradient(rgba(96, 247, 252, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(96, 247, 252, 0.05) 1px, transparent 1px),
+    var(--color-space-black);
+  background-size: 40px 40px;
+}
+
+/* Planner Background */
+.planner-bg {
+  background:
+    radial-gradient(circle at 25% 25%, var(--color-nebula-purple) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, color-mix(in oklch, var(--color-neon-cyan) 20%, transparent) 0%, transparent 50%),
+    var(--color-space-black);
+}
+
+/* Starfield Background */
+.starfield-bg {
+  background:
+    radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 50px 160px, #ddd, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 90px 40px, #fff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 130px 80px, #fff, rgba(0,0,0,0)),
+    var(--color-space-black);
+  background-size: 200px 200px;
+  animation: starfield-pulse 8s ease-in-out infinite;
+}
+
+@keyframes starfield-pulse {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+/* ============================================
+   ANIMATED EFFECTS
+   ============================================ */
+
+/* Scan Line Effect */
+.scan-line {
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-neon-cyan),
+    transparent
+  );
+  animation: scan 3s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes scan {
+  0% { top: 0; opacity: 0; }
+  50% { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+
+/* Glitch Effect */
+.glitch {
+  position: relative;
+}
+
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.glitch::before {
+  left: 2px;
+  text-shadow: -1px 0 var(--color-neon-purple);
+  clip: rect(44px, 450px, 56px, 0);
+  animation: glitch-anim 5s infinite linear alternate-reverse;
+}
+
+.glitch::after {
+  left: -2px;
+  text-shadow: -1px 0 var(--color-neon-cyan);
+  clip: rect(44px, 450px, 56px, 0);
+  animation: glitch-anim2 5s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-anim {
+  0% { clip: rect(61px, 9999px, 81px, 0); }
+  20% { clip: rect(9px, 9999px, 91px, 0); }
+  40% { clip: rect(48px, 9999px, 16px, 0); }
+  60% { clip: rect(76px, 9999px, 45px, 0); }
+  80% { clip: rect(6px, 9999px, 72px, 0); }
+  100% { clip: rect(29px, 9999px, 6px, 0); }
+}
+
+@keyframes glitch-anim2 {
+  0% { clip: rect(26px, 9999px, 86px, 0); }
+  20% { clip: rect(98px, 9999px, 13px, 0); }
+  40% { clip: rect(31px, 9999px, 62px, 0); }
+  60% { clip: rect(6px, 9999px, 88px, 0); }
+  80% { clip: rect(72px, 9999px, 27px, 0); }
+  100% { clip: rect(86px, 9999px, 66px, 0); }
+}
+
+/* ============================================
+   GRADIENT AND COLOR EFFECTS
+   ============================================ */
+
+/* Command Strip Gradient */
+.command-strip {
+  background: linear-gradient(
+    135deg,
+    var(--color-neon-cyan),
+    var(--color-neon-purple),
+    var(--color-neon-blue)
+  );
+}
+
+.command-strip-reverse {
+  background: linear-gradient(
+    -135deg,
+    var(--color-neon-cyan),
+    var(--color-neon-purple),
+    var(--color-neon-blue)
+  );
+}
+
+/* Neon Gradient Background */
+.neon-gradient {
+  background: linear-gradient(
+    135deg,
+    var(--color-neon-cyan),
+    var(--color-neon-purple)
+  );
+}
+
+.neon-gradient-horizontal {
+  background: linear-gradient(
+    90deg,
+    var(--color-neon-cyan),
+    var(--color-neon-purple),
+    var(--color-neon-blue)
+  );
+}
+
+.neon-gradient-vertical {
+  background: linear-gradient(
+    180deg,
+    var(--color-neon-cyan),
+    var(--color-neon-purple),
+    var(--color-neon-blue)
+  );
+}
+
+/* ============================================
+   CARD AND PANEL STYLES
+   ============================================ */
+
+/* Paper Card */
+.paper-card {
+  background: var(--color-glass-surface);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--color-glass-border);
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Neon Card */
+.neon-card {
+  background: var(--color-glass-surface);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--color-neon-cyan);
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.3),
+    0 0 15px var(--color-neon-cyan),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* ============================================
+   TYPOGRAPHY EFFECTS
+   ============================================ */
+
+/* Micro Label */
+.micro-label {
+  font-family: var(--font-tech);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.75rem;
+  color: var(--color-neon-cyan);
+}
+
+.micro-label-purple {
+  font-family: var(--font-tech);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.75rem;
+  color: var(--color-neon-purple);
+}
+
+/* Tech Text */
+.tech-text {
+  font-family: var(--font-tech);
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+/* Display Text */
+.display-text {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+/* ============================================
+   INTERACTIVE ELEMENTS
+   ============================================ */
+
+/* Hover Lift */
+.hover-lift {
+  transition: transform 0.2s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-0.125rem);
+}
+
+/* Hover Glow */
+.hover-glow {
+  transition: box-shadow 0.2s ease;
+}
+
+.hover-glow:hover {
+  box-shadow:
+    0 0 20px var(--color-neon-cyan),
+    inset 0 0 10px color-mix(in oklch, var(--color-neon-cyan) 10%, transparent);
+}
+
+/* Focus States */
+.focus-ring {
+  transition: box-shadow 0.2s ease;
+}
+
+.focus-ring:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 3px color-mix(in oklch, var(--color-ring) 50%, transparent),
+    0 0 0 1px var(--color-ring);
+}
+
+/* ============================================
+   ANIMATION CLASSES
+   ============================================ */
+
+/* Fade Up Animation */
+.animate-fade-up {
+  animation: fade-up 0.6s ease-out;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(1.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Scale In Animation */
+.animate-scale-in {
+  animation: scale-in 0.4s ease-out;
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Fade In Animation */
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Slide In Left Animation */
+.animate-slide-left {
+  animation: slide-left 0.5s ease-out;
+}
+
+@keyframes slide-left {
+  from {
+    opacity: 0;
+    transform: translateX(-2rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Slide In Right Animation */
+.animate-slide-right {
+  animation: slide-right 0.5s ease-out;
+}
+
+@keyframes slide-right {
+  from {
+    opacity: 0;
+    transform: translateX(2rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Pulse Animation */
+.animate-pulse-slow {
+  animation: pulse-slow 3s ease-in-out infinite;
+}
+
+@keyframes pulse-slow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Rotate Animation */
+.animate-spin-slow {
+  animation: spin 8s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Bounce Animation */
+.animate-bounce-gentle {
+  animation: bounce-gentle 2s ease-in-out infinite;
+}
+
+@keyframes bounce-gentle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-0.25rem); }
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+/* Cursor Styles */
+.cursor-pointer { cursor: pointer; }
+.cursor-not-allowed { cursor: not-allowed; }
+.cursor-wait { cursor: wait; }
+.cursor-crosshair { cursor: crosshair; }
+
+/* Overflow Utilities */
+.overflow-hidden { overflow: hidden; }
+.overflow-auto { overflow: auto; }
+.overflow-scroll { overflow: scroll; }
+.overflow-visible { overflow: visible; }
+
+/* Position Utilities */
+.position-relative { position: relative; }
+.position-absolute { position: absolute; }
+.position-fixed { position: fixed; }
+.position-sticky { position: sticky; }
+
+/* Z-index Utilities */
+.z-0 { z-index: 0; }
+.z-10 { z-index: 10; }
+.z-20 { z-index: 20; }
+.z-30 { z-index: 30; }
+.z-40 { z-index: 40; }
+.z-50 { z-index: 50; }
+
+/* Pointer Events */
+.pointer-events-none { pointer-events: none; }
+.pointer-events-auto { pointer-events: auto; }
+
+/* User Select */
+.select-none { user-select: none; }
+.select-text { user-select: text; }
+.select-all { user-select: all; }
+
+/* ============================================
+   RESPONSIVE UTILITIES
+   ============================================ */
+
+/* Container Queries */
+@container (min-width: 640px) {
+  .container-sm\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container (min-width: 768px) {
+  .container-md\:grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@container (min-width: 1024px) {
+  .container-lg\:grid-cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  body {
+    background: white;
+    color: black;
+  }
+
+  .glass-panel,
+  .paper-card {
+    background: white;
+    border: 1px solid #ccc;
+    box-shadow: none;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .glass-panel,
+  .paper-card {
+    border: 2px solid var(--color-text-primary);
+  }
+
+  .glow-text {
+    text-shadow: none;
+    text-decoration: underline;
+  }
+
+  .micro-label {
+    font-weight: bold;
+  }
+}
+
+/* Focus Visible for Accessibility */
+:focus-visible {
+  outline: 2px solid var(--color-neon-cyan);
+  outline-offset: 2px;
+}
+
+/* Skip Link */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--color-neon-purple);
+  color: white;
+  padding: 8px 16px;
+  z-index: 100;
+  transition: top 0.3s;
+}
+
+.skip-link:focus {
+  top: 0;
+}

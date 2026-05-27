@@ -1,0 +1,814 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@theme {
+  /* Primary Neon Colors */
+  --color-neon-purple: oklch(0.65 0.25 320);
+  --color-neon-cyan: oklch(0.75 0.18 190);
+  --color-neon-blue: oklch(0.60 0.22 250);
+  --color-neon-pink: oklch(0.70 0.20 350);
+  --color-neon-green: oklch(0.70 0.20 140);
+
+  /* Space Backgrounds */
+  --color-space-black: oklch(0.08 0.01 270);
+  --color-starfield: oklch(0.12 0.02 270);
+  --color-nebula-dark: oklch(0.15 0.04 260);
+  --color-nebula-purple: oklch(0.20 0.06 290);
+
+  /* Glass/Surfaces */
+  --color-glass-surface: oklch(0.10 0.03 270 / 0.6);
+  --color-glass-border: oklch(0.50 0.15 190 / 0.4);
+  --color-glass-highlight: oklch(0.60 0.15 190 / 0.2);
+
+  /* Text */
+  --color-text-primary: oklch(0.95 0.02 270);
+  --color-text-secondary: oklch(0.70 0.02 270);
+  --color-text-dim: oklch(0.50 0.02 270);
+
+  /* Status Colors */
+  --color-status-online: oklch(0.70 0.20 140);
+  --color-status-processing: oklch(0.75 0.18 190);
+  --color-status-error: oklch(0.65 0.25 320);
+
+  /* Semantic Tokens */
+  --color-background: oklch(0.08 0.01 270);
+  --color-foreground: oklch(0.95 0.02 270);
+  --color-card: oklch(0.10 0.03 270 / 0.6);
+  --color-card-foreground: oklch(0.95 0.02 270);
+  --color-popover: oklch(0.10 0.03 270 / 0.8);
+  --color-popover-foreground: oklch(0.95 0.02 270);
+  --color-primary: oklch(0.65 0.25 320);
+  --color-primary-foreground: oklch(0.95 0.02 270);
+  --color-secondary: oklch(0.20 0.06 290 / 0.8);
+  --color-secondary-foreground: oklch(0.95 0.02 270);
+  --color-muted: oklch(0.15 0.04 260 / 0.64);
+  --color-muted-foreground: oklch(0.70 0.02 270);
+  --color-accent: oklch(0.75 0.18 190);
+  --color-accent-foreground: oklch(0.08 0.01 270);
+  --color-destructive: oklch(0.65 0.25 320);
+  --color-destructive-foreground: oklch(0.95 0.02 270);
+  --color-border: oklch(0.50 0.15 190 / 0.4);
+  --color-input: oklch(0.10 0.03 270 / 0.8);
+  --color-ring: oklch(0.80 0.15 178);
+
+  /* Chart Colors */
+  --color-chart-1: oklch(0.65 0.25 320);
+  --color-chart-2: oklch(0.75 0.18 190);
+  --color-chart-3: oklch(0.60 0.22 250);
+  --color-chart-4: oklch(0.70 0.20 350);
+  --color-chart-5: oklch(0.70 0.20 140);
+
+  /* Fonts */
+  --font-display: "Orbitron", system-ui, sans-serif;
+  --font-tech: "JetBrains Mono", monospace;
+  --font-body: "Space Grotesk", system-ui, sans-serif;
+
+  /* Animations */
+  --animate-fade-up: fade-up 0.6s ease-out;
+  --animate-scale-in: scale-in 0.4s ease-out;
+}
+
+/* Base Styles */
+body {
+  background-color: var(--color-space-black);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+/* Neon Glow Effects */
+.glow-text {
+  text-shadow:
+    0 0 10px var(--color-neon-cyan),
+    0 0 20px var(--color-neon-purple),
+    0 0 30px var(--color-neon-cyan);
+}
+
+.glow-border {
+  box-shadow:
+    0 0 15px var(--color-neon-cyan),
+    inset 0 0 10px color-mix(in oklch, var(--color-neon-cyan) 10%, transparent);
+}
+
+/* Glass Panels */
+.glass-panel {
+  background: var(--color-glass-surface);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--color-glass-border);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Neon Grid Background */
+.neon-grid {
+  background-image:
+    linear-gradient(rgba(96, 247, 252, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(96, 247, 252, 0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: grid-pulse 4s ease-in-out infinite;
+}
+
+@keyframes grid-pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+/* Scan Line Effect */
+.scan-line {
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-neon-cyan),
+    transparent
+  );
+  animation: scan 3s linear infinite;
+}
+
+@keyframes scan {
+  0% { top: 0; opacity: 0; }
+  50% { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+
+/* Command Strip Gradient */
+.command-strip {
+  background: linear-gradient(
+    135deg,
+    var(--color-neon-cyan),
+    var(--color-neon-purple),
+    var(--color-neon-blue)
+  );
+}
+
+/* Blueprint Surface */
+.blueprint-surface {
+  background:
+    linear-gradient(
+      rgba(96, 247, 252, 0.05) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(96, 247, 252, 0.05) 1px,
+      transparent 1px
+    ),
+    var(--color-space-black);
+  background-size: 40px 40px;
+}
+
+/* Paper Card */
+.paper-card {
+  background: var(--color-glass-surface);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--color-glass-border);
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Micro Label */
+.micro-label {
+  font-family: var(--font-tech);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.75rem;
+  color: var(--color-neon-cyan);
+}
+
+/* Planner Background (for layout containers) */
+.planner-bg {
+  background:
+    radial-gradient(circle at 25% 25%, var(--color-nebula-purple) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, color-mix(in oklch, var(--color-neon-cyan) 20%, transparent) 0%, transparent 50%),
+    var(--color-space-black);
+}
+
+/* Interactive Elements */
+.hover-lift {
+  transition: transform 0.2s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-0.125rem);
+}
+
+.hover-glow-border:hover {
+  box-shadow:
+    0 0 15px var(--color-neon-cyan),
+    inset 0 0 10px color-mix(in oklch, var(--color-neon-cyan) 10%, transparent);
+}
+
+/* Focus States */
+.focus-ring {
+  transition: box-shadow 0.2s ease;
+}
+
+.focus-ring:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 3px color-mix(in oklch, var(--color-ring) 50%, transparent),
+    0 0 0 1px var(--color-ring);
+}
+
+/* Animation Classes */
+.animate-fade-up {
+  animation: fade-up 0.6s ease-out;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(1.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-scale-in {
+  animation: scale-in 0.4s ease-out;
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* React Flow Cyberpunk Overrides */
+
+/* Hide default attribution as we use proOptions */
+.react-flow__attribution {
+  display: none !important;
+}
+
+/* Hide default controls (replaced by custom CameraControls) */
+.react-flow__controls {
+  display: none !important;
+}
+
+/* Node Selection */
+.react-flow__node.selected {
+  box-shadow:
+    0 0 10px var(--color-neon-cyan),
+    0 0 20px var(--color-neon-purple);
+  border-color: var(--color-neon-cyan) !important;
+}
+
+/* Edge Selection */
+.react-flow__edge.selected .react-flow__edge-path {
+  stroke: var(--color-neon-cyan) !important;
+  stroke-width: 3 !important;
+  filter: drop-shadow(0 0 5px var(--color-neon-cyan));
+}
+
+/* Handle Styles (Connection Points) */
+.react-flow__handle {
+  width: 10px;
+  height: 10px;
+  background: var(--color-neon-cyan);
+  border: 2px solid var(--color-space-black);
+}
+
+.react-flow__handle-top {
+  top: -6px;
+}
+.react-flow__handle-right {
+  right: -6px;
+}
+.react-flow__handle-bottom {
+  bottom: -6px;
+}
+.react-flow__handle-left {
+  left: -6px;
+}
+
+/* Controls styling */
+.react-flow__controls-button {
+  background: var(--color-glass-surface) !important;
+  border: 1px solid var(--color-glass-border) !important;
+  fill: var(--color-neon-cyan) !important;
+  transition: all 0.2s;
+}
+
+.react-flow__controls-button:hover {
+  background: var(--color-glass-highlight) !important;
+  transform: scale(1.1);
+}
+
+/* MiniMap styling */
+.react-flow__minimap {
+  background: var(--color-space-black) !important;
+  border: 1px solid var(--color-neon-purple) !important;
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.2);
+}
+
+/* Edge Paths */
+.react-flow__edge-path {
+  stroke: var(--color-neon-cyan);
+  stroke-width: 2;
+}
+
+/* Selection Box */
+.react-flow__selection {
+  background: color-mix(in srgb, var(--color-neon-cyan) 10%, transparent);
+  border: 1px dashed var(--color-neon-cyan);
+}
+
+/* Custom Node Styles */
+.react-flow__node-cyberNode {
+  transition: transform 0.2s ease;
+}
+
+.react-flow__node-cyberNode:hover {
+  transform: scale(1.02);
+}
+
+/* Custom Edge Styles */
+.react-flow__edge-path {
+  stroke-linecap: round;
+  transition: all 0.2s ease;
+}
+
+.react-flow__edge:hover .react-flow__edge-path {
+  stroke-width: 3px;
+  filter: drop-shadow(0 0 4px var(--color-neon-cyan));
+}
+
+/* Handle Hover Effects */
+.react-flow__handle:hover {
+  transform: scale(1.25);
+  box-shadow:
+    0 0 8px var(--color-neon-cyan),
+    0 0 12px var(--color-neon-purple);
+}
+
+/* Custom Camera Controls */
+.camera-controls {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 1.5rem;
+  z-index: 10;
+}
+
+.camera-controls-panel {
+  background: var(--color-glass-surface);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--color-glass-border);
+  border-radius: 0.75rem;
+  padding: 0.5rem;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.camera-controls-divider {
+  width: 100%;
+  height: 1px;
+  background: var(--color-glass-border);
+}
+
+.camera-controls-button {
+  height: 2rem;
+  width: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--color-text-primary);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.camera-controls-button:hover {
+  background: var(--color-glass-highlight);
+  transform: scale(1.1);
+}
+
+.camera-controls-button:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 3px color-mix(in oklch, var(--color-ring) 50%, transparent),
+    0 0 0 1px var(--color-ring);
+}
+
+.camera-controls-button .icon {
+  height: 1rem;
+  width: 1rem;
+}
+
+.camera-controls-zoom-level {
+  font-family: var(--font-tech);
+  color: var(--color-neon-cyan);
+  font-size: 0.75rem;
+  text-align: center;
+  margin-bottom: 0.25rem;
+}
+
+/* Prose-neon styling for markdown content */
+.prose-neon {
+  color: var(--color-text-primary);
+  max-width: 65ch;
+}
+
+.prose-neon h1,
+.prose-neon h2,
+.prose-neon h3,
+.prose-neon h4,
+.prose-neon h5,
+.prose-neon h6 {
+  color: var(--color-neon-cyan);
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.2;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.prose-neon h1 {
+  font-size: 2rem;
+  text-shadow: 0 0 10px var(--color-neon-cyan), 0 0 20px var(--color-neon-purple);
+}
+
+.prose-neon h2 {
+  font-size: 1.5rem;
+}
+
+.prose-neon h3 {
+  font-size: 1.25rem;
+}
+
+.prose-neon p {
+  margin-top: 1em;
+  margin-bottom: 1em;
+  line-height: 1.75;
+}
+
+.prose-neon a {
+  color: var(--color-neon-purple);
+  text-decoration: underline;
+  text-decoration-color: var(--color-neon-purple);
+  text-underline-offset: 2px;
+}
+
+.prose-neon a:hover {
+  color: var(--color-neon-cyan);
+  text-decoration-color: var(--color-neon-cyan);
+}
+
+.prose-neon strong,
+.prose-neon b {
+  color: var(--color-neon-cyan);
+  font-weight: 700;
+}
+
+.prose-neon code {
+  color: var(--color-neon-pink);
+  font-family: var(--font-tech);
+  background: var(--color-glass-surface);
+  border: 1px solid var(--color-neon-pink);
+  border-radius: 0.25rem;
+  padding: 0.125rem 0.375rem;
+  font-size: 0.875em;
+}
+
+.prose-neon pre {
+  background: var(--color-glass-surface);
+  border: 1px solid var(--color-glass-border);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 1em 0;
+}
+
+.prose-neon pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-size: 0.875rem;
+}
+
+.prose-neon ul,
+.prose-neon ol {
+  margin: 1em 0;
+  padding-left: 1.5em;
+}
+
+.prose-neon li {
+  margin: 0.5em 0;
+  line-height: 1.75;
+}
+
+.prose-neon blockquote {
+  border-left: 4px solid var(--color-neon-purple);
+  background: var(--color-glass-surface);
+  padding: 1em;
+  margin: 1em 0;
+  font-style: italic;
+  color: var(--color-text-secondary);
+}
+
+.prose-neon hr {
+  border: none;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--color-neon-cyan), transparent);
+  margin: 2em 0;
+}
+
+.prose-neon table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1em 0;
+}
+
+.prose-neon th,
+.prose-neon td {
+  border: 1px solid var(--color-glass-border);
+  padding: 0.5rem 1rem;
+  text-align: left;
+}
+
+.prose-neon th {
+  background: var(--color-glass-surface);
+  color: var(--color-neon-cyan);
+  font-weight: 600;
+}
+
+.prose-neon tr:hover td {
+  background: var(--color-glass-highlight);
+}
+
+/* Note Card Custom Styles */
+.note-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.note-card:hover {
+  transform: perspective(1000px) rotateX(2deg) rotateY(-2deg) translateY(-0.25rem);
+  box-shadow:
+    0 0 20px rgba(96, 247, 252, 0.2),
+    0 10px 30px rgba(0, 0, 0, 0.4),
+    0 0 10px var(--color-neon-cyan),
+    0 0 20px var(--color-neon-purple);
+}
+
+.importance-bar {
+  transition: all 0.2s ease;
+}
+
+.note-card:hover .importance-bar {
+  height: 20px;
+}
+
+.note-card .neon-badge {
+  transition: all 0.2s ease;
+}
+
+.note-card:hover .neon-badge:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 8px var(--color-neon-cyan);
+}
+
+.note-card .arrow-icon {
+  transition: all 0.2s ease;
+}
+
+.note-card:hover .arrow-icon {
+  opacity: 1 !important;
+  transform: translateX(0) !important;
+  color: var(--color-neon-cyan);
+}
+
+.note-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--color-neon-cyan) 10%, transparent),
+    transparent
+  );
+  transition: left 0.5s ease;
+  pointer-events: none;
+}
+
+.note-card:hover::after {
+  left: 100%;
+}
+
+/* Advanced Animation Keyframes */
+
+@keyframes twinkle {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow:
+      0 0 5px var(--color-neon-cyan),
+      0 0 10px var(--color-neon-purple);
+  }
+  50% {
+    box-shadow:
+      0 0 10px var(--color-neon-cyan),
+      0 0 20px var(--color-neon-purple),
+      0 0 30px var(--color-neon-cyan);
+  }
+}
+
+@keyframes neon-flicker {
+  0%, 18%, 22%, 25%, 53%, 57%, 100% {
+    text-shadow:
+      0 0 4px var(--color-neon-cyan),
+      0 0 11px var(--color-neon-cyan),
+      0 0 19px var(--color-neon-cyan);
+    opacity: 1;
+  }
+  20%, 24%, 55% {
+    text-shadow: none;
+    opacity: 0.4;
+  }
+}
+
+@keyframes glitch {
+  0% {
+    transform: translate(0);
+  }
+  20% {
+    transform: translate(-2px, 2px);
+  }
+  40% {
+    transform: translate(-2px, -2px);
+  }
+  60% {
+    transform: translate(2px, 2px);
+  }
+  80% {
+    transform: translate(2px, -2px);
+  }
+  100% {
+    transform: translate(0);
+  }
+}
+
+@keyframes matrix-rain {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 0 1000px;
+  }
+}
+
+@keyframes cyber-loading {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes heartbeat {
+  0% {
+    transform: scale(1);
+  }
+  14% {
+    transform: scale(1.3);
+  }
+  28% {
+    transform: scale(1);
+  }
+  42% {
+    transform: scale(1.3);
+  }
+  70% {
+    transform: scale(1);
+  }
+}
+
+/* Animation Utility Classes */
+.animate-twinkle {
+  animation: twinkle 3s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-neon-flicker {
+  animation: neon-flicker 5s ease-in-out infinite;
+}
+
+.animate-glitch {
+  animation: glitch 0.3s ease-in-out infinite;
+}
+
+.animate-matrix-rain {
+  animation: matrix-rain 20s linear infinite;
+}
+
+.animate-cyber-loading {
+  animation: cyber-loading 1s linear infinite;
+}
+
+.animate-heartbeat {
+  animation: heartbeat 1.5s ease-in-out infinite;
+}
+
+/* Stagger Delays */
+.delay-100 {
+  animation-delay: 100ms;
+}
+
+.delay-200 {
+  animation-delay: 200ms;
+}
+
+.delay-300 {
+  animation-delay: 300ms;
+}
+
+.delay-400 {
+  animation-delay: 400ms;
+}
+
+.delay-500 {
+  animation-delay: 500ms;
+}
+
+.delay-600 {
+  animation-delay: 600ms;
+}
+
+.delay-700 {
+  animation-delay: 700ms;
+}
+
+.delay-800 {
+  animation-delay: 800ms;
+}
+
+.delay-900 {
+  animation-delay: 900ms;
+}
+
+.delay-1000 {
+  animation-delay: 1000ms;
+}
+
+/* Particle Utility Classes */
+.particle {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+}
+
+.particle-cyan {
+  background-color: var(--color-neon-cyan);
+}
+
+.particle-purple {
+  background-color: var(--color-neon-purple);
+}
+
+.particle-blue {
+  background-color: var(--color-neon-blue);
+}

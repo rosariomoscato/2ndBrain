@@ -1,0 +1,1 @@
+# Usa skill implement-feature per eseguire i task in parallelo

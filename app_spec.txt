@@ -1,0 +1,20 @@
+<project_specification>
+
+## Overview
+Next.js 16 SaaS boilerplate with AI chatbot integration
+
+## Feature Count
+24
+
+## Technology Stack
+- Framework: Next.js 16 (App Router) + React 19 + TypeScript
+- Database: PostgreSQL + Drizzle ORM
+- Auth: Better Auth
+- UI: Tailwind CSS + shadcn/ui
+- AI: OpenRouter AI SDK
+- Storage: Vercel Blob
+
+## Status
+Project already initialized - 22/24 features implemented
+
+</project_specification>
