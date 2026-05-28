@@ -11,7 +11,7 @@ export default async function LoginPage({
   const session = await auth.api.getSession({ headers: await headers() })
 
   if (session) {
-    redirect("/dashboard")
+    redirect("/")
   }
 
   const { reset } = await searchParams
@@ -21,7 +21,7 @@ export default async function LoginPage({
       <div className="brutal-card p-8">
         <div className="text-center space-y-2 mb-6">
           <h1 className="text-2xl font-bold uppercase tracking-wider font-[family-name:var(--font-display)]">
-            Bentornato
+            SECOND<span className="text-neon-cyan">BRAIN</span>
           </h1>
           <p className="text-sm text-muted-foreground font-[family-name:var(--font-display)] uppercase tracking-wider">
             Accedi al tuo account

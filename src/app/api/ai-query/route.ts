@@ -67,22 +67,26 @@ export async function POST(req: Request) {
 
   const { query } = parsed.data;
 
-  // Generate embedding for the query (uses OpenAI API)
+  // Generate embedding for the query (uses OpenRouter API)
   const queryEmbedding = await getQueryEmbedding(query);
+
+  console.log("Query embedding result:", queryEmbedding ? `array of ${Array.isArray(queryEmbedding) ? queryEmbedding.length : 'non-array'} items` : 'null');
 
   let context = "";
   const citations: Citation[] = [];
 
   // If we successfully generated an embedding, search for similar notes
   if (queryEmbedding) {
+    console.log("Searching similar notes for user:", session.user.id);
     const results = await searchSimilarNotes(queryEmbedding, 5, session.user.id);
+    console.log("Similar notes found:", results.length, results.map((r: { noteId: string; similarity: number }) => ({ noteId: r.noteId, similarity: r.similarity })));
 
     const seenNoteIds = new Set<string>();
     const contextParts: string[] = [];
 
     for (const result of results) {
       // Filter out low-quality matches using similarity threshold
-      if (result.similarity < 0.5) continue;
+      if (result.similarity < 0.3) continue;
 
       // Deduplicate by note ID (avoid multiple chunks from same note)
       if (!seenNoteIds.has(result.noteId)) {

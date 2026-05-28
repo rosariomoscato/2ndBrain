@@ -1,12 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import Editor from "@monaco-editor/react";
 import { Save } from "lucide-react";
 import { CyberButton } from "@/components/ui/cyber-button";
 import { CyberInput } from "@/components/ui/cyber-input";
 import { NeonBadge } from "@/components/ui/neon-badge";
-import { AIChatPanel } from "./ai-panel";
 import { NotePreview } from "./note-preview";
 import { Toolbar } from "./toolbar";
 
@@ -30,21 +28,19 @@ export function NoteEditor({
   const [tags, setTags] = useState<string[]>(initialTags);
   const [newTag, setNewTag] = useState("");
 
-  // Track unsaved changes - derived state is preferred over setState in effect
   const hasUnsavedChanges =
     title !== initialTitle ||
     content !== initialContent ||
     tags.join(",") !== initialTags.join(",");
 
-  // Handle toolbar actions
   const handleToolbarAction = (action: string) => {
-    const editor = document.querySelector(
-      ".monaco-editor textarea"
+    const textarea = document.querySelector(
+      ".note-content-textarea"
     ) as HTMLTextAreaElement;
-    if (!editor) return;
+    if (!textarea) return;
 
-    const start = editor.selectionStart;
-    const end = editor.selectionEnd;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
     const selectedText = content.substring(start, end);
     const before = content.substring(0, start);
     const after = content.substring(end);
@@ -80,7 +76,6 @@ export function NoteEditor({
     setContent(newText);
   };
 
-  // Handle adding new tag
   const handleAddTag = () => {
     const trimmedTag = newTag.trim();
     if (trimmedTag && !tags.includes(trimmedTag)) {
@@ -89,19 +84,16 @@ export function NoteEditor({
     }
   };
 
-  // Handle removing tag
   const handleRemoveTag = (tagToRemove: string) => {
     if (isReadOnly) return;
     setTags(tags.filter((tag) => tag !== tagToRemove));
   };
 
-  // Handle save
   const handleSave = () => {
     if (isReadOnly) return;
     onSave?.({ title, content, tags });
   };
 
-  // Handle enter key in tag input
   const handleTagInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -114,9 +106,7 @@ export function NoteEditor({
       {/* Header */}
       <div className="glass-panel border-b border-glass-border px-6 py-4">
         <div className="flex items-center justify-between mb-4">
-          {/* Left side: Title and Tags */}
           <div className="flex-1 mr-6">
-            {/* Title Input */}
             <CyberInput
               placeholder="Note Title..."
               className="h-12 text-2xl font-bold font-display mb-3"
@@ -125,10 +115,8 @@ export function NoteEditor({
               disabled={isReadOnly}
             />
 
-            {/* Tags Section */}
             {!isReadOnly && (
               <div className="flex items-center gap-2 flex-wrap">
-                {/* Tags Display */}
                 {tags.map((tag) => (
                   <NeonBadge
                     key={tag}
@@ -140,7 +128,6 @@ export function NoteEditor({
                   </NeonBadge>
                 ))}
 
-                {/* Add Tag Input */}
                 <div className="flex items-center gap-2">
                   <CyberInput
                     placeholder="Add tag..."
@@ -163,16 +150,13 @@ export function NoteEditor({
             )}
           </div>
 
-          {/* Right side: Status and Actions */}
           <div className="flex items-center gap-3">
-            {/* Unsaved Badge */}
             {hasUnsavedChanges && (
               <NeonBadge variant="pink" className="animate-pulse">
                 Unsaved
               </NeonBadge>
             )}
 
-            {/* Save Button */}
             <CyberButton
               variant="primary"
               size="md"
@@ -186,64 +170,36 @@ export function NoteEditor({
           </div>
         </div>
 
-        {/* Toolbar */}
         <Toolbar onAction={handleToolbarAction} isReadOnly={isReadOnly} />
       </div>
 
       {/* Split View: Editor and Preview */}
-      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-        {/* Monaco Editor Panel */}
-        <div className="flex-1 flex flex-col border-r border-glass-border lg:w-1/2">
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden min-h-0">
+        {/* Editor Panel */}
+        <div className="flex-1 flex flex-col border-r border-glass-border lg:w-1/2 min-h-0">
           <div className="glass-panel border-b border-glass-border px-4 py-2">
             <span className="micro-label">EDITOR</span>
           </div>
-          <div className="flex-1 overflow-hidden">
-            <Editor
-              height="100%"
-              defaultLanguage="markdown"
-              theme="vs-dark"
+          <div className="flex-1 overflow-hidden p-0 min-h-0">
+            <textarea
+              className="note-content-textarea w-full h-full bg-glass-surface/30 text-text-primary font-mono text-sm p-4 resize-none outline-none border-0 focus:ring-0"
+              placeholder="Write your note in Markdown..."
               value={content}
-              onChange={(value) => setContent(value || "")}
-              options={{
-                minimap: { enabled: false },
-                fontSize: 14,
-                wordWrap: "on",
-                tabSize: 2,
-                readOnly: isReadOnly,
-                scrollBeyondLastLine: false,
-                automaticLayout: true,
-              }}
+              onChange={(e) => setContent(e.target.value)}
+              readOnly={isReadOnly}
             />
           </div>
         </div>
 
         {/* Preview Panel */}
-        <div className="flex-1 flex flex-col border-l border-glass-border lg:w-1/2">
-          <div className="glass-panel border-b border-glass-border px-4 py-2 flex items-center justify-between">
+        <div className="flex-1 flex flex-col border-l border-glass-border lg:w-1/2 min-h-0">
+          <div className="glass-panel border-b border-glass-border px-4 py-2">
             <span className="micro-label">PREVIEW</span>
-            <CyberButton variant="ghost" size="sm">
-              AI Assist
-            </CyberButton>
           </div>
           <div className="flex-1 overflow-auto p-6 bg-glass-surface/30">
             <NotePreview content={content} />
           </div>
         </div>
-      </div>
-
-      {/* AI Chat Panel */}
-      <div className="h-80 border-t border-glass-border">
-        <AIChatPanel
-          noteContext={{
-            title,
-            content,
-            tags,
-          }}
-          onSuggestionClick={() => {
-            // This callback allows the parent to handle suggestion clicks
-            // The suggestion is already handled in the AIChatPanel component
-          }}
-        />
       </div>
     </div>
   );

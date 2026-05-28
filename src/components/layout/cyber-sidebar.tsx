@@ -161,6 +161,19 @@ export function CyberSidebar() {
           </CyberButton>
         </Link>
       </div>
+
+      {/* Footer */}
+      <div className="p-4 border-t border-glass-border text-center shrink-0">
+        <a
+          href="mailto:ros.moscato@gmail.com"
+          className="text-xs text-text-dim hover:text-neon-cyan transition-colors"
+        >
+          Rosario Moscato
+        </a>
+        <p className="text-[10px] text-text-dim mt-1">
+          &copy; {new Date().getFullYear()} All rights reserved
+        </p>
+      </div>
     </aside>
   );
 }

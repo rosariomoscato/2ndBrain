@@ -5,33 +5,48 @@ import {
   BaseEdge,
 } from "@xyflow/react";
 
-const GraphEdge = memo(({ source, target, selected }: EdgeProps) => {
+const tagColor = "var(--color-neon-cyan)";
+const semanticColor = "var(--color-neon-purple)";
+
+const GraphEdge = memo(({
+  sourceX,
+  sourceY,
+  targetX,
+  targetY,
+  sourcePosition,
+  targetPosition,
+  selected,
+  data,
+}: EdgeProps) => {
   const [edgePath] = getBezierPath({
-    sourceX: (typeof source === 'string' ? { x: 0, y: 0 } : source).x,
-    sourceY: (typeof source === 'string' ? { x: 0, y: 0 } : source).y,
-    targetX: (typeof target === 'string' ? { x: 0, y: 0 } : target).x,
-    targetY: (typeof target === 'string' ? { x: 0, y: 0 } : target).y,
+    sourceX,
+    sourceY,
+    targetX,
+    targetY,
+    sourcePosition,
+    targetPosition,
   });
+
+  const edgeType = (data as { edgeType?: string })?.edgeType ?? "tag";
+  const color = edgeType === "semantic" ? semanticColor : tagColor;
 
   return (
     <>
-      {/* Edge Path */}
       <BaseEdge
         path={edgePath}
         style={{
-          stroke: selected ? "var(--color-neon-cyan)" : "var(--color-neon-purple)",
+          stroke: selected ? "var(--color-neon-green)" : color,
           strokeWidth: selected ? 3 : 2,
           strokeLinecap: "round",
           transition: "all 0.2s ease",
         }}
       />
 
-      {/* Selected Glow Overlay */}
       {selected && (
         <BaseEdge
           path={edgePath}
           style={{
-            stroke: "var(--color-neon-cyan)",
+            stroke: "var(--color-neon-green)",
             strokeWidth: 6,
             opacity: 0.3,
             filter: "blur(2px)",
@@ -39,11 +54,10 @@ const GraphEdge = memo(({ source, target, selected }: EdgeProps) => {
         />
       )}
 
-      {/* Animated Pulse Effect */}
       <BaseEdge
         path={edgePath}
         style={{
-          stroke: selected ? "var(--color-neon-cyan)" : "var(--color-neon-purple)",
+          stroke: selected ? "var(--color-neon-green)" : color,
           strokeWidth: selected ? 3 : 2,
           strokeLinecap: "round",
           opacity: 0.6,

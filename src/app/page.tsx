@@ -22,6 +22,7 @@ import { NeonBadge } from "@/components/ui/neon-badge";
 import { getNodeCount, getEdgeCount } from "@/lib/actions/graph";
 import { getNoteCount, getNotes } from "@/lib/actions/notes";
 import type { RecentActivity } from "@/lib/types";
+import { useSession } from "@/lib/auth-client";
 
 interface StatItem {
   label: string;
@@ -33,12 +34,23 @@ interface StatItem {
 
 export default function DashboardPage() {
   const router = useRouter();
+  const { data: session, isPending } = useSession();
+  const [isAuthChecked, setIsAuthChecked] = useState(false);
 
   const quickActions = [
     { icon: Plus, label: "New Note", href: "/notes/new", variant: "primary" as const },
     { icon: Search, label: "Search", href: "/notes", variant: "secondary" as const },
     { icon: Zap, label: "AI Query", href: "/ai", variant: "neon" as const },
   ];
+
+  useEffect(() => {
+    if (!isPending) {
+      setIsAuthChecked(true);
+      if (!session?.user) {
+        router.push("/login");
+      }
+    }
+  }, [isPending, session, router]);
 
   const [stats, setStats] = useState<StatItem[]>([
     { label: "Total Notes", value: "...", change: "Loading...", icon: FileText, color: "neon-cyan" },
@@ -51,6 +63,8 @@ export default function DashboardPage() {
   // Load data on mount
   useEffect(() => {
     async function loadData() {
+      if (!session?.user) return;
+      
       try {
         const [noteCount, nodeCount, edgeCount, recentNotes] = await Promise.all([
           getNoteCount(),
@@ -80,7 +94,20 @@ export default function DashboardPage() {
       }
     }
     loadData();
-  }, []);
+  }, [session?.user]);
+
+  if (isPending || !session) {
+    return (
+      <MainViewport>
+        <div className="flex items-center justify-center h-full">
+          <div className="text-center">
+            <RefreshCw className="h-8 w-8 animate-spin text-neon-cyan mx-auto mb-4" />
+            <p className="text-text-secondary">Loading...</p>
+          </div>
+        </div>
+      </MainViewport>
+    );
+  }
 
   return (
     <MainViewport>
@@ -104,14 +131,6 @@ export default function DashboardPage() {
             >
               <RefreshCw className="h-4 w-4 mr-2" />
               Refresh
-            </CyberButton>
-            <CyberButton
-              variant="primary"
-              size="sm"
-              onClick={() => router.push("/notes/new")}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              New Note
             </CyberButton>
           </div>
         </div>

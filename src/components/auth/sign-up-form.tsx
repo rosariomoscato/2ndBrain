@@ -38,13 +38,13 @@ export function SignUpForm() {
         name,
         email,
         password,
-        callbackURL: "/dashboard",
+        callbackURL: "/",
       })
 
       if (result.error) {
         setError(result.error.message || "Creazione account non riuscita")
       } else {
-        router.push("/dashboard")
+        router.push("/")
         router.refresh()
       }
     } catch {

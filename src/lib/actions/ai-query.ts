@@ -48,13 +48,14 @@ export async function queryWithRAG(query: string): Promise<AIResponse> {
   // If we successfully generated an embedding, search for similar notes
   if (queryEmbedding) {
     const results = await searchSimilarNotes(queryEmbedding, 5, session.user.id);
+    console.log("RAG search results:", results.length, results.map((r: { similarity: number; chunkText: string }) => ({ sim: r.similarity.toFixed(3), text: r.chunkText.substring(0, 40) })));
 
     const seenNoteIds = new Set<string>();
     const contextParts: string[] = [];
 
     for (const result of results) {
       // Filter out low-quality matches using similarity threshold
-      if (result.similarity < 0.5) continue;
+      if (result.similarity < 0.3) continue;
 
       // Deduplicate by note ID (avoid multiple chunks from same note)
       if (!seenNoteIds.has(result.noteId)) {

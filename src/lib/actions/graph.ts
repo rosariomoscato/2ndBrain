@@ -59,7 +59,7 @@ export async function getGraphData(): Promise<{ nodes: Node[]; edges: Edge[] }> 
 
   const reactFlowNodes: Node[] = nodes.map(n => ({
     id: n.id,
-    type: "cyber",
+    type: "cyberNode",
     position: { x: n.positionX ?? Math.random() * 800, y: n.positionY ?? Math.random() * 600 },
     data: {
       label: n.label,
@@ -75,8 +75,9 @@ export async function getGraphData(): Promise<{ nodes: Node[]; edges: Edge[] }> 
     id: e.id,
     source: e.sourceId,
     target: e.targetId,
+    type: "cyberEdge",
     animated: true,
-    style: { stroke: "url(#edge-gradient)" },
+    data: { edgeType: e.type ?? "tag" },
   }));
 
   return { nodes: reactFlowNodes, edges: reactFlowEdges };
@@ -102,6 +103,8 @@ export async function createNodeForNote(noteId: string, title: string, userId: s
     positionX: Math.floor(Math.random() * 800),
     positionY: Math.floor(Math.random() * 600),
   }).returning();
+
+  await autoConnectNotesByTags(userId).catch(console.error);
 
   return node;
 }
@@ -177,4 +180,72 @@ export async function getEdgeCount() {
   const result = await db.select({ count: sql<number>`count(*)` })
     .from(graphEdges).where(eq(graphEdges.userId, session.user.id));
   return result[0]?.count ?? 0;
+}
+
+/**
+ * Auto-generates edges between notes that share tags.
+ * Called after a note is created/updated to keep the graph connected.
+ */
+export async function autoConnectNotesByTags(userId: string) {
+  const userNodes = await db.select().from(graphNodes)
+    .where(eq(graphNodes.userId, userId));
+
+  if (userNodes.length < 2) return;
+
+  for (let i = 0; i < userNodes.length; i++) {
+    for (let j = i + 1; j < userNodes.length; j++) {
+      const nodeA = userNodes[i];
+      const nodeB = userNodes[j];
+
+      if (!nodeA.noteId || !nodeB.noteId) continue;
+
+      const existing = await db.select().from(graphEdges).where(
+        and(
+          eq(graphEdges.userId, userId),
+          or(
+            and(eq(graphEdges.sourceId, nodeA.id), eq(graphEdges.targetId, nodeB.id)),
+            and(eq(graphEdges.sourceId, nodeB.id), eq(graphEdges.targetId, nodeA.id)),
+          )
+        )
+      ).limit(1);
+
+      if (existing.length > 0) continue;
+
+      let shouldConnect = false;
+
+      const tagsA = await db.select({ tagId: noteTags.tagId })
+        .from(noteTags).where(eq(noteTags.noteId, nodeA.noteId));
+      const tagsB = await db.select({ tagId: noteTags.tagId })
+        .from(noteTags).where(eq(noteTags.noteId, nodeB.noteId));
+
+      const sharedTags = tagsA.filter(t => tagsB.some(b => b.tagId === t.tagId));
+      if (sharedTags.length > 0) shouldConnect = true;
+
+      if (!shouldConnect) {
+        const [noteA] = await db.select({ content: notes.content })
+          .from(notes).where(eq(notes.id, nodeA.noteId)).limit(1);
+        const [noteB] = await db.select({ content: notes.content })
+          .from(notes).where(eq(notes.id, nodeB.noteId)).limit(1);
+
+        if (noteA?.content && noteB?.content) {
+          const keywords = ["react", "component", "typescript", "javascript", "server",
+            "database", "search", "api", "type", "session", "postgres",
+            "authentication", "routing", "caching", "embedding", "vector"];
+          const sharedKeywords = keywords.filter(kw =>
+            noteA.content.toLowerCase().includes(kw) && noteB.content.toLowerCase().includes(kw)
+          );
+          if (sharedKeywords.length >= 2) shouldConnect = true;
+        }
+      }
+
+      if (shouldConnect) {
+        await db.insert(graphEdges).values({
+          userId,
+          sourceId: nodeA.id,
+          targetId: nodeB.id,
+          type: sharedTags.length > 0 ? "tag" : "semantic",
+        });
+      }
+    }
+  }
 }

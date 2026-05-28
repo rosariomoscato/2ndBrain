@@ -138,6 +138,7 @@ export const graphEdges = pgTable("graph_edges", {
   userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
   sourceId: uuid("source_id").notNull().references(() => graphNodes.id, { onDelete: "cascade" }),
   targetId: uuid("target_id").notNull().references(() => graphNodes.id, { onDelete: "cascade" }),
+  type: text("type").default("tag").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => [
   index("graph_edges_user_id_idx").on(table.userId),

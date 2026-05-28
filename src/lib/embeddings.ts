@@ -1,12 +1,25 @@
-import { openai } from "@ai-sdk/openai";
-import { embed } from "ai";
 import { sql, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { noteEmbeddings } from "@/lib/schema";
-
+ 
 const CHUNK_SIZE = 1000;
 const CHUNK_OVERLAP = 200;
-const EMBEDDING_MODEL = process.env.OPENAI_EMBEDDING_MODEL ?? "text-embedding-3-large";
+const EMBEDDING_MODEL = "openai/text-embedding-3-small";
+const EMBEDDING_DIMENSION = 1536;
+
+/**
+ * Generates a simple hash for content comparison.
+ * Used to avoid regenerating embeddings for unchanged notes.
+ */
+function hashContent(content: string): string {
+  let hash = 0;
+  for (let i = 0; i < content.length; i++) {
+    const char = content.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash |= 0;
+  }
+  return Math.abs(hash).toString(36);
+}
 
 /**
  * Chunks text into smaller pieces for embedding generation.
@@ -26,26 +39,45 @@ function chunkText(text: string): string[] {
 }
 
 /**
- * Generates a simple hash for content comparison.
- * Used to avoid regenerating embeddings for unchanged notes.
+ * Calls OpenRouter's embeddings API to generate embeddings.
+ * Returns an array of numbers (embedding vector).
  */
-function hashContent(content: string): string {
-  let hash = 0;
-  for (let i = 0; i < content.length; i++) {
-    const char = content.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash |= 0;
+async function generateOpenRouterEmbeddings(texts: string[]): Promise<number[][]> {
+  const response = await fetch("https://openrouter.ai/api/v1/embeddings", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: EMBEDDING_MODEL,
+      input: texts,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`OpenRouter embeddings API failed: ${response.statusText}`);
   }
-  return Math.abs(hash).toString(36);
+
+  const data = await response.json();
+  
+  if (Array.isArray(data.data)) {
+    return data.data.map((item: any) =>
+      Array.isArray(item) ? item : item.embedding
+    );
+  }
+  
+  return [];
 }
 
 /**
  * Generates vector embeddings for a note and stores them in the database.
+ * Uses OpenRouter's free embedding model (nvidia/llama-nemotronembed-vl1b-v2:free).
  * This function is async and non-blocking — errors are caught and logged.
- * Silently skips if OPENAI_API_KEY is not set.
+ * Silently skips if OPENROUTER_API_KEY is not set.
  */
 export async function generateEmbeddings(noteId: string, content: string) {
-  if (!process.env.OPENAI_API_KEY) return;
+  if (!process.env.OPENROUTER_API_KEY) return;
 
   const contentHash = hashContent(content);
 
@@ -59,33 +91,27 @@ export async function generateEmbeddings(noteId: string, content: string) {
   await db.delete(noteEmbeddings).where(eq(noteEmbeddings.noteId, noteId));
 
   const chunks = chunkText(content);
-
-  for (let i = 0; i < chunks.length; i++) {
-    const embeddingResult = await embed({
-      model: openai.embedding(EMBEDDING_MODEL) as any,
-      value: chunks[i],
-    });
-
-    if (!embeddingResult.embedding) {
-      console.error(`Failed to generate embedding for chunk ${i} of note ${noteId}`);
-      continue;
+  
+  try {
+    const embeddings = await generateOpenRouterEmbeddings(chunks);
+    
+    for (let i = 0; i < embeddings.length; i++) {
+      const embeddingStr = `[${embeddings[i].join(",")}]`;
+      const hash = i === 0 ? contentHash : `${contentHash}_chunk_${i}`;
+      
+      await db.insert(noteEmbeddings).values({
+        noteId,
+        contentHash: hash,
+        chunkIndex: i,
+        chunkText: chunks[i],
+        embedding: embeddingStr,
+      } as any);
+      
+      const vecStr = embeddings[i].join(",");
+      await db.execute(sql`UPDATE note_embeddings SET embedding_vec = ${vecStr}::vector(${EMBEDDING_DIMENSION}) WHERE note_id = ${noteId} AND chunk_index = ${i}`);
     }
-
-    const embeddingStr = `[${embeddingResult.embedding.join(",")}]`;
-    const hash = i === 0 ? contentHash : `${contentHash}_chunk_${i}`;
-    const idx = i;
-    const txt = chunks[i];
-
-    await db.insert(noteEmbeddings).values({
-      noteId: noteId,
-      contentHash: hash,
-      chunkIndex: idx,
-      chunkText: txt,
-      embedding: embeddingStr,
-    } as any);
-
-    // Set the vector column via raw SQL since Drizzle doesn't support vector types natively
-    await db.execute(sql`UPDATE note_embeddings SET embedding_vec = ${embeddingStr}::vector WHERE note_id = ${noteId} AND chunk_index = ${i}`);
+  } catch (error) {
+    console.error(`Failed to generate embeddings for note ${noteId}:`, error);
   }
 }
 
@@ -121,16 +147,52 @@ export async function searchSimilarNotes(queryEmbedding: number[], limit: number
 }
 
 /**
- * Generates an embedding vector for a search query.
- * Returns null if OPENAI_API_KEY is not set.
+ * Generates an embedding vector for a search query using OpenRouter's free model.
+ * Returns null if OPENROUTER_API_KEY is not set.
  */
 export async function getQueryEmbedding(query: string) {
-  if (!process.env.OPENAI_API_KEY) return null;
-
-  const embeddingResult = await embed({
-    model: openai.embedding(EMBEDDING_MODEL) as any,
-    value: query,
+  if (!process.env.OPENROUTER_API_KEY) {
+    console.error("OPENROUTER_API_KEY not set");
+    return null;
+  }
+  
+  console.log("getQueryEmbedding called with model:", EMBEDDING_MODEL);
+  
+  const response = await fetch("https://openrouter.ai/api/v1/embeddings", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: EMBEDDING_MODEL,
+      input: query,
+    }),
   });
 
-  return embeddingResult.embedding;
+  if (!response.ok) {
+    console.error("OpenRouter embeddings API failed:", response.status, response.statusText);
+    const errorBody = await response.text();
+    console.error("Error body:", errorBody);
+    return null;
+  }
+
+  const data = await response.json();
+  console.log("OpenRouter response keys:", Object.keys(data));
+  console.log("data.data type:", typeof data.data, Array.isArray(data.data), "length:", data.data?.length);
+  
+  if (Array.isArray(data.data) && data.data.length > 0) {
+    const firstResult = data.data[0];
+    console.log("firstResult type:", typeof firstResult, Array.isArray(firstResult) ? `array len=${firstResult.length}` : `object keys=${Object.keys(firstResult).join(',')}`);
+    if (Array.isArray(firstResult)) {
+      return firstResult;
+    }
+    if (firstResult?.embedding && Array.isArray(firstResult.embedding)) {
+      console.log("Returning embedding array of length:", firstResult.embedding.length);
+      return firstResult.embedding;
+    }
+  }
+  
+  console.error("Could not parse embedding from response");
+  return null;
 }

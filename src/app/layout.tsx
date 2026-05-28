@@ -8,6 +8,8 @@ import { MainViewport } from "@/components/layout/main-viewport";
 import { StarfieldBg } from "@/components/shared/starfield-bg";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
 
 const displayFont = Orbitron({
   subsets: ["latin"],
@@ -51,11 +53,14 @@ const jsonLd = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  const isAuthenticated = !!session?.user;
+
   return (
     <html lang="it" suppressHydrationWarning className="dark">
       <head>
@@ -74,19 +79,25 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <StarfieldBg />
-          <div className="flex flex-col h-screen overflow-hidden bg-space-black relative z-10">
-            {/* Header */}
-            <CyberHeader />
+          {isAuthenticated ? (
+            <div className="flex flex-col h-screen overflow-hidden bg-space-black relative z-10">
+              {/* Header */}
+              <CyberHeader />
 
-            {/* Main Content */}
-            <div className="flex flex-1 overflow-hidden">
-              {/* Sidebar */}
-              <CyberSidebar />
+              {/* Main Content */}
+              <div className="flex flex-1 overflow-hidden">
+                {/* Sidebar */}
+                <CyberSidebar />
 
-              {/* Viewport */}
+                {/* Viewport */}
+                <MainViewport>{children}</MainViewport>
+              </div>
+            </div>
+          ) : (
+            <div className="min-h-screen bg-space-black flex items-center justify-center">
               <MainViewport>{children}</MainViewport>
             </div>
-          </div>
+          )}
           <Toaster richColors position="top-right" />
         </ThemeProvider>
       </body>

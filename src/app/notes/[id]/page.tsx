@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { MainViewport } from "@/components/layout/main-viewport";
@@ -9,12 +9,13 @@ import { LoadingOrb } from "@/components/ui/loading-orb";
 import { getNoteById, updateNote } from "@/lib/actions/notes";
 
 interface NotePageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default function NotePage({ params }: NotePageProps) {
+  const { id } = use(params);
   const router = useRouter();
   const [note, setNote] = useState<{ title: string; content: string; tags: string[] } | null>(null);
   const [loading, setLoading] = useState(true);
@@ -23,7 +24,7 @@ export default function NotePage({ params }: NotePageProps) {
   useEffect(() => {
     async function load() {
       try {
-        const data = await getNoteById(params.id);
+        const data = await getNoteById(id);
         if (!data) {
           router.push("/notes");
           return;
@@ -41,12 +42,12 @@ export default function NotePage({ params }: NotePageProps) {
       }
     }
     load();
-  }, [params.id, router]);
+  }, [id, router]);
 
   const onSave = async (updatedNote: { title: string; content: string; tags: string[] }) => {
     try {
       await updateNote({
-        id: params.id,
+        id: id,
         title: updatedNote.title,
         content: updatedNote.content,
         tags: updatedNote.tags,

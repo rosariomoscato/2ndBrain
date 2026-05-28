@@ -38,13 +38,13 @@ export function SignInButton() {
       const result = await signIn.email({
         email,
         password,
-        callbackURL: "/dashboard",
+        callbackURL: "/",
       })
 
       if (result.error) {
         setError(result.error.message || "Accesso non riuscito")
       } else {
-        router.push("/dashboard")
+        router.push("/")
         router.refresh()
       }
     } catch {
