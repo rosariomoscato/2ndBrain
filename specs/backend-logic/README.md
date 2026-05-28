@@ -91,4 +91,4 @@ graph TD
 - [x] [task-14-graph-ui](./tasks/task-14-graph-ui.md) — Graph canvas and tags manager wired to real data
 
 ### Wave 6
-- [ ] [task-15-polish](./tasks/task-15-polish.md) — Navigation, routing, error handling, and loading states
+- [x] [task-15-polish](./tasks/task-15-polish.md) — Navigation, routing, error handling, and loading states

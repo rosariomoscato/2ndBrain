@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { toast } from "sonner";
 import {
   Plus,
   Search,
@@ -13,8 +14,8 @@ import {
 } from "lucide-react";
 import { CyberButton as Button } from "@/components/ui/cyber-button";
 import { CyberInput } from "@/components/ui/cyber-input";
-import { NeonBadge } from "@/components/ui/neon-badge";
 import { LoadingOrb } from "@/components/ui/loading-orb";
+import { NeonBadge } from "@/components/ui/neon-badge";
 import { getTags, createTag, updateTag, deleteTag, bulkDeleteTags } from "@/lib/actions/tags";
 import type { Tag, TagColor, TagEditorModal } from "./tag-editor-modal";
 
@@ -82,6 +83,7 @@ export function TagManager({ TagEditorModalComponent }: TagManagerProps) {
         );
         
         await updateTag({ id: editingTag.id, ...tagData });
+        toast.success("Tag updated");
       } else {
         // Optimistically add new tag
         const newTag: Tag = {
@@ -94,6 +96,7 @@ export function TagManager({ TagEditorModalComponent }: TagManagerProps) {
         setTags([...tags, newTag]);
         
         await createTag(tagData);
+        toast.success("Tag created");
       }
       
       // Reload to get fresh data from server
@@ -101,6 +104,7 @@ export function TagManager({ TagEditorModalComponent }: TagManagerProps) {
       setIsModalOpen(false);
     } catch (error) {
       console.error("Failed to save tag:", error);
+      toast.error("Failed to save tag");
       // Reload to revert optimistic update
       await loadTags(sortBy);
     } finally {
@@ -113,8 +117,10 @@ export function TagManager({ TagEditorModalComponent }: TagManagerProps) {
       // Optimistically remove tag
       setTags(tags.filter((t) => t.id !== tagId));
       await deleteTag(tagId);
+      toast.success("Tag deleted");
     } catch (error) {
       console.error("Failed to delete tag:", error);
+      toast.error("Failed to delete tag");
       // Reload to revert optimistic update
       await loadTags(sortBy);
     }
@@ -128,8 +134,10 @@ export function TagManager({ TagEditorModalComponent }: TagManagerProps) {
       setSelectedTags(new Set());
       
       await bulkDeleteTags(tagIdsToDelete);
+      toast.success(`Deleted ${tagIdsToDelete.length} tag${tagIdsToDelete.length !== 1 ? 's' : ''}`);
     } catch (error) {
       console.error("Failed to bulk delete tags:", error);
+      toast.error("Failed to delete tags");
       // Reload to revert optimistic update
       await loadTags(sortBy);
     }

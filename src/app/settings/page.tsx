@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { toast } from "sonner";
 import { TagEditorModal } from "@/components/tags/tag-editor-modal";
 import { TagManager } from "@/components/tags/tag-manager";
 import { CyberButton as Button } from "@/components/ui/cyber-button";
@@ -115,8 +116,10 @@ function SettingsPanel() {
       setSaving(true);
       try {
         await updateSettings(updates);
+        toast.success("Settings saved");
       } catch (error) {
         console.error("Failed to save settings:", error);
+        toast.error("Failed to save settings");
         // Reload to revert optimistic update
         await loadSettings();
       } finally {
@@ -137,8 +140,10 @@ function SettingsPanel() {
     setSaving(true);
     try {
       await updateSettings({ theme: newSettings.theme });
+      toast.success(`Applied ${preset} theme`);
     } catch (error) {
       console.error("Failed to apply theme preset:", error);
+      toast.error("Failed to apply theme preset");
       await loadSettings();
     } finally {
       setSaving(false);

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   Home,
   FileText,
@@ -12,9 +13,9 @@ import {
   Clock,
   Plus,
 } from "lucide-react";
-import { getNoteCount, getNotes } from "@/lib/actions/notes";
-import { getNodeCount, getEdgeCount } from "@/lib/actions/graph";
 import { CyberButton } from "@/components/ui/cyber-button";
+import { getNodeCount, getEdgeCount } from "@/lib/actions/graph";
+import { getNoteCount, getNotes } from "@/lib/actions/notes";
 import { cn } from "@/lib/utils";
 
 interface NavItem {
@@ -37,8 +38,10 @@ interface RecentNote {
 }
 
 export function CyberSidebar() {
+  const pathname = usePathname();
+
   const navItems: NavItem[] = [
-    { icon: Home, label: "Dashboard", href: "/", active: true },
+    { icon: Home, label: "Dashboard", href: "/" },
     { icon: FileText, label: "Notes", href: "/notes" },
     { icon: Network, label: "Knowledge Graph", href: "/graph" },
     { icon: MessageSquare, label: "AI Query", href: "/ai" },
@@ -53,7 +56,6 @@ export function CyberSidebar() {
 
   const [recentNotes, setRecentNotes] = useState<RecentNote[]>([]);
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     async function load() {
       try {
@@ -88,20 +90,20 @@ export function CyberSidebar() {
       <nav className="flex-1 overflow-y-auto p-4 space-y-2">
         <div className="space-y-1">
           {navItems.map((item) => (
-            <a
+            <Link
               key={item.href}
               href={item.href}
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200",
                 "hover:bg-glass-highlight hover:-translate-x-1",
-                item.active
+                pathname === item.href
                   ? "bg-neon-cyan/10 border border-neon-cyan/30 text-neon-cyan glow-text"
                   : "text-text-secondary hover:text-text-primary"
               )}
             >
               <item.icon className="h-5 w-5" />
               <span className="font-medium">{item.label}</span>
-            </a>
+            </Link>
           ))}
         </div>
 
@@ -132,7 +134,7 @@ export function CyberSidebar() {
           <p className="micro-label mb-3">RECENT NOTES</p>
           <div className="space-y-2">
             {recentNotes.map((note) => (
-              <a
+              <Link
                 key={note.id}
                 href={`/notes/${note.id}`}
                 className="flex flex-col glass-panel rounded-lg p-3 hover-lift hover-glow-border cursor-pointer"
@@ -144,7 +146,7 @@ export function CyberSidebar() {
                   <Clock className="h-3 w-3" />
                   {note.time}
                 </div>
-              </a>
+              </Link>
             ))}
           </div>
         </div>

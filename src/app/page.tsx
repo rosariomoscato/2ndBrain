@@ -1,10 +1,12 @@
 "use client";
 
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Activity,
   Clock,
   FileText,
-  Link,
   Network,
   Plus,
   RefreshCw,
@@ -12,14 +14,13 @@ import {
   TrendingUp,
   Zap,
 } from "lucide-react";
-import { useState, useEffect } from "react";
 import { GraphCanvas } from "@/components/graph/graph-canvas";
 import { MainViewport } from "@/components/layout/main-viewport";
 import { CyberButton } from "@/components/ui/cyber-button";
 import { CyberCard, CardContent, CardHeader, CardTitle } from "@/components/ui/cyber-card";
 import { NeonBadge } from "@/components/ui/neon-badge";
-import { getNoteCount, getNotes } from "@/lib/actions/notes";
 import { getNodeCount, getEdgeCount } from "@/lib/actions/graph";
+import { getNoteCount, getNotes } from "@/lib/actions/notes";
 import type { RecentActivity } from "@/lib/types";
 
 interface StatItem {
@@ -31,6 +32,8 @@ interface StatItem {
 }
 
 export default function DashboardPage() {
+  const router = useRouter();
+
   const quickActions = [
     { icon: Plus, label: "New Note", href: "/notes/new", variant: "primary" as const },
     { icon: Search, label: "Search", href: "/notes", variant: "secondary" as const },
@@ -45,7 +48,7 @@ export default function DashboardPage() {
   const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
   const [systemStatus, setSystemStatus] = useState<"loading" | "online" | "offline">("loading");
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
+  // Load data on mount
   useEffect(() => {
     async function loadData() {
       try {
@@ -94,11 +97,19 @@ export default function DashboardPage() {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <CyberButton variant="secondary" size="sm">
+            <CyberButton
+              variant="secondary"
+              size="sm"
+              onClick={() => window.location.reload()}
+            >
               <RefreshCw className="h-4 w-4 mr-2" />
               Refresh
             </CyberButton>
-            <CyberButton variant="primary" size="sm">
+            <CyberButton
+              variant="primary"
+              size="sm"
+              onClick={() => router.push("/notes/new")}
+            >
               <Plus className="h-4 w-4 mr-2" />
               New Note
             </CyberButton>
@@ -157,17 +168,15 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent className="space-y-3">
                 {quickActions.map((action) => (
-                  <CyberButton
-                    key={action.label}
-                    variant={action.variant}
-                    className="w-full justify-start gap-3"
-                    asChild
-                  >
-                    <a href={action.href}>
+                  <Link key={action.label} href={action.href} className="block">
+                    <CyberButton
+                      variant={action.variant}
+                      className="w-full justify-start gap-3"
+                    >
                       <action.icon className="h-4 w-4 flex-shrink-0" />
                       <span>{action.label}</span>
-                    </a>
-                  </CyberButton>
+                    </CyberButton>
+                  </Link>
                 ))}
               </CardContent>
             </CyberCard>
@@ -180,31 +189,34 @@ export default function DashboardPage() {
               <CardContent>
                 <div className="space-y-3">
                   {recentActivity.map((activity) => (
-                    <div
+                    <Link
                       key={activity.id}
-                      className="glass-panel rounded-lg p-3 hover-lift cursor-pointer"
+                      href={`/notes/${activity.id}`}
+                      className="block"
                     >
-                      <div className="flex items-start gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-glass-surface border border-glass-border flex items-center justify-center flex-shrink-0">
-                          {activity.type === "create" && <Plus className="h-4 w-4 text-neon-green" />}
-                          {activity.type === "connect" && <Link className="h-4 w-4 text-neon-cyan" />}
-                          {activity.type === "query" && <Zap className="h-4 w-4 text-neon-purple" />}
-                          {activity.type === "update" && <RefreshCw className="h-4 w-4 text-neon-blue" />}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-sm font-medium text-text-primary">
-                            {activity.action}
+                      <div className="glass-panel rounded-lg p-3 hover-lift cursor-pointer">
+                        <div className="flex items-start gap-3">
+                          <div className="w-8 h-8 rounded-lg bg-glass-surface border border-glass-border flex items-center justify-center flex-shrink-0">
+                            {activity.type === "create" && <Plus className="h-4 w-4 text-neon-green" />}
+                            {activity.type === "connect" && <RefreshCw className="h-4 w-4 text-neon-cyan" />}
+                            {activity.type === "query" && <Zap className="h-4 w-4 text-neon-purple" />}
+                            {activity.type === "update" && <RefreshCw className="h-4 w-4 text-neon-blue" />}
                           </div>
-                          <div className="text-xs text-neon-cyan mt-0.5 line-clamp-1">
-                            {activity.target}
-                          </div>
-                          <div className="text-xs text-text-dim mt-1 flex items-center gap-1">
-                            <Clock className="h-3 w-3" />
-                            {activity.time}
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm font-medium text-text-primary">
+                              {activity.action}
+                            </div>
+                            <div className="text-xs text-neon-cyan mt-0.5 line-clamp-1">
+                              {activity.target}
+                            </div>
+                            <div className="text-xs text-text-dim mt-1 flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              {activity.time}
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               </CardContent>
