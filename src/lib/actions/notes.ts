@@ -1,48 +1,12 @@
-# Task 04: Notes Server Actions
-
-## Status
-
-complete
-
-## Wave
-
-2
-
-## Description
-
-Implement all server actions for notes CRUD: create, read, update, delete, and list with search/filter capabilities. These server actions replace the mock note arrays in the UI (5 hardcoded notes in notes/page.tsx, 1 mock note in notes/[id]/page.tsx) and the console.log placeholder handlers. All actions must validate input with Zod, enforce user ownership via Better Auth session, and return data matching the `Note` type from `src/lib/types.ts`.
-
-## Dependencies
-
-**Depends on:** task-01-schema.md, task-02-types.md
-**Blocks:** task-07-embeddings.md, task-09-graph.md, task-11-dashboard.md, task-12-notes-ui.md
-
-**Context from dependencies:** task-01 creates the `notes`, `tags`, `note_tags` tables in PostgreSQL. task-02 creates the `Note` type, `NoteTag` type, and Zod schemas (`createNoteSchema`, `updateNoteSchema`, `deleteNoteSchema`) in `src/lib/types.ts` and `src/lib/validations.ts`. The Drizzle client is at `src/lib/db.ts` exporting `db`. Auth session is obtained via `src/lib/auth.ts` exporting `auth` with `auth.api.getSession()`.
-
-## Files to Create
-
-- `src/lib/actions/notes.ts` — All note server actions
-
-## Files to Modify
-
-None
-
-## Technical Details
-
-### Implementation Steps
-
-1. Create `src/lib/actions/notes.ts` with these server actions:
-
-```typescript
 "use server";
 
+import { headers } from "next/headers";
 import { eq, and, desc, sql, or, ilike } from "drizzle-orm";
+import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { notes, noteTags, tags } from "@/lib/schema";
-import { auth } from "@/lib/auth";
-import { createNoteSchema, updateNoteSchema, deleteNoteSchema } from "@/lib/validations";
 import type { Note, NoteTag } from "@/lib/types";
-import { headers } from "next/headers";
+import { createNoteSchema, updateNoteSchema, deleteNoteSchema } from "@/lib/validations";
 
 async function getSession() {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -54,10 +18,7 @@ function generateExcerpt(content: string): string {
   const plain = content.replace(/[#*`>\-\[\]()!]/g, "").trim();
   return plain.slice(0, 200) + (plain.length > 200 ? "..." : "");
 }
-```
 
-2. **getNotes action:**
-```typescript
 export async function getNotes(options?: {
   search?: string;
   tag?: string;
@@ -68,15 +29,6 @@ export async function getNotes(options?: {
   const userId = session.user.id;
   const limit = options?.limit ?? 50;
   const offset = options?.offset ?? 0;
-
-  let query = db.select({
-    id: notes.id,
-    title: notes.title,
-    content: notes.content,
-    excerpt: notes.excerpt,
-    importance: notes.importance,
-    updatedAt: notes.updatedAt,
-  }).from(notes).where(eq(notes.userId, userId));
 
   const result = await db.select({
     id: notes.id,
@@ -139,17 +91,14 @@ export async function getNotes(options?: {
     importance: n.importance,
   })) satisfies Note[];
 }
-```
 
-3. **getNoteById action:**
-```typescript
 export async function getNoteById(id: string) {
   const session = await getSession();
   const result = await db.select().from(notes).where(
     and(eq(notes.id, id), eq(notes.userId, session.user.id))
   ).limit(1);
   
-  if (result.length === 0) return null;
+  if (result.length === 0 || !result[0]) return null;
   const note = result[0];
   
   const tagRows = await db.select({
@@ -168,13 +117,10 @@ export async function getNoteById(id: string) {
     tags: tagRows.map(t => ({ id: t.id, name: t.name, color: t.color as NoteTag["color"] })),
     updatedAt: note.updatedAt.toISOString(),
     connections: 0,
-    importance: note.importance,
+    importance: note.importance ?? 3,
   } satisfies Note;
 }
-```
 
-4. **createNote action:**
-```typescript
 export async function createNote(input: {
   title: string;
   content: string;
@@ -183,15 +129,19 @@ export async function createNote(input: {
 }) {
   const session = await getSession();
   const validated = createNoteSchema.parse(input);
-  const excerpt = generateExcerpt(validated.content);
+  const excerpt = generateExcerpt(validated.content ?? "");
 
   const [note] = await db.insert(notes).values({
     userId: session.user.id,
     title: validated.title,
-    content: validated.content,
+    content: validated.content ?? "",
     excerpt,
     importance: validated.importance ?? 3,
   }).returning();
+
+  if (!note) {
+    throw new Error("Failed to create note");
+  }
 
   if (validated.tags && validated.tags.length > 0) {
     for (const tagName of validated.tags) {
@@ -200,7 +150,7 @@ export async function createNote(input: {
       ).limit(1);
       
       let tagId: string;
-      if (existingTag.length > 0) {
+      if (existingTag.length > 0 && existingTag[0]) {
         tagId = existingTag[0].id;
       } else {
         const [newTag] = await db.insert(tags).values({
@@ -208,6 +158,11 @@ export async function createNote(input: {
           name: tagName,
           color: "cyan",
         }).returning();
+        
+        if (!newTag) {
+          throw new Error("Failed to create tag");
+        }
+        
         tagId = newTag.id;
       }
       
@@ -217,10 +172,7 @@ export async function createNote(input: {
 
   return getNoteById(note.id);
 }
-```
 
-5. **updateNote action:**
-```typescript
 export async function updateNote(input: {
   id: string;
   title?: string;
@@ -253,7 +205,7 @@ export async function updateNote(input: {
       ).limit(1);
       
       let tagId: string;
-      if (existingTag.length > 0) {
+      if (existingTag.length > 0 && existingTag[0]) {
         tagId = existingTag[0].id;
       } else {
         const [newTag] = await db.insert(tags).values({
@@ -261,6 +213,11 @@ export async function updateNote(input: {
           name: tagName,
           color: "cyan",
         }).returning();
+        
+        if (!newTag) {
+          throw new Error("Failed to create tag");
+        }
+        
         tagId = newTag.id;
       }
       await db.insert(noteTags).values({ noteId: validated.id, tagId });
@@ -269,10 +226,7 @@ export async function updateNote(input: {
 
   return getNoteById(validated.id);
 }
-```
 
-6. **deleteNote action:**
-```typescript
 export async function deleteNote(id: string) {
   const session = await getSession();
   const validated = deleteNoteSchema.parse({ id });
@@ -282,36 +236,10 @@ export async function deleteNote(id: string) {
   );
   return { success: true };
 }
-```
 
-7. **getNoteCount action (for dashboard stats):**
-```typescript
 export async function getNoteCount() {
   const session = await getSession();
   const result = await db.select({ count: sql<number>`count(*)` })
     .from(notes).where(eq(notes.userId, session.user.id));
-  return result[0].count;
+  return result[0]?.count ?? 0;
 }
-```
-
-### Important Notes
-
-- ALL server actions must call `getSession()` first to verify authentication
-- ALL mutations must validate input with Zod schemas before database operations
-- The `createNote` and `updateNote` actions auto-create tags if they don't exist (matching UI behavior where tags are typed as strings)
-- `generateExcerpt` strips markdown syntax and takes first 200 chars
-- `connections` field is hardcoded to 0 for now — will be populated by graph data layer (task-09)
-- Use `"use server";` at top of file — this is required for Next.js Server Actions
-- The `sql` import from drizzle-orm is needed for raw SQL expressions like `count(*)`
-
-## Acceptance Criteria
-
-- [ ] All 6 server actions compile without errors
-- [ ] `getNotes()` returns notes matching the `Note` type with tags included
-- [ ] `getNoteById()` returns null for non-existent or non-owned notes
-- [ ] `createNote()` creates note with auto-generated excerpt and auto-creates tags
-- [ ] `updateNote()` updates fields and syncs tags (add/remove)
-- [ ] `deleteNote()` removes note and cascades to note_tags
-- [ ] `getNoteCount()` returns integer count
-- [ ] All actions enforce user ownership (cannot access other users' notes)
-- [ ] All mutations validate input with Zod schemas

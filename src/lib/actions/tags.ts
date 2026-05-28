@@ -1,58 +1,23 @@
-# Task 05: Tags Server Actions
-
-## Status
-
-complete
-
-## Wave
-
-2
-
-## Description
-
-Implement server actions for tags CRUD and usage count computation. The tag manager UI (tag-manager.tsx) currently uses 5 hardcoded tags with local state. These server actions provide create, read, update, delete, and bulk delete operations, with computed usageCount derived from the note_tags junction table.
-
-## Dependencies
-
-**Depends on:** task-01-schema.md, task-02-types.md
-**Blocks:** task-14-graph-ui.md
-
-**Context from dependencies:** task-01 creates the `tags` and `note_tags` tables. task-02 creates the `Tag` type (`{ id, name, color: TagColor, usageCount, createdAt }`) and Zod schemas (`createTagSchema`, `updateTagSchema`, `deleteTagSchema`). TagColor is `"purple" | "cyan" | "blue" | "pink" | "green" | "orange"`.
-
-## Files to Create
-
-- `src/lib/actions/tags.ts` — All tag server actions
-
-## Files to Modify
-
-None
-
-## Technical Details
-
-### Implementation Steps
-
-1. Create `src/lib/actions/tags.ts`:
-
-```typescript
 "use server";
 
-import { eq, and, desc, sql } from "drizzle-orm";
-import { db } from "@/lib/db";
-import { tags, noteTags } from "@/lib/schema";
-import { auth } from "@/lib/auth";
-import { createTagSchema, updateTagSchema, deleteTagSchema } from "@/lib/validations";
-import type { Tag } from "@/lib/types";
 import { headers } from "next/headers";
+import { eq, and, sql } from "drizzle-orm";
+import { auth } from "@/lib/auth";
+import { db } from "@/lib/db";
+import { tags } from "@/lib/schema";
+import type { Tag } from "@/lib/types";
+import { createTagSchema, updateTagSchema, deleteTagSchema } from "@/lib/validations";
 
 async function getSession() {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user) throw new Error("Unauthorized");
   return session;
 }
-```
 
-2. **getTags action:**
-```typescript
+/**
+ * Fetch all tags for the authenticated user with computed usage counts.
+ * Supports optional sorting by name, usage count, or creation date.
+ */
 export async function getTags(options?: { sortBy?: "name" | "usage" | "date" }) {
   const session = await getSession();
   const sortBy = options?.sortBy ?? "name";
@@ -84,10 +49,11 @@ export async function getTags(options?: { sortBy?: "name" | "usage" | "date" }) 
       return tagList.sort((a, b) => a.name.localeCompare(b.name));
   }
 }
-```
 
-3. **createTag action:**
-```typescript
+/**
+ * Create a new tag for the authenticated user.
+ * Enforces unique tag names per user.
+ */
 export async function createTag(input: { name: string; color: string }) {
   const session = await getSession();
   const validated = createTagSchema.parse(input);
@@ -106,12 +72,17 @@ export async function createTag(input: { name: string; color: string }) {
     color: validated.color,
   }).returning();
 
-  return { id: tag.id, name: tag.name, color: tag.color, usageCount: 0, createdAt: new Date(tag.createdAt) } satisfies Tag;
-}
-```
+  if (!tag) {
+    throw new Error("Failed to create tag");
+  }
 
-4. **updateTag action:**
-```typescript
+  return { id: tag.id, name: tag.name, color: tag.color as Tag["color"], usageCount: 0, createdAt: new Date(tag.createdAt) } satisfies Tag;
+}
+
+/**
+ * Update an existing tag for the authenticated user.
+ * Only updates provided fields (name and/or color).
+ */
 export async function updateTag(input: { id: string; name?: string; color?: string }) {
   const session = await getSession();
   const validated = updateTagSchema.parse(input);
@@ -125,15 +96,31 @@ export async function updateTag(input: { id: string; name?: string; color?: stri
   );
 
   const result = await db.select({
+    id: tags.id,
+    name: tags.name,
+    color: tags.color,
+    createdAt: tags.createdAt,
     usageCount: sql<number>`(SELECT COUNT(*) FROM note_tags WHERE note_tags.tag_id = ${tags.id})`,
   }).from(tags).where(eq(tags.id, validated.id)).limit(1);
 
-  return { id: validated.id, ...updates, usageCount: Number(result[0]?.usageCount ?? 0) };
-}
-```
+  const tag = result[0];
+  if (!tag) {
+    throw new Error("Tag not found");
+  }
 
-5. **deleteTag action:**
-```typescript
+  return {
+    id: validated.id,
+    name: tag.name,
+    color: tag.color as Tag["color"],
+    createdAt: new Date(tag.createdAt),
+    usageCount: Number(tag.usageCount),
+  } satisfies Tag;
+}
+
+/**
+ * Delete a tag for the authenticated user.
+ * Cascades to remove note_tags associations via database foreign key constraint.
+ */
 export async function deleteTag(id: string) {
   const session = await getSession();
   const validated = deleteTagSchema.parse({ id });
@@ -143,10 +130,11 @@ export async function deleteTag(id: string) {
   );
   return { success: true };
 }
-```
 
-6. **bulkDeleteTags action:**
-```typescript
+/**
+ * Delete multiple tags for the authenticated user in a single operation.
+ * Cascades to remove note_tags associations via database foreign key constraints.
+ */
 export async function bulkDeleteTags(ids: string[]) {
   const session = await getSession();
   
@@ -157,15 +145,3 @@ export async function bulkDeleteTags(ids: string[]) {
   }
   return { success: true, deletedCount: ids.length };
 }
-```
-
-## Acceptance Criteria
-
-- [ ] All 5 server actions compile without errors
-- [ ] `getTags()` returns tags with computed usageCount from junction table
-- [ ] `getTags({ sortBy: "usage" })` sorts by usage count descending
-- [ ] `createTag()` prevents duplicate names per user
-- [ ] `updateTag()` only updates provided fields
-- [ ] `deleteTag()` cascades to remove note_tags associations
-- [ ] `bulkDeleteTags()` removes multiple tags
-- [ ] All actions enforce user ownership

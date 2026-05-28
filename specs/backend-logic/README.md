@@ -72,9 +72,9 @@ graph TD
 - [x] [task-03-email](./tasks/task-03-email.md) — Resend email integration for auth flows
 
 ### Wave 2
-- [ ] [task-04-notes](./tasks/task-04-notes.md) — Notes CRUD server actions with search and filters
-- [ ] [task-05-tags](./tasks/task-05-tags.md) — Tags CRUD server actions with usage counts
-- [ ] [task-06-settings](./tasks/task-06-settings.md) — User settings CRUD server actions
+- [x] [task-04-notes](./tasks/task-04-notes.md) — Notes CRUD server actions with search and filters
+- [x] [task-05-tags](./tasks/task-05-tags.md) — Tags CRUD server actions with usage counts
+- [x] [task-06-settings](./tasks/task-06-settings.md) — User settings CRUD server actions
 
 ### Wave 3
 - [ ] [task-07-embeddings](./tasks/task-07-embeddings.md) — Embedding generation pipeline with pgvector
