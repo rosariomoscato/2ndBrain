@@ -45,7 +45,7 @@ export function useDiagnostics() {
     }
   }, []);
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
+   
   useEffect(() => {
     fetchDiagnostics();  
   }, [fetchDiagnostics]);

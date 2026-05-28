@@ -33,7 +33,7 @@ export function NoteEditor({
 
   // Track unsaved changes
   
-  // eslint-disable-next-line react-hooks/set-state-in-effect
+   
   useEffect(() => {
     const hasChanges =
       title !== initialTitle ||

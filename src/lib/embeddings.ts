@@ -1,8 +1,8 @@
 import { openai } from "@ai-sdk/openai";
 import { embed } from "ai";
+import { sql, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { noteEmbeddings } from "@/lib/schema";
-import { sql, eq } from "drizzle-orm";
 
 const CHUNK_SIZE = 1000;
 const CHUNK_OVERLAP = 200;

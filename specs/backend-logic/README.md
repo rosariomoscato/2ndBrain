@@ -81,8 +81,8 @@ graph TD
 - [x] [task-09-graph](./tasks/task-09-graph.md) — Graph nodes and edges data layer
 
 ### Wave 4
-- [ ] [task-08-rag](./tasks/task-08-rag.md) — AI query with RAG (semantic search + citations)
-- [ ] [task-10-graphify](./tasks/task-10-graphify.md) — Graphify auto-extraction and graph sync
+- [x] [task-08-rag](./tasks/task-08-rag.md) — AI query with RAG (semantic search + citations)
+- [x] [task-10-graphify](./tasks/task-10-graphify.md) — Graphify auto-extraction and graph sync
 
 ### Wave 5
 - [ ] [task-11-dashboard](./tasks/task-11-dashboard.md) — Dashboard with real stats and activity

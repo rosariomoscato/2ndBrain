@@ -4,10 +4,10 @@ import { headers } from "next/headers";
 import { eq, and, desc, sql, or, ilike } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { generateEmbeddings } from "@/lib/embeddings";
 import { notes, noteTags, tags, graphNodes } from "@/lib/schema";
 import type { Note, NoteTag } from "@/lib/types";
 import { createNoteSchema, updateNoteSchema, deleteNoteSchema } from "@/lib/validations";
-import { generateEmbeddings } from "@/lib/embeddings";
 import { createNodeForNote } from "./graph";
 
 async function getSession() {

@@ -1,12 +1,12 @@
 "use server";
 
+import { headers } from "next/headers";
 import { eq } from "drizzle-orm";
+import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { userSettings } from "@/lib/schema";
-import { auth } from "@/lib/auth";
-import { updateSettingsSchema } from "@/lib/validations";
 import type { UserThemeSettings, UserSystemSettings, UserAISettings } from "@/lib/types";
-import { headers } from "next/headers";
+import { updateSettingsSchema } from "@/lib/validations";
 
 /**
  * Default theme settings for new users.
