@@ -19,6 +19,8 @@ const messageSchema = z.object({
 
 const chatRequestSchema = z.object({
   messages: z.array(messageSchema).max(100, "Too many messages"),
+  context: z.string().optional(),
+  noteTitle: z.string().optional(),
 });
 
 export async function POST(req: Request) {
@@ -56,7 +58,11 @@ export async function POST(req: Request) {
     );
   }
 
-  const { messages }: { messages: UIMessage[] } = parsed.data as { messages: UIMessage[] };
+  const { messages, context, noteTitle } = parsed.data as {
+    messages: UIMessage[];
+    context?: string;
+    noteTitle?: string;
+  };
 
   // Initialize OpenRouter with API key from environment
   const apiKey = process.env.OPENROUTER_API_KEY;
@@ -67,10 +73,16 @@ export async function POST(req: Request) {
     });
   }
 
+  // Construct system prompt with context if available
+  const systemPrompt = context
+    ? `You are an AI assistant helping the user work with their note "${noteTitle || "this note"}". Here is the note content:\n\n${context}\n\nAnswer questions about this note, suggest improvements, help with research, and provide insights.`
+    : "You are a helpful AI assistant for 2ndBrain, a personal knowledge management system.";
+
   const openrouter = createOpenRouter({ apiKey });
 
   const result = streamText({
-    model: openrouter(process.env.OPENROUTER_MODEL || "openai/gpt-5-mini"),
+    model: openrouter(process.env.OPENROUTER_MODEL || "openai/gpt-5-mini") as any,
+    system: systemPrompt,
     messages: convertToModelMessages(messages),
   });
 

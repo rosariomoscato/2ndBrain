@@ -1,3 +1,7 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import Link from "next/link";
 import {
   Home,
   FileText,
@@ -8,6 +12,8 @@ import {
   Clock,
   Plus,
 } from "lucide-react";
+import { getNoteCount, getNotes } from "@/lib/actions/notes";
+import { getNodeCount, getEdgeCount } from "@/lib/actions/graph";
 import { CyberButton } from "@/components/ui/cyber-button";
 import { cn } from "@/lib/utils";
 
@@ -16,6 +22,18 @@ interface NavItem {
   label: string;
   href: string;
   active?: boolean;
+}
+
+interface QuickStat {
+  label: string;
+  value: string;
+  trend: string;
+}
+
+interface RecentNote {
+  id: string;
+  title: string;
+  time: string;
 }
 
 export function CyberSidebar() {
@@ -27,17 +45,42 @@ export function CyberSidebar() {
     { icon: Settings, label: "Settings", href: "/settings" },
   ];
 
-  const quickStats = [
-    { label: "Notes", value: "123", trend: "+5" },
-    { label: "Nodes", value: "456", trend: "+12" },
-    { label: "Connections", value: "789", trend: "+8" },
-  ];
+  const [quickStats, setQuickStats] = useState<QuickStat[]>([
+    { label: "Notes", value: "...", trend: "-" },
+    { label: "Nodes", value: "...", trend: "-" },
+    { label: "Connections", value: "...", trend: "-" },
+  ]);
 
-  const recentNotes = [
-    { id: 1, title: "Project Alpha Research", time: "2h ago" },
-    { id: 2, title: "Meeting Notes - Q4 Planning", time: "5h ago" },
-    { id: 3, title: "AI Architecture Doc", time: "1d ago" },
-  ];
+  const [recentNotes, setRecentNotes] = useState<RecentNote[]>([]);
+
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => {
+    async function load() {
+      try {
+        const [noteCount, nodeCount, edgeCount, recent] = await Promise.all([
+          getNoteCount(),
+          getNodeCount(),
+          getEdgeCount(),
+          getNotes({ limit: 3 }),
+        ]);
+
+        setQuickStats([
+          { label: "Notes", value: String(noteCount), trend: String(noteCount) },
+          { label: "Nodes", value: String(nodeCount), trend: String(nodeCount) },
+          { label: "Connections", value: String(edgeCount), trend: String(edgeCount) },
+        ]);
+
+        setRecentNotes(recent.map(note => ({
+          id: note.id,
+          title: note.title,
+          time: note.updatedAt,
+        })));
+      } catch (error) {
+        console.error("Failed to load sidebar data:", error);
+      }
+    }
+    load();
+  }, []);
 
   return (
     <aside className="glass-panel border-r border-neon-purple/30 w-72 flex flex-col h-[calc(100vh-4rem)] sticky top-16">
@@ -109,10 +152,12 @@ export function CyberSidebar() {
 
       {/* Quick Actions */}
       <div className="p-4 border-t border-glass-border">
-        <CyberButton variant="primary" className="w-full gap-2">
-          <Plus className="h-4 w-4" />
-          New Note
-        </CyberButton>
+        <Link href="/notes/new" className="block">
+          <CyberButton variant="primary" className="w-full gap-2">
+            <Plus className="h-4 w-4" />
+            New Note
+          </CyberButton>
+        </Link>
       </div>
     </aside>
   );

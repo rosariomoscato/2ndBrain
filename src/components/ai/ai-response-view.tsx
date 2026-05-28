@@ -19,9 +19,10 @@ export interface AIResponse {
 interface AIResponseViewProps {
   response: AIResponse | null;
   isLoading: boolean;
+  onExampleQuery?: (query: string) => void;
 }
 
-export function AIResponseView({ response, isLoading }: AIResponseViewProps) {
+export function AIResponseView({ response, isLoading, onExampleQuery }: AIResponseViewProps) {
   // Loading State: Animated 3-ring orb
   if (isLoading) {
     return (
@@ -54,7 +55,7 @@ export function AIResponseView({ response, isLoading }: AIResponseViewProps) {
         <div className="grid grid-cols-1 gap-3 w-full max-w-md">
           <button
             className="glass-panel rounded-lg p-4 text-left hover:-translate-y-0.5 hover-glow-border transition-all duration-200 cursor-pointer"
-            onClick={() => {/* Handle example query */}}
+            onClick={() => onExampleQuery?.("What are my key insights on productivity?")}
           >
             <p className="text-sm text-text-primary">
               What are my key insights on productivity?
@@ -62,7 +63,7 @@ export function AIResponseView({ response, isLoading }: AIResponseViewProps) {
           </button>
           <button
             className="glass-panel rounded-lg p-4 text-left hover:-translate-y-0.5 hover-glow-border transition-all duration-200 cursor-pointer"
-            onClick={() => {/* Handle example query */}}
+            onClick={() => onExampleQuery?.("Show me notes related to learning habits")}
           >
             <p className="text-sm text-text-primary">
               Show me notes related to learning habits
@@ -70,7 +71,7 @@ export function AIResponseView({ response, isLoading }: AIResponseViewProps) {
           </button>
           <button
             className="glass-panel rounded-lg p-4 text-left hover:-translate-y-0.5 hover-glow-border transition-all duration-200 cursor-pointer"
-            onClick={() => {/* Handle example query */}}
+            onClick={() => onExampleQuery?.("What connections exist between my recent notes?")}
           >
             <p className="text-sm text-text-primary">
               What connections exist between my recent notes?

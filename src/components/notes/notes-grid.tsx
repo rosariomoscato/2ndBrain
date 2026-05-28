@@ -1,14 +1,5 @@
+import type { Note } from "@/lib/types";
 import { NoteCard } from "./note-card";
-
-interface Note {
-  id: string;
-  title: string;
-  excerpt: string;
-  tags: string[];
-  updatedAt: string;
-  connections: number;
-  importance: number;
-}
 
 interface NotesGridProps {
   notes: Note[];

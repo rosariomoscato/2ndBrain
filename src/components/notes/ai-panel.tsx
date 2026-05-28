@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { useChat } from "@ai-sdk/react";
 import {
   Send,
   Sparkles,
@@ -16,12 +17,15 @@ import { CyberButton } from "@/components/ui/cyber-button";
 import { CyberInput } from "@/components/ui/cyber-input";
 import { LoadingOrb } from "@/components/ui/loading-orb";
 
-interface Message {
+type TextPart = { type?: string; text?: string };
+type MaybePartsMessage = {
   id: string;
-  role: "user" | "assistant";
-  content: string;
-  timestamp: string;
-}
+  role: "user" | "assistant" | "system";
+  display?: React.ReactNode;
+  parts?: TextPart[];
+  content?: TextPart[];
+  createdAt?: Date;
+};
 
 interface NoteContext {
   title?: string;
@@ -38,11 +42,14 @@ export function AIChatPanel({
   noteContext,
   onSuggestionClick,
 }: AIChatPanelProps) {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Use the real AI SDK chat hook
+  const { messages, sendMessage, status, setMessages } = useChat();
+
+  const [input, setInput] = useState("");
+  const isLoading = status === "streaming" || status === "submitted";
 
   // Auto-scroll to bottom on new message
   useEffect(() => {
@@ -57,46 +64,41 @@ export function AIChatPanel({
   };
 
   // Handle send message
-  const handleSend = () => {
-    if (!input.trim() || isLoading) return;
+  const handleSend = (e: React.FormEvent | void) => {
+    if (e) e.preventDefault();
+    const text = input.trim();
+    if (!text || isLoading) return;
 
-    const userMessage: Message = {
-      id: crypto.randomUUID(),
-      role: "user",
-      content: input.trim(),
-      timestamp: new Date().toLocaleTimeString(),
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
-    setInput("");
-    setIsLoading(true);
-
-    // Simulate AI response
-    setTimeout(() => {
-      const assistantMessage: Message = {
-        id: crypto.randomUUID(),
-        role: "assistant",
-        content: `I'm analyzing your note and here are my thoughts:
-
-## Key Points
-
-1. **Understanding**: Your note focuses on "${noteContext?.title || "this topic"}"
-2. **Connection**: This relates to several concepts in your knowledge graph
-3. **Suggestion**: Consider adding more details to strengthen the argument
-
-## Recommendations
-
-- Add examples to illustrate your points
-- Create connections to related notes
-- Consider using tags for better organization
-
-Would you like me to elaborate on any of these points?`,
-        timestamp: new Date().toLocaleTimeString(),
+    // Add system context message if note context exists and no system message is present
+    if (noteContext?.content && !messages.some((m) => m.role === "system")) {
+      const systemMessage = {
+        id: `system-${Date.now()}`,
+        role: "system" as const,
+        parts: [
+          {
+            type: "text" as const,
+            text: `You are an AI assistant helping the user work with their note "${noteContext.title || "Untitled"}". Here is the note content:\n\n${noteContext.content}\n\nAnswer questions about this note, suggest improvements, help with research, and provide insights.`,
+          },
+        ],
       };
+      setMessages([systemMessage, ...messages]);
+    }
 
-      setMessages((prev) => [...prev, assistantMessage]);
-      setIsLoading(false);
-    }, 1500);
+    sendMessage({ role: "user", parts: [{ type: "text", text }] });
+    setInput("");
+  };
+
+  // Helper to extract text from message parts
+  const getMessageText = (message: MaybePartsMessage): string => {
+    const parts = Array.isArray(message.parts)
+      ? message.parts
+      : Array.isArray(message.content)
+      ? message.content
+      : [];
+    return parts
+      .filter((p) => p?.type === "text" && p.text)
+      .map((p) => p.text || "")
+      .join("\n");
   };
 
   // Handle key press
@@ -116,6 +118,11 @@ Would you like me to elaborate on any of these points?`,
   // Clear chat
   const handleClearChat = () => {
     setMessages([]);
+  };
+
+  // Format timestamp - messages don't have createdAt, so we use current time
+  const formatTimestamp = (): string => {
+    return new Date().toLocaleTimeString();
   };
 
   // Get suggestions based on note context
@@ -205,61 +212,64 @@ Would you like me to elaborate on any of these points?`,
         ) : (
           /* Messages */
           <>
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex gap-3 ${
-                  message.role === "user" ? "flex-row-reverse" : "flex-row"
-                }`}
-              >
-                {/* Avatar */}
+            {messages.map((message) => {
+              const messageText = getMessageText(message as MaybePartsMessage);
+              return (
                 <div
-                  className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                    message.role === "user"
-                      ? "bg-neon-cyan text-space-black"
-                      : "bg-neon-purple text-text-primary"
+                  key={message.id}
+                  className={`flex gap-3 ${
+                    message.role === "user" ? "flex-row-reverse" : "flex-row"
                   }`}
                 >
-                  {message.role === "user" ? (
-                    <User className="h-4 w-4" />
-                  ) : (
-                    <Bot className="h-4 w-4" />
-                  )}
-                </div>
-
-                {/* Message Bubble */}
-                <div
-                  className={`glass-panel rounded-xl p-3 max-w-[70%] relative group ${
-                    message.role === "user"
-                      ? "bg-neon-cyan/10 border-neon-cyan/30"
-                      : "bg-glass-surface border-glass-border"
-                  }`}
-                >
-                  {/* Copy Button */}
-                  <button
-                    onClick={() => handleCopy(message.id, message.content)}
-                    className="absolute top-2 right-2 h-6 w-6 rounded-lg bg-glass-surface border border-glass-border opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-glass-highlight"
+                  {/* Avatar */}
+                  <div
+                    className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                      message.role === "user"
+                        ? "bg-neon-cyan text-space-black"
+                        : "bg-neon-purple text-text-primary"
+                    }`}
                   >
-                    {copiedMessageId === message.id ? (
-                      <Check className="h-3 w-3 text-neon-green" />
+                    {message.role === "user" ? (
+                      <User className="h-4 w-4" />
                     ) : (
-                      <Copy className="h-3 w-3 text-text-dim" />
+                      <Bot className="h-4 w-4" />
                     )}
-                  </button>
-
-                  {/* Message Content */}
-                  <div className="prose prose-invert prose-neon max-w-none text-sm mb-2">
-                    <ReactMarkdown>{message.content}</ReactMarkdown>
                   </div>
 
-                  {/* Timestamp */}
-                  <div className="flex items-center gap-1 text-[10px] text-text-dim">
-                    <Clock className="h-3 w-3" />
-                    {message.timestamp}
+                  {/* Message Bubble */}
+                  <div
+                    className={`glass-panel rounded-xl p-3 max-w-[70%] relative group ${
+                      message.role === "user"
+                        ? "bg-neon-cyan/10 border-neon-cyan/30"
+                        : "bg-glass-surface border-glass-border"
+                    }`}
+                  >
+                    {/* Copy Button */}
+                    <button
+                      onClick={() => handleCopy(message.id, messageText)}
+                      className="absolute top-2 right-2 h-6 w-6 rounded-lg bg-glass-surface border border-glass-border opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-glass-highlight"
+                    >
+                      {copiedMessageId === message.id ? (
+                        <Check className="h-3 w-3 text-neon-green" />
+                      ) : (
+                        <Copy className="h-3 w-3 text-text-dim" />
+                      )}
+                    </button>
+
+                    {/* Message Content */}
+                    <div className="prose prose-invert prose-neon max-w-none text-sm mb-2">
+                      <ReactMarkdown>{messageText}</ReactMarkdown>
+                    </div>
+
+                    {/* Timestamp */}
+                    <div className="flex items-center gap-1 text-[10px] text-text-dim">
+                      <Clock className="h-3 w-3" />
+                      {formatTimestamp()}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
 
             {/* Loading Indicator */}
             {isLoading && (
@@ -295,7 +305,7 @@ Would you like me to elaborate on any of these points?`,
         <CyberButton
           variant="neon"
           size="sm"
-          onClick={handleSend}
+          onClick={() => handleSend()}
           disabled={!input.trim() || isLoading}
           className="h-10 px-4"
         >

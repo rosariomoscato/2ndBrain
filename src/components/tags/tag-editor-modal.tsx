@@ -6,6 +6,7 @@ import { CyberButton as Button } from "@/components/ui/cyber-button";
 import { CyberCard, CardHeader, CardTitle, CardContent } from "@/components/ui/cyber-card";
 import { CyberInput } from "@/components/ui/cyber-input";
 import { NeonBadge } from "@/components/ui/neon-badge";
+import { LoadingOrb } from "@/components/ui/loading-orb";
 import { cn } from "@/lib/utils";
 
 export type TagColor = "purple" | "cyan" | "blue" | "pink" | "green" | "orange";
@@ -24,6 +25,7 @@ interface TagEditorModalProps {
   onSave: (tag: Omit<Tag, "id" | "usageCount" | "createdAt">) => void;
   onDelete?: (() => void) | undefined;
   initialTag?: Tag | null | undefined;
+  isSaving?: boolean;
 }
 
 const COLOR_OPTIONS: TagColor[] = ["purple", "cyan", "blue", "pink", "green", "orange"];
@@ -34,6 +36,7 @@ export function TagEditorModal({
   onSave,
   onDelete,
   initialTag,
+  isSaving = false,
 }: TagEditorModalProps) {
   const [name, setName] = React.useState(initialTag?.name ?? "");
   const [color, setColor] = React.useState<TagColor>(initialTag?.color ?? "cyan");
@@ -153,23 +156,31 @@ export function TagEditorModal({
                   onClose();
                 }}
                 className="text-destructive"
+                disabled={isSaving}
               >
                 <Trash2 className="h-4 w-4 mr-2" />
                 Delete
               </Button>
             )}
             <div className="flex gap-2 ml-auto">
-              <Button type="button" variant="secondary" onClick={onClose}>
+              <Button type="button" variant="secondary" onClick={onClose} disabled={isSaving}>
                 Cancel
               </Button>
               <Button
                 type="button"
                 variant="primary"
                 onClick={handleSave}
-                disabled={!name.trim()}
+                disabled={!name.trim() || isSaving}
+                className="min-w-[100px]"
               >
-                <Save className="h-4 w-4 mr-2" />
-                Save
+                {isSaving ? (
+                  <LoadingOrb size="sm" />
+                ) : (
+                  <>
+                    <Save className="h-4 w-4 mr-2" />
+                    Save
+                  </>
+                )}
               </Button>
             </div>
           </div>

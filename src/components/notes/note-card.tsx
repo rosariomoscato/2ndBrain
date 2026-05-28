@@ -1,16 +1,7 @@
 import { Clock, Link2, ArrowRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/cyber-card";
 import { NeonBadge } from "@/components/ui/neon-badge";
-
-interface Note {
-  id: string;
-  title: string;
-  excerpt: string;
-  tags: string[];
-  updatedAt: string;
-  connections: number;
-  importance: number;
-}
+import type { Note } from "@/lib/types";
 
 interface NoteCardProps {
   note: Note;
@@ -50,8 +41,8 @@ export function NoteCard({ note, onClick }: NoteCardProps) {
         {note.tags.length > 0 && (
           <div className="flex flex-wrap gap-1 mb-3">
             {note.tags.slice(0, 3).map((tag) => (
-              <NeonBadge key={tag} variant="cyan" className="text-[10px]">
-                {tag}
+              <NeonBadge key={tag.id} variant={tag.color} className="text-[10px]">
+                {tag.name}
               </NeonBadge>
             ))}
             {note.tags.length > 3 && (
@@ -69,7 +60,7 @@ export function NoteCard({ note, onClick }: NoteCardProps) {
             </div>
             <div className="flex items-center gap-1">
               <Clock className="h-3 w-3" />
-              {note.updatedAt}
+              {new Date(note.updatedAt).toLocaleDateString()}
             </div>
           </div>
           <ArrowRight className="h-4 w-4 text-neon-cyan arrow-icon opacity-0 group-hover:opacity-100 transition-opacity duration-200 -translate-x-2 group-hover:translate-x-0" />

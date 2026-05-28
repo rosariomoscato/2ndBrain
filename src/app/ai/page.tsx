@@ -1,96 +1,84 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AIQueryInput } from "@/components/ai/ai-query-input";
 import { AIResponseView, AIResponse } from "@/components/ai/ai-response-view";
 import { QueryHistory, QueryHistoryItem } from "@/components/ai/query-history";
+import { queryWithRAG, getQueryHistory, clearQueryHistory } from "@/lib/actions/ai-query";
+import type { Citation } from "@/lib/types";
 
 export default function AIQueryPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [currentResponse, setCurrentResponse] = useState<AIResponse | null>(null);
   const [queryHistory, setQueryHistory] = useState<QueryHistoryItem[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  // Load query history on mount
+  useEffect(() => {
+    getQueryHistory()
+      .then(setHistory)
+      .catch((err) => {
+        console.error("Failed to load query history:", err);
+        setError("Failed to load query history");
+      });
+  }, []);
 
   const handleQuery = async (query: string) => {
     setIsLoading(true);
+    setError(null);
+    setCurrentResponse(null);
 
-    // Simulate AI response with 2-second delay
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    try {
+      const result = await queryWithRAG(query);
+      
+      // Transform the AIResponse to match the component's expected format
+      const transformedResponse: AIResponse = {
+        query: result.query,
+        answer: result.answer,
+        citations: result.citations.map((c: Citation) => ({
+          noteId: c.noteId,
+          noteTitle: c.noteTitle,
+          excerpt: c.excerpt,
+          relevance: c.relevance,
+        })),
+        timestamp: new Date(result.timestamp).toLocaleTimeString(),
+      };
 
-    // Mock response with markdown formatting and citations
-    const mockResponse: AIResponse = {
-      query,
-      answer: `# Understanding Your Query
-
-Based on your notes, here's what I found:
-
-## Key Insights
-
-Your **second brain** contains several important concepts related to your query. Here are the main points:
-
-- First insight about productivity systems
-- Second insight about knowledge management
-- Third insight about learning patterns
-
-## Connections
-
-There are interesting connections between your notes:
-
-\`\`\`
-Note A → Note B → Note C
-\`\`\`
-
-This shows how your knowledge is interconnected and can lead to deeper understanding.
-
-## Recommendations
-
-Based on your notes, I suggest exploring these areas further:
-
-1. Review the most recent notes on this topic
-2. Look for patterns across different categories
-3. Consider creating new connections between related concepts
-
-Let me know if you'd like me to dive deeper into any specific aspect!`,
-      citations: [
-        {
-          noteId: "1",
-          noteTitle: "Productivity Systems Overview",
-          excerpt: "An exploration of different productivity frameworks and how they can be combined...",
-          relevance: 0.92,
-        },
-        {
-          noteId: "2",
-          noteTitle: "Learning Habits and Patterns",
-          excerpt: "Analysis of personal learning patterns and effective study techniques...",
-          relevance: 0.87,
-        },
-      ],
-      timestamp: new Date().toLocaleTimeString(),
-    };
-
-    setCurrentResponse(mockResponse);
-
-    // Add query to history
-    const newItem: QueryHistoryItem = {
-      id: Date.now().toString(),
-      query,
-      timestamp: new Date().toLocaleTimeString(),
-    };
-
-    setQueryHistory((prev) => {
-      const newHistory = [newItem, ...prev];
-      // Keep only last 10 items
-      return newHistory.slice(0, 10);
-    });
-
-    setIsLoading(false);
+      setCurrentResponse(transformedResponse);
+      
+      // Reload history after query
+      const updatedHistory = await getQueryHistory();
+      setHistory(updatedHistory);
+    } catch (err) {
+      console.error("AI query failed:", err);
+      setError(err instanceof Error ? err.message : "AI query failed. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleHistoryQuery = (query: string) => {
     handleQuery(query);
   };
 
-  const handleClearHistory = () => {
-    setQueryHistory([]);
+  const handleClearHistory = async () => {
+    try {
+      await clearQueryHistory();
+      setHistory([]);
+    } catch (err) {
+      console.error("Failed to clear history:", err);
+      setError("Failed to clear history");
+    }
+  };
+
+  // Helper to set history with proper timestamp formatting
+  const setHistory = (items: QueryHistoryItem[]) => {
+    setQueryHistory(
+      items.map((item) => ({
+        ...item,
+        timestamp: new Date(item.timestamp).toLocaleTimeString(),
+      }))
+    );
   };
 
   return (
@@ -106,7 +94,13 @@ Let me know if you'd like me to dive deeper into any specific aspect!`,
       <div className="flex flex-1 flex-col lg:flex-row overflow-hidden">
         {/* Query Area - 75% width */}
         <div className="flex-1 flex flex-col p-6 overflow-hidden">
-          <AIResponseView response={currentResponse} isLoading={isLoading} />
+          {/* Error Display */}
+          {error && (
+            <div className="mb-4 p-4 rounded-lg border-2 border-red-500/50 bg-red-500/10 text-red-400 text-sm">
+              {error}
+            </div>
+          )}
+          <AIResponseView response={currentResponse} isLoading={isLoading} onExampleQuery={handleQuery} />
           <div className="mt-4">
             <AIQueryInput onQuery={handleQuery} isLoading={isLoading} />
           </div>

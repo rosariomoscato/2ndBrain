@@ -1,15 +1,6 @@
 import { Clock, Link2 } from "lucide-react";
 import { NeonBadge } from "@/components/ui/neon-badge";
-
-interface Note {
-  id: string;
-  title: string;
-  excerpt: string;
-  tags: string[];
-  updatedAt: string;
-  connections: number;
-  importance: number;
-}
+import type { Note } from "@/lib/types";
 
 interface NotesListProps {
   notes: Note[];
@@ -49,8 +40,8 @@ export function NotesList({ notes, onNoteClick }: NotesListProps) {
             <div className="col-span-3">
               <div className="flex flex-wrap gap-1">
                 {note.tags.slice(0, 2).map((tag) => (
-                  <NeonBadge key={tag} variant="cyan" className="text-[10px] px-1.5 py-0.5">
-                    {tag}
+                  <NeonBadge key={tag.id} variant={tag.color} className="text-[10px] px-1.5 py-0.5">
+                    {tag.name}
                   </NeonBadge>
                 ))}
                 {note.tags.length > 2 && (
@@ -73,7 +64,7 @@ export function NotesList({ notes, onNoteClick }: NotesListProps) {
             <div className="col-span-2">
               <div className="flex items-center gap-1 text-xs text-text-dim">
                 <Clock className="h-3 w-3" />
-                {note.updatedAt}
+                {new Date(note.updatedAt).toLocaleDateString()}
               </div>
             </div>
           </div>

@@ -85,10 +85,10 @@ graph TD
 - [x] [task-10-graphify](./tasks/task-10-graphify.md) — Graphify auto-extraction and graph sync
 
 ### Wave 5
-- [ ] [task-11-dashboard](./tasks/task-11-dashboard.md) — Dashboard with real stats and activity
-- [ ] [task-12-notes-ui](./tasks/task-12-notes-ui.md) — Notes pages wired to server actions
-- [ ] [task-13-ai-ui](./tasks/task-13-ai-ui.md) — AI query and chat wired to real APIs
-- [ ] [task-14-graph-ui](./tasks/task-14-graph-ui.md) — Graph canvas and tags manager wired to real data
+- [x] [task-11-dashboard](./tasks/task-11-dashboard.md) — Dashboard with real stats and activity
+- [x] [task-12-notes-ui](./tasks/task-12-notes-ui.md) — Notes pages wired to server actions
+- [x] [task-13-ai-ui](./tasks/task-13-ai-ui.md) — AI query and chat wired to real APIs
+- [x] [task-14-graph-ui](./tasks/task-14-graph-ui.md) — Graph canvas and tags manager wired to real data
 
 ### Wave 6
 - [ ] [task-15-polish](./tasks/task-15-polish.md) — Navigation, routing, error handling, and loading states

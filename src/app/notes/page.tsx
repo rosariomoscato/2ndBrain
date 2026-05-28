@@ -1,101 +1,68 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Search, LayoutGrid, List, Filter } from "lucide-react";
 import { MainViewport } from "@/components/layout/main-viewport";
 import { NotesGrid } from "@/components/notes/notes-grid";
 import { NotesList } from "@/components/notes/notes-list";
 import { CyberButton } from "@/components/ui/cyber-button";
 import { CyberInput } from "@/components/ui/cyber-input";
+import { LoadingOrb } from "@/components/ui/loading-orb";
 import { NeonBadge } from "@/components/ui/neon-badge";
+import { getNotes } from "@/lib/actions/notes";
+import type { Note } from "@/lib/types";
 
 type ViewMode = "grid" | "list";
 
-interface Note {
-  id: string;
-  title: string;
-  excerpt: string;
-  tags: string[];
-  updatedAt: string;
-  connections: number;
-  importance: number;
-}
-
 export default function NotesPage() {
+  const router = useRouter();
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
+  const [allNotes, setAllNotes] = useState<Note[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Mock notes data
-  const allNotes: Note[] = [
-    {
-      id: "1",
-      title: "Transformers Architecture Explained",
-      excerpt: "Deep dive into transformer architecture and attention mechanisms...",
-      tags: ["AI", "ML", "NLP"],
-      updatedAt: "2h ago",
-      connections: 12,
-      importance: 5,
-    },
-    {
-      id: "2",
-      title: "Project Alpha Research Notes",
-      excerpt: "Initial research on project alpha requirements and technical specifications...",
-      tags: ["Project", "Research"],
-      updatedAt: "5h ago",
-      connections: 8,
-      importance: 4,
-    },
-    {
-      id: "3",
-      title: "Meeting Notes - Q4 Planning",
-      excerpt: "Discussion about quarterly goals, resource allocation, and timeline...",
-      tags: ["Meeting", "Planning"],
-      updatedAt: "1d ago",
-      connections: 5,
-      importance: 3,
-    },
-    {
-      id: "4",
-      title: "AI System Design Document",
-      excerpt: "High-level architecture design for AI-powered knowledge management system...",
-      tags: ["AI", "Architecture", "Design"],
-      updatedAt: "2d ago",
-      connections: 15,
-      importance: 5,
-    },
-    {
-      id: "5",
-      title: "Cyberpunk UI Design Principles",
-      excerpt: "Guidelines for creating cyberpunk interfaces with neon accents and glassmorphism...",
-      tags: ["Design", "UI", "Cyberpunk"],
-      updatedAt: "3d ago",
-      connections: 7,
-      importance: 4,
-    },
-  ];
+  // Load notes on mount
+  useEffect(() => {
+    async function loadNotes() {
+      try {
+        setLoading(true);
+        setError(null);
+        const notes = await getNotes();
+        setAllNotes(notes);
+      } catch (err) {
+        setError("Failed to load notes");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadNotes();
+  }, []);
 
   // Filter notes based on search and active filter
   const filteredNotes = allNotes.filter((note) => {
     const matchesSearch =
       searchQuery === "" ||
       note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      note.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
+      note.content?.toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesFilter =
-      activeFilter === null || note.tags.includes(activeFilter);
+      activeFilter === null || note.tags.some(tag => tag.name === activeFilter);
 
     return matchesSearch && matchesFilter;
   });
 
   const handleNoteClick = (noteId: string) => {
-    // Navigate to note editor (will be implemented in task-08)
-    // eslint-disable-next-line no-console
-    console.log("Navigate to note:", noteId);
+    router.push(`/notes/${noteId}`);
   };
 
   // Get unique tags for filter
-  const uniqueTags = Array.from(new Set(allNotes.flatMap((note) => note.tags))).sort();
+  const uniqueTags = Array.from(
+    new Set(allNotes.flatMap((note) => note.tags.map(t => t.name)))
+  ).sort();
 
   return (
     <MainViewport>
@@ -108,10 +75,14 @@ export default function NotesPage() {
                 NOTES
               </h1>
               <p className="text-text-secondary mt-1">
-                {filteredNotes.length} {filteredNotes.length === 1 ? "note" : "notes"}
+                {loading ? "Loading..." : `${filteredNotes.length} ${filteredNotes.length === 1 ? "note" : "notes"}`}
               </p>
             </div>
-            <CyberButton variant="primary" size="sm">
+            <CyberButton
+              variant="primary"
+              size="sm"
+              onClick={() => router.push("/notes/new")}
+            >
               New Note
             </CyberButton>
           </div>
@@ -173,7 +144,18 @@ export default function NotesPage() {
 
         {/* Notes Container */}
         <div className="flex-1 overflow-auto p-6">
-          {filteredNotes.length > 0 ? (
+          {loading ? (
+            <div className="flex items-center justify-center h-full">
+              <LoadingOrb />
+            </div>
+          ) : error ? (
+            <div className="flex items-center justify-center h-full text-text-dim">
+              <div className="text-center">
+                <p className="text-lg font-medium text-neon-pink">Error</p>
+                <p className="text-sm mt-1">{error}</p>
+              </div>
+            </div>
+          ) : filteredNotes.length > 0 ? (
             <>
               {viewMode === "grid" && (
                 <NotesGrid notes={filteredNotes} onNoteClick={handleNoteClick} />
@@ -186,8 +168,14 @@ export default function NotesPage() {
             <div className="flex items-center justify-center h-full text-text-dim">
               <div className="text-center">
                 <Search className="h-12 w-12 mx-auto mb-2 text-glass-border" />
-                <p className="text-lg font-medium">No notes found</p>
-                <p className="text-sm mt-1">Try adjusting your search or filters</p>
+                <p className="text-lg font-medium">
+                  {allNotes.length === 0 ? "No notes yet" : "No notes found"}
+                </p>
+                <p className="text-sm mt-1">
+                  {allNotes.length === 0
+                    ? "Create your first note to get started"
+                    : "Try adjusting your search or filters"}
+                </p>
               </div>
             </div>
           )}

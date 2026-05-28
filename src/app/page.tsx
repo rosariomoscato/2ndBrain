@@ -12,11 +12,23 @@ import {
   TrendingUp,
   Zap,
 } from "lucide-react";
+import { useState, useEffect } from "react";
 import { GraphCanvas } from "@/components/graph/graph-canvas";
 import { MainViewport } from "@/components/layout/main-viewport";
 import { CyberButton } from "@/components/ui/cyber-button";
 import { CyberCard, CardContent, CardHeader, CardTitle } from "@/components/ui/cyber-card";
 import { NeonBadge } from "@/components/ui/neon-badge";
+import { getNoteCount, getNotes } from "@/lib/actions/notes";
+import { getNodeCount, getEdgeCount } from "@/lib/actions/graph";
+import type { RecentActivity } from "@/lib/types";
+
+interface StatItem {
+  label: string;
+  value: string;
+  change: string;
+  icon: React.ElementType;
+  color: string;
+}
 
 export default function DashboardPage() {
   const quickActions = [
@@ -25,60 +37,47 @@ export default function DashboardPage() {
     { icon: Zap, label: "AI Query", href: "/ai", variant: "neon" as const },
   ];
 
-  const stats = [
-    {
-      label: "Total Notes",
-      value: "123",
-      change: "+5 this week",
-      icon: FileText,
-      color: "neon-cyan",
-    },
-    {
-      label: "Knowledge Nodes",
-      value: "456",
-      change: "+12 this week",
-      icon: Network,
-      color: "neon-purple",
-    },
-    {
-      label: "Connections",
-      value: "789",
-      change: "+8 this week",
-      icon: Activity,
-      color: "neon-blue",
-    },
-  ];
+  const [stats, setStats] = useState<StatItem[]>([
+    { label: "Total Notes", value: "...", change: "Loading...", icon: FileText, color: "neon-cyan" },
+    { label: "Knowledge Nodes", value: "...", change: "Loading...", icon: Network, color: "neon-purple" },
+    { label: "Connections", value: "...", change: "Loading...", icon: Activity, color: "neon-blue" },
+  ]);
+  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
+  const [systemStatus, setSystemStatus] = useState<"loading" | "online" | "offline">("loading");
 
-  const recentActivity = [
-    {
-      id: 1,
-      action: "Created new note",
-      target: "Project Alpha Research",
-      time: "2 hours ago",
-      type: "create",
-    },
-    {
-      id: 2,
-      action: "Connected nodes",
-      target: "AI Architecture → Deep Learning",
-      time: "4 hours ago",
-      type: "connect",
-    },
-    {
-      id: 3,
-      action: "Ran AI query",
-      target: "\"How do transformers work?\"",
-      time: "6 hours ago",
-      type: "query",
-    },
-    {
-      id: 4,
-      action: "Updated note",
-      target: "Meeting Notes - Q4 Planning",
-      time: "1 day ago",
-      type: "update",
-    },
-  ];
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [noteCount, nodeCount, edgeCount, recentNotes] = await Promise.all([
+          getNoteCount(),
+          getNodeCount(),
+          getEdgeCount(),
+          getNotes({ limit: 4 }),
+        ]);
+
+        setStats([
+          { label: "Total Notes", value: String(noteCount), change: `${noteCount} total`, icon: FileText, color: "neon-cyan" },
+          { label: "Knowledge Nodes", value: String(nodeCount), change: `${nodeCount} total`, icon: Network, color: "neon-purple" },
+          { label: "Connections", value: String(edgeCount), change: `${edgeCount} total`, icon: Activity, color: "neon-blue" },
+        ]);
+
+        setRecentActivity(recentNotes.map((note, i) => ({
+          id: note.id,
+          action: i === 0 ? "Created new note" : "Updated note",
+          target: note.title,
+          time: note.updatedAt,
+          type: i === 0 ? ("create" as const) : ("update" as const),
+        })));
+
+        setSystemStatus("online");
+      } catch (error) {
+        console.error("Failed to load dashboard data:", error);
+        setSystemStatus("offline");
+      }
+    }
+    loadData();
+  }, []);
 
   return (
     <MainViewport>
@@ -218,10 +217,12 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-text-secondary">Graph Engine</span>
+                  <span className="text-sm text-text-secondary">Database</span>
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-neon-green animate-pulse" />
-                    <span className="text-sm text-neon-green">Online</span>
+                    <div className={`w-2 h-2 rounded-full ${systemStatus === "online" ? "bg-neon-green animate-pulse" : systemStatus === "loading" ? "bg-neon-cyan animate-pulse" : "bg-neon-red"}`} />
+                    <span className={`text-sm ${systemStatus === "online" ? "text-neon-green" : systemStatus === "loading" ? "text-neon-cyan" : "text-neon-red"}`}>
+                      {systemStatus === "online" ? "Connected" : systemStatus === "loading" ? "Connecting..." : "Offline"}
+                    </span>
                   </div>
                 </div>
                 <div className="flex items-center justify-between">
@@ -241,9 +242,9 @@ export default function DashboardPage() {
               </CardContent>
             </CyberCard>
           </div>
-        </div>
-      </div>
-    </div>
+         </div>
+       </div>
+     </div>
     </MainViewport>
   );
 }

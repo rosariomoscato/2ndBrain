@@ -14,45 +14,9 @@ import {
 import { CyberButton as Button } from "@/components/ui/cyber-button";
 import { CyberInput } from "@/components/ui/cyber-input";
 import { NeonBadge } from "@/components/ui/neon-badge";
+import { LoadingOrb } from "@/components/ui/loading-orb";
+import { getTags, createTag, updateTag, deleteTag, bulkDeleteTags } from "@/lib/actions/tags";
 import type { Tag, TagColor, TagEditorModal } from "./tag-editor-modal";
-
-const mockTags: Tag[] = [
-  {
-    id: "1",
-    name: "AI",
-    color: "cyan",
-    usageCount: 42,
-    createdAt: new Date("2024-01-15"),
-  },
-  {
-    id: "2",
-    name: "ML",
-    color: "purple",
-    usageCount: 38,
-    createdAt: new Date("2024-02-20"),
-  },
-  {
-    id: "3",
-    name: "NLP",
-    color: "blue",
-    usageCount: 25,
-    createdAt: new Date("2024-03-10"),
-  },
-  {
-    id: "4",
-    name: "Project",
-    color: "pink",
-    usageCount: 19,
-    createdAt: new Date("2024-04-05"),
-  },
-  {
-    id: "5",
-    name: "Research",
-    color: "green",
-    usageCount: 15,
-    createdAt: new Date("2024-05-01"),
-  },
-];
 
 type SortBy = "name" | "usage" | "date";
 
@@ -61,32 +25,38 @@ interface TagManagerProps {
 }
 
 export function TagManager({ TagEditorModalComponent }: TagManagerProps) {
-  const [tags, setTags] = React.useState<Tag[]>(mockTags);
+  const [tags, setTags] = React.useState<Tag[]>([]);
+  const [loading, setLoading] = React.useState(true);
   const [query, setQuery] = React.useState("");
   const [sortBy, setSortBy] = React.useState<SortBy>("name");
   const [selectedTags, setSelectedTags] = React.useState<Set<string>>(new Set());
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [editingTag, setEditingTag] = React.useState<Tag | null>(null);
+  const [isSaving, setIsSaving] = React.useState(false);
+
+  const loadTags = React.useCallback(async (sortByValue?: SortBy) => {
+    setLoading(true);
+    try {
+      const data = await getTags({ sortBy: sortByValue ?? "name" });
+      setTags(data);
+    } catch (error) {
+      console.error("Failed to load tags:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    loadTags(sortBy);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sortBy]);
 
   const filteredTags = React.useMemo(() => {
     const result = tags.filter((tag) =>
       tag.name.toLowerCase().includes(query.toLowerCase())
     );
-
-    switch (sortBy) {
-      case "name":
-        result.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      case "usage":
-        result.sort((a, b) => b.usageCount - a.usageCount);
-        break;
-      case "date":
-        result.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-        break;
-    }
-
     return result;
-  }, [tags, query, sortBy]);
+  }, [tags, query]);
 
   const handleCreateTag = () => {
     setEditingTag(null);
@@ -98,35 +68,76 @@ export function TagManager({ TagEditorModalComponent }: TagManagerProps) {
     setIsModalOpen(true);
   };
 
-  const handleSaveTag = (tagData: { name: string; color: TagColor }) => {
-    if (editingTag) {
-      setTags(
-        tags.map((t) =>
-          t.id === editingTag.id
-            ? { ...t, name: tagData.name, color: tagData.color }
-            : t
-        )
-      );
-    } else {
-      const newTag: Tag = {
-        id: Math.random().toString(36).substr(2, 9),
-        name: tagData.name,
-        color: tagData.color,
-        usageCount: 0,
-        createdAt: new Date(),
-      };
-      setTags([...tags, newTag]);
+  const handleSaveTag = async (tagData: { name: string; color: TagColor }) => {
+    setIsSaving(true);
+    try {
+      if (editingTag) {
+        // Optimistically update UI
+        setTags(
+          tags.map((t) =>
+            t.id === editingTag.id
+              ? { ...t, name: tagData.name, color: tagData.color }
+              : t
+          )
+        );
+        
+        await updateTag({ id: editingTag.id, ...tagData });
+      } else {
+        // Optimistically add new tag
+        const newTag: Tag = {
+          id: crypto.randomUUID(),
+          name: tagData.name,
+          color: tagData.color,
+          usageCount: 0,
+          createdAt: new Date(),
+        };
+        setTags([...tags, newTag]);
+        
+        await createTag(tagData);
+      }
+      
+      // Reload to get fresh data from server
+      await loadTags(sortBy);
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error("Failed to save tag:", error);
+      // Reload to revert optimistic update
+      await loadTags(sortBy);
+    } finally {
+      setIsSaving(false);
     }
-    setIsModalOpen(false);
   };
 
-  const handleDeleteTag = (tagId: string) => {
-    setTags(tags.filter((t) => t.id !== tagId));
+  const handleDeleteTag = async (tagId: string) => {
+    try {
+      // Optimistically remove tag
+      setTags(tags.filter((t) => t.id !== tagId));
+      await deleteTag(tagId);
+    } catch (error) {
+      console.error("Failed to delete tag:", error);
+      // Reload to revert optimistic update
+      await loadTags(sortBy);
+    }
   };
 
-  const handleBulkDelete = () => {
-    setTags(tags.filter((t) => !selectedTags.has(t.id)));
-    setSelectedTags(new Set());
+  const handleBulkDelete = async () => {
+    try {
+      const tagIdsToDelete = Array.from(selectedTags);
+      // Optimistically remove tags
+      setTags(tags.filter((t) => !selectedTags.has(t.id)));
+      setSelectedTags(new Set());
+      
+      await bulkDeleteTags(tagIdsToDelete);
+    } catch (error) {
+      console.error("Failed to bulk delete tags:", error);
+      // Reload to revert optimistic update
+      await loadTags(sortBy);
+    }
+  };
+
+  const handleSortChange = async (newSortBy: SortBy) => {
+    setSortBy(newSortBy);
+    await loadTags(newSortBy);
   };
 
   const handleSelectAll = () => {
@@ -156,53 +167,63 @@ export function TagManager({ TagEditorModalComponent }: TagManagerProps) {
             Tag Manager
           </h2>
           <p className="text-text-secondary text-sm">
-            {tags.length} tag{tags.length !== 1 ? "s" : ""} total
+            {loading ? "Loading..." : `${tags.length} tag${tags.length !== 1 ? "s" : ""} total`}
           </p>
         </div>
-        <Button variant="primary" onClick={handleCreateTag}>
+        <Button variant="primary" onClick={handleCreateTag} disabled={loading}>
           <Plus className="h-4 w-4 mr-2" />
           New Tag
         </Button>
       </div>
 
-      {/* Search and Sort */}
-      <div className="flex gap-3 mb-6">
-        <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-dim" />
-          <CyberInput
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search tags..."
-            className="pl-10"
-          />
+      {/* Loading State */}
+      {loading ? (
+        <div className="flex items-center justify-center py-12">
+          <div className="flex flex-col items-center gap-4">
+            <LoadingOrb />
+            <p className="text-text-secondary text-sm">Loading tags...</p>
+          </div>
         </div>
-        <div className="flex gap-2">
-          <Button
-            variant={sortBy === "name" ? "primary" : "secondary"}
-            size="sm"
-            onClick={() => setSortBy("name")}
-          >
-            <SortAsc className="h-4 w-4 mr-2" />
-            Name
-          </Button>
-          <Button
-            variant={sortBy === "usage" ? "primary" : "secondary"}
-            size="sm"
-            onClick={() => setSortBy("usage")}
-          >
-            <Hash className="h-4 w-4 mr-2" />
-            Usage
-          </Button>
-          <Button
-            variant={sortBy === "date" ? "primary" : "secondary"}
-            size="sm"
-            onClick={() => setSortBy("date")}
-          >
-            <Calendar className="h-4 w-4 mr-2" />
-            Date
-          </Button>
-        </div>
-      </div>
+      ) : (
+        <>
+          {/* Search and Sort */}
+          <div className="flex gap-3 mb-6">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-dim" />
+              <CyberInput
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search tags..."
+                className="pl-10"
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant={sortBy === "name" ? "primary" : "secondary"}
+                size="sm"
+                onClick={() => handleSortChange("name")}
+              >
+                <SortAsc className="h-4 w-4 mr-2" />
+                Name
+              </Button>
+              <Button
+                variant={sortBy === "usage" ? "primary" : "secondary"}
+                size="sm"
+                onClick={() => handleSortChange("usage")}
+              >
+                <Hash className="h-4 w-4 mr-2" />
+                Usage
+              </Button>
+              <Button
+                variant={sortBy === "date" ? "primary" : "secondary"}
+                size="sm"
+                onClick={() => handleSortChange("date")}
+              >
+                <Calendar className="h-4 w-4 mr-2" />
+                Date
+              </Button>
+            </div>
+          </div>
 
       {/* Bulk Actions */}
       {selectedTags.size > 0 && (
@@ -302,7 +323,10 @@ export function TagManager({ TagEditorModalComponent }: TagManagerProps) {
           editingTag ? () => handleDeleteTag(editingTag.id) : undefined
         }
         initialTag={editingTag ?? null}
+        isSaving={isSaving}
       />
+        </>
+      )}
     </div>
   );
 }

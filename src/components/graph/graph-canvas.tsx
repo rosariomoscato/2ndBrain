@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import {
   ReactFlow,
   Background,
@@ -10,101 +10,151 @@ import {
   useEdgesState,
   addEdge,
   Connection,
-  Edge,
   Node,
+  Edge,
   BackgroundVariant,
   ReactFlowProvider,
   useReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import { LoadingOrb } from "@/components/ui/loading-orb";
+import { getGraphData, createEdge, updateNodePosition } from "@/lib/actions/graph";
 import { CameraControls } from "./camera-controls";
 import { GraphEdge } from "./graph-edge";
-import { GraphFilters } from "./graph-filters";
+import { GraphFilters, type NodeType } from "./graph-filters";
 import { GraphNode, NodeData } from "./graph-node";
 import { GraphSearch } from "./graph-search";
 import { NodeDetailsPanel } from "./node-details-panel";
 
-// Mock data for initialization
-const initialNodes: Node[] = [
-  {
-    id: "1",
-    type: "cyberNode",
-    position: { x: 250, y: 0 },
-    data: {
-      label: "Main Concept",
-      type: "concept",
-      tags: ["important", "core"],
-      updatedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-      createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-      connections: 3,
-      importance: 5,
-    },
-  },
-  {
-    id: "2",
-    type: "cyberNode",
-    position: { x: 100, y: 100 },
-    data: {
-      label: "Subtopic A",
-      type: "note",
-      tags: ["research", "draft"],
-      updatedAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-      createdAt: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(),
-      connections: 1,
-      importance: 3,
-    },
-  },
-  {
-    id: "3",
-    type: "cyberNode",
-    position: { x: 400, y: 100 },
-    data: {
-      label: "Subtopic B",
-      type: "reference",
-      tags: ["external", "link"],
-      updatedAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
-      createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-      connections: 1,
-      importance: 2,
-    },
-  },
-];
-
-const initialEdges: Edge[] = [
-  {
-    id: "e1-2",
-    source: "1",
-    target: "2",
-    type: "cyberEdge",
-    animated: true,
-  },
-  {
-    id: "e1-3",
-    source: "1",
-    target: "3",
-    type: "cyberEdge",
-    animated: true,
-  },
-];
-
 // GraphCanvas component with panels
 function GraphCanvasContent() {
-  const [nodes, , onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [selectedNode, setSelectedNode] = useState<NodeData | null>(null);
-  const [_filters, setFilters] = useState({
-    type: "all" as const,
+  const [filters, setFilters] = useState({
+    type: "all" as NodeType,
     tags: [] as string[],
   });
+  const [availableTags, setAvailableTags] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
   const { setCenter } = useReactFlow();
 
-  // Available tags (mock data for now)
-  const availableTags = ["AI", "ML", "NLP", "Project", "Research"];
+  // Track initial node position for drag optimization
+  const [dragStartPositions, setDragStartPositions] = useState<Record<string, { x: number; y: number }>>({});
+
+  // Load graph data on mount
+  useEffect(() => {
+    async function loadGraph() {
+      try {
+        setLoading(true);
+        const data = await getGraphData();
+        
+        // Extract all unique tags from nodes
+        const tagSet = new Set<string>();
+        data.nodes.forEach((node) => {
+          const nodeData = node.data as unknown as NodeData;
+          nodeData.tags.forEach((tag) => tagSet.add(tag));
+        });
+        setAvailableTags(Array.from(tagSet));
+        
+        setNodes(data.nodes);
+        setEdges(data.edges);
+      } catch (error) {
+        console.error("Failed to load graph:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadGraph();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Apply filters to nodes
+  useEffect(() => {
+    if (filters.type === "all" && filters.tags.length === 0) {
+      // Show all nodes if no filters
+      return;
+    }
+
+    const filteredNodes = nodes.filter((node) => {
+      const nodeData = node.data as unknown as NodeData;
+      
+      // Check type filter
+      if (filters.type !== "all" && nodeData.type !== filters.type) {
+        return false;
+      }
+      
+      // Check tag filter - node must have at least one of the selected tags
+      if (filters.tags.length > 0) {
+        const hasTag = filters.tags.some((tag) => nodeData.tags.includes(tag));
+        if (!hasTag) {
+          return false;
+        }
+      }
+      
+      return true;
+    });
+
+    // Update node visibility
+    setNodes((prev) =>
+      prev.map((node) => {
+        const isVisible = filteredNodes.some((n) => n.id === node.id);
+        return { ...node, hidden: !isVisible };
+      })
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters.type, filters.tags]); // Only re-run when filters change
 
   const onConnect = useCallback(
-    (params: Connection) => setEdges((eds) => addEdge(params, eds)),
+    async (params: Connection) => {
+      if (!params.source || !params.target) return;
+      
+      try {
+        const edge = await createEdge(params.source, params.target);
+        if (edge) {
+          setEdges((eds) => addEdge({
+            id: edge.id,
+            source: params.source!,
+            target: params.target!,
+            type: "cyberEdge",
+            animated: true,
+          }, eds));
+        }
+      } catch (error) {
+        console.error("Failed to create edge:", error);
+      }
+    },
     [setEdges]
   );
+
+  const onNodeDragStart = useCallback((_event: React.MouseEvent, node: Node) => {
+    setDragStartPositions(prev => ({
+      ...prev,
+      [node.id]: { x: node.position.x, y: node.position.y }
+    }));
+  }, []);
+
+  const onNodeDragStop = useCallback(async (_event: React.MouseEvent, node: Node) => {
+    const startPos = dragStartPositions[node.id];
+    if (!startPos) return;
+
+    // Calculate distance moved
+    const dx = node.position.x - startPos.x;
+    const dy = node.position.y - startPos.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    // Only update if position changed significantly (> 10px)
+    if (distance > 10) {
+      await updateNodePosition(node.id, node.position.x, node.position.y);
+    }
+
+    // Clear the drag start position
+    setDragStartPositions(prev => {
+      const updated = { ...prev };
+      delete updated[node.id];
+      return updated;
+    });
+  }, [dragStartPositions]);
 
   const handleNodeClick = useCallback((_event: React.MouseEvent, node: Node) => {
     setSelectedNode(node.data as unknown as NodeData);
@@ -118,10 +168,8 @@ function GraphCanvasContent() {
     }
   }, [nodes, setCenter]);
 
-  const handleFilterChange = useCallback((newFilters: any) => {
+  const handleFilterChange = useCallback((newFilters: { type: NodeType; tags: string[] }) => {
     setFilters(newFilters);
-    console.log("Filters changed:", newFilters);
-    // Actual filtering will be implemented in future
   }, []);
 
   const handleCloseDetails = useCallback(() => {
@@ -129,7 +177,10 @@ function GraphCanvasContent() {
   }, []);
 
   const handleNavigate = useCallback(() => {
-    console.log("Navigate to full note:", selectedNode);
+    if (selectedNode) {
+      // Navigate to the note page - implement based on routing
+      // Example: router.push(`/notes/${selectedNode.noteId}`);
+    }
   }, [selectedNode]);
 
   // Register custom node and edge types
@@ -140,6 +191,18 @@ function GraphCanvasContent() {
   const edgeTypes = {
     cyberEdge: GraphEdge,
   };
+
+  // Show loading state while data loads
+  if (loading) {
+    return (
+      <div className="w-full h-full flex items-center justify-center blueprint-surface">
+        <div className="flex flex-col items-center gap-4">
+          <LoadingOrb size="lg" />
+          <p className="text-text-secondary text-sm font-tech">Loading graph data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full h-full relative blueprint-surface">
@@ -153,6 +216,8 @@ function GraphCanvasContent() {
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         onNodeClick={handleNodeClick}
+        onNodeDragStart={onNodeDragStart}
+        onNodeDragStop={onNodeDragStop}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         fitView

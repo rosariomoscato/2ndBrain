@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Editor from "@monaco-editor/react";
 import { Save } from "lucide-react";
 import { CyberButton } from "@/components/ui/cyber-button";
@@ -29,20 +29,12 @@ export function NoteEditor({
   const [content, setContent] = useState(initialContent);
   const [tags, setTags] = useState<string[]>(initialTags);
   const [newTag, setNewTag] = useState("");
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
-  // Track unsaved changes
-  
-   
-  useEffect(() => {
-    const hasChanges =
-      title !== initialTitle ||
-      content !== initialContent ||
-      tags.join(",") !== initialTags.join(",");
-
-    setHasUnsavedChanges(hasChanges);
-      
-  }, [title, content, tags, initialTitle, initialContent, initialTags]);
+  // Track unsaved changes - derived state is preferred over setState in effect
+  const hasUnsavedChanges =
+    title !== initialTitle ||
+    content !== initialContent ||
+    tags.join(",") !== initialTags.join(",");
 
   // Handle toolbar actions
   const handleToolbarAction = (action: string) => {
@@ -106,9 +98,6 @@ export function NoteEditor({
   // Handle save
   const handleSave = () => {
     if (isReadOnly) return;
-    // eslint-disable-next-line no-console
-    console.log("Saving note:", { title, content, tags });
-    alert(`Note saved!\nTitle: ${title}\nTags: ${tags.join(", ")}`);
     onSave?.({ title, content, tags });
   };
 
