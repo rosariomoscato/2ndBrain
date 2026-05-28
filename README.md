@@ -103,7 +103,7 @@ src/
 
 ## Licenza
 
-MIT
+Questo progetto è distribuito sotto la [GNU GPLv3](./LICENSE). Puoi studiare, usare e modificare il codice, ma le opere derivate devono mantenere la stessa licenza e includere l'attribuzione.
 
 ---
 
