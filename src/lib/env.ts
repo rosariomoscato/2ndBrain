@@ -20,6 +20,8 @@ const serverEnvSchema = z.object({
   // AI
   OPENROUTER_API_KEY: z.string().optional(),
   OPENROUTER_MODEL: z.string().default("openai/gpt-5-mini"),
+  OPENAI_API_KEY: z.string().optional(),
+  OPENAI_EMBEDDING_MODEL: z.string().default("text-embedding-3-large"),
 
   // Email
   RESEND_API_KEY: z.string().optional(),
@@ -105,6 +107,10 @@ export function checkEnv(): void {
 
   if (!process.env.OPENROUTER_API_KEY) {
     warnings.push("OPENROUTER_API_KEY is not set. AI chat will not work.");
+  }
+
+  if (!process.env.OPENAI_API_KEY) {
+    warnings.push("OPENAI_API_KEY is not set. Vector search and AI query will not work.");
   }
 
   if (!process.env.RESEND_API_KEY) {

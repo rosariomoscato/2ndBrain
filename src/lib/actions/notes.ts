@@ -4,9 +4,11 @@ import { headers } from "next/headers";
 import { eq, and, desc, sql, or, ilike } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { notes, noteTags, tags } from "@/lib/schema";
+import { notes, noteTags, tags, graphNodes } from "@/lib/schema";
 import type { Note, NoteTag } from "@/lib/types";
 import { createNoteSchema, updateNoteSchema, deleteNoteSchema } from "@/lib/validations";
+import { generateEmbeddings } from "@/lib/embeddings";
+import { createNodeForNote } from "./graph";
 
 async function getSession() {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -143,12 +145,15 @@ export async function createNote(input: {
     throw new Error("Failed to create note");
   }
 
+  // Generate embeddings for the note (non-blocking)
+  generateEmbeddings(note.id, validated.content ?? "").catch(console.error);
+
   if (validated.tags && validated.tags.length > 0) {
     for (const tagName of validated.tags) {
       const existingTag = await db.select().from(tags).where(
         and(eq(tags.userId, session.user.id), eq(tags.name, tagName))
       ).limit(1);
-      
+
       let tagId: string;
       if (existingTag.length > 0 && existingTag[0]) {
         tagId = existingTag[0].id;
@@ -158,17 +163,20 @@ export async function createNote(input: {
           name: tagName,
           color: "cyan",
         }).returning();
-        
+
         if (!newTag) {
           throw new Error("Failed to create tag");
         }
-        
+
         tagId = newTag.id;
       }
-      
+
       await db.insert(noteTags).values({ noteId: note.id, tagId });
     }
   }
+
+  // Auto-create graph node for the new note
+  await createNodeForNote(note.id, validated.title, session.user.id).catch(console.error);
 
   return getNoteById(note.id);
 }
@@ -182,7 +190,7 @@ export async function updateNote(input: {
 }) {
   const session = await getSession();
   const validated = updateNoteSchema.parse(input);
-  
+
   const updates: Record<string, unknown> = {};
   if (validated.title !== undefined) updates.title = validated.title;
   if (validated.content !== undefined) {
@@ -191,10 +199,21 @@ export async function updateNote(input: {
   }
   if (validated.importance !== undefined) updates.importance = validated.importance;
 
+  // If title changed, update the corresponding graph node label
+  if (validated.title !== undefined) {
+    await db.update(graphNodes).set({ label: validated.title })
+      .where(and(eq(graphNodes.noteId, validated.id), eq(graphNodes.userId, session.user.id)));
+  }
+
   if (Object.keys(updates).length > 0) {
     await db.update(notes).set(updates).where(
       and(eq(notes.id, validated.id), eq(notes.userId, session.user.id))
     );
+  }
+
+  // Regenerate embeddings if content changed (non-blocking)
+  if (validated.content !== undefined) {
+    generateEmbeddings(validated.id, validated.content).catch(console.error);
   }
 
   if (validated.tags !== undefined) {
@@ -203,7 +222,7 @@ export async function updateNote(input: {
       const existingTag = await db.select().from(tags).where(
         and(eq(tags.userId, session.user.id), eq(tags.name, tagName))
       ).limit(1);
-      
+
       let tagId: string;
       if (existingTag.length > 0 && existingTag[0]) {
         tagId = existingTag[0].id;
@@ -213,11 +232,11 @@ export async function updateNote(input: {
           name: tagName,
           color: "cyan",
         }).returning();
-        
+
         if (!newTag) {
           throw new Error("Failed to create tag");
         }
-        
+
         tagId = newTag.id;
       }
       await db.insert(noteTags).values({ noteId: validated.id, tagId });

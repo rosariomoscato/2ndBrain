@@ -77,8 +77,8 @@ graph TD
 - [x] [task-06-settings](./tasks/task-06-settings.md) — User settings CRUD server actions
 
 ### Wave 3
-- [ ] [task-07-embeddings](./tasks/task-07-embeddings.md) — Embedding generation pipeline with pgvector
-- [ ] [task-09-graph](./tasks/task-09-graph.md) — Graph nodes and edges data layer
+- [x] [task-07-embeddings](./tasks/task-07-embeddings.md) — Embedding generation pipeline with pgvector
+- [x] [task-09-graph](./tasks/task-09-graph.md) — Graph nodes and edges data layer
 
 ### Wave 4
 - [ ] [task-08-rag](./tasks/task-08-rag.md) — AI query with RAG (semantic search + citations)
