@@ -16,6 +16,7 @@ import {
   ReactFlowProvider,
   useReactFlow,
 } from "@xyflow/react";
+import { useRouter } from "next/navigation";
 import "@xyflow/react/dist/style.css";
 import { LoadingOrb } from "@/components/ui/loading-orb";
 import { getGraphData, createEdge, updateNodePosition } from "@/lib/actions/graph";
@@ -28,9 +29,11 @@ import { NodeDetailsPanel } from "./node-details-panel";
 
 // GraphCanvas component with panels
 function GraphCanvasContent() {
+  const router = useRouter();
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [selectedNode, setSelectedNode] = useState<NodeData | null>(null);
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [filters, setFilters] = useState({
     type: "all" as NodeType,
     tags: [] as string[],
@@ -158,12 +161,14 @@ function GraphCanvasContent() {
 
   const handleNodeClick = useCallback((_event: React.MouseEvent, node: Node) => {
     setSelectedNode(node.data as unknown as NodeData);
+    setSelectedNodeId(node.id);
   }, []);
 
   const handleNodeSelect = useCallback((nodeId: string) => {
     const node = nodes.find((n) => n.id === nodeId);
     if (node) {
       setSelectedNode(node.data as unknown as NodeData);
+      setSelectedNodeId(node.id);
       setCenter(node.position.x, node.position.y, { zoom: 1.2, duration: 500 });
     }
   }, [nodes, setCenter]);
@@ -174,14 +179,34 @@ function GraphCanvasContent() {
 
   const handleCloseDetails = useCallback(() => {
     setSelectedNode(null);
+    setSelectedNodeId(null);
   }, []);
 
   const handleNavigate = useCallback(() => {
-    if (selectedNode) {
-      // Navigate to the note page - implement based on routing
-      // Example: router.push(`/notes/${selectedNode.noteId}`);
+    if (selectedNode?.noteId) {
+      router.push(`/notes/${selectedNode.noteId}`);
     }
-  }, [selectedNode]);
+  }, [selectedNode, router]);
+
+  const handleShowConnections = useCallback(() => {
+    if (!selectedNodeId) return;
+
+    const connectedNodeIds = new Set<string>();
+    for (const edge of edges) {
+      if (edge.source === selectedNodeId) connectedNodeIds.add(edge.target);
+      if (edge.target === selectedNodeId) connectedNodeIds.add(edge.source);
+    }
+
+    if (connectedNodeIds.size === 0) return;
+
+    const connectedNodes = nodes.filter(
+      (n) => connectedNodeIds.has(n.id) || n.id === selectedNodeId
+    );
+
+    const avgX = connectedNodes.reduce((sum, n) => sum + n.position.x, 0) / connectedNodes.length;
+    const avgY = connectedNodes.reduce((sum, n) => sum + n.position.y, 0) / connectedNodes.length;
+    setCenter(avgX, avgY, { zoom: 1, duration: 500 });
+  }, [selectedNodeId, edges, nodes, setCenter]);
 
   // Register custom node and edge types
   const nodeTypes = {
@@ -272,6 +297,7 @@ function GraphCanvasContent() {
           node={selectedNode}
           onClose={handleCloseDetails}
           onNavigate={handleNavigate}
+          onShowConnections={handleShowConnections}
         />
       </ReactFlow>
     </div>

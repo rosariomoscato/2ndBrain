@@ -10,6 +10,8 @@ import { NeonBadge } from "@/components/ui/neon-badge";
 export interface NodeData {
   label: string;
   type: "note" | "concept" | "tag" | "reference";
+  noteId: string | null;
+  excerpt: string;
   tags: string[];
   updatedAt: string;
   createdAt?: string;

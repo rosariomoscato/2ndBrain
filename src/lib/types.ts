@@ -62,6 +62,8 @@ export type Tag = {
 export type NodeData = {
   label: string;
   type: NodeType;
+  noteId: string | null;
+  excerpt: string;
   tags: string[];
   updatedAt: string;
   createdAt?: string;

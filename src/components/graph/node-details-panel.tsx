@@ -1,6 +1,6 @@
 "use client";
 
-import { X, Clock, Link2, ExternalLink } from "lucide-react";
+import { X, Clock, Link2, ExternalLink, Info } from "lucide-react";
 import { CyberButton } from "@/components/ui/cyber-button";
 import { NeonBadge } from "@/components/ui/neon-badge";
 import { NodeData } from "./graph-node";
@@ -9,12 +9,14 @@ interface NodeDetailsPanelProps {
   node: NodeData | null;
   onClose: () => void;
   onNavigate?: () => void;
+  onShowConnections?: () => void;
 }
 
 export function NodeDetailsPanel({
   node,
   onClose,
   onNavigate,
+  onShowConnections,
 }: NodeDetailsPanelProps) {
   if (!node) return null;
 
@@ -98,10 +100,11 @@ export function NodeDetailsPanel({
         </NeonBadge>
 
         {/* Excerpt */}
-        <div className="text-xs text-text-secondary line-clamp-4">
-          This is a sample excerpt for the selected node. In production, this would display
-          actual content from the note, concept, tag, or reference.
-        </div>
+        {node.excerpt && (
+          <div className="text-xs text-text-secondary line-clamp-4">
+            {node.excerpt}
+          </div>
+        )}
 
         {/* Tags */}
         {tags && tags.length > 0 && (
@@ -132,10 +135,21 @@ export function NodeDetailsPanel({
           </div>
 
           {/* Importance */}
-          <div className="glass-panel rounded-lg p-3">
+          <div className="glass-panel rounded-lg p-3 relative group">
             <div className="flex items-center gap-2 mb-1">
               <Clock className="w-3 h-3 text-text-dim" />
               <span className="text-[10px] text-text-dim uppercase tracking-wider">Importance</span>
+              <Info className="w-3 h-3 text-text-dim cursor-help" />
+              <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-64 p-3 rounded-lg bg-space-black/95 border border-neon-purple/30 text-[10px] text-text-secondary leading-relaxed z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none">
+                <div className="font-bold text-text-primary mb-1">How it&apos;s calculated (1-5)</div>
+                <div className="space-y-0.5">
+                  <div>+1 base (every node)</div>
+                  <div>+1 if 1+ connections</div>
+                  <div>+1 if 4+ connections</div>
+                  <div>+1 if content &gt; 200 chars</div>
+                  <div>+1 if has tags</div>
+                </div>
+              </div>
             </div>
             <div className="text-lg font-bold font-display text-neon-purple glow-text">
               {importance}/5
@@ -159,19 +173,22 @@ export function NodeDetailsPanel({
 
         {/* Actions */}
         <div className="flex flex-col gap-2 pt-2 border-t border-glass-border">
-          <CyberButton
-            variant="outline"
-            size="sm"
-            className="w-full"
-            onClick={onNavigate}
-          >
-            <ExternalLink className="w-4 h-4 mr-2" />
-            View Full Note
-          </CyberButton>
+          {node.noteId && onNavigate && (
+            <CyberButton
+              variant="outline"
+              size="sm"
+              className="w-full"
+              onClick={onNavigate}
+            >
+              <ExternalLink className="w-4 h-4 mr-2" />
+              View Full Note
+            </CyberButton>
+          )}
           <CyberButton
             variant="ghost"
             size="sm"
             className="w-full"
+            onClick={onShowConnections}
           >
             <Link2 className="w-4 h-4 mr-2" />
             Show Connections

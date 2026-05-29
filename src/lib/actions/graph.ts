@@ -47,29 +47,54 @@ export async function getGraphData(): Promise<{ nodes: Node[]; edges: Edge[] }> 
     }
   }
 
-  const connectionCounts = await db.select({
-    nodeId: graphNodes.id,
-    count: sql<number>`(
-      SELECT COUNT(*) FROM graph_edges
-      WHERE graph_edges.source_id = ${graphNodes.id} OR graph_edges.target_id = ${graphNodes.id}
-    )`,
-  }).from(graphNodes).where(eq(graphNodes.userId, session.user.id));
+  const connMap = new Map<string, number>();
+  for (const e of edges) {
+    connMap.set(e.sourceId, (connMap.get(e.sourceId) ?? 0) + 1);
+    connMap.set(e.targetId, (connMap.get(e.targetId) ?? 0) + 1);
+  }
 
-  const connMap = new Map(connectionCounts.map(c => [c.nodeId, Number(c.count)]));
+  const noteDataMap = new Map<string, { title: string; excerpt: string; contentLength: number }>();
+  const nodesWithNotes = nodes.filter(n => n.noteId !== null);
+  if (nodesWithNotes.length > 0) {
+    const noteRows = await db.select({
+      id: notes.id,
+      title: notes.title,
+      excerpt: notes.excerpt,
+      contentLength: sql<number>`length(${notes.content})`,
+    }).from(notes).where(
+      sql`${notes.id} IN (${sql.join(nodesWithNotes.map(n => n.noteId!), sql`, `)})`
+    );
+    for (const r of noteRows) {
+      noteDataMap.set(r.id, { title: r.title, excerpt: r.excerpt, contentLength: r.contentLength });
+    }
+  }
 
-  const reactFlowNodes: Node[] = nodes.map(n => ({
-    id: n.id,
-    type: "cyberNode",
-    position: { x: n.positionX ?? Math.random() * 800, y: n.positionY ?? Math.random() * 600 },
-    data: {
-      label: n.label,
-      type: n.type,
-      tags: nodeTagMap.get(n.id) ?? [],
-      updatedAt: n.updatedAt.toISOString(),
-      connections: connMap.get(n.id) ?? 0,
-      importance: n.importance,
-    },
-  }));
+  const reactFlowNodes: Node[] = nodes.map(n => {
+    const noteData = n.noteId ? noteDataMap.get(n.noteId) : undefined;
+    const connections = connMap.get(n.id) ?? 0;
+    const nodeTags = nodeTagMap.get(n.id) ?? [];
+    const importance = Math.min(5, 1
+      + (connections >= 1 ? 1 : 0)
+      + (connections >= 4 ? 1 : 0)
+      + ((noteData?.contentLength ?? 0) > 200 ? 1 : 0)
+      + (nodeTags.length > 0 ? 1 : 0)
+    );
+    return {
+      id: n.id,
+      type: "cyberNode",
+      position: { x: n.positionX ?? Math.random() * 800, y: n.positionY ?? Math.random() * 600 },
+      data: {
+        label: noteData?.title ?? n.label,
+        type: n.type,
+        noteId: n.noteId,
+        excerpt: noteData?.excerpt ?? "",
+        tags: nodeTags,
+        updatedAt: n.updatedAt.toISOString(),
+        connections,
+        importance,
+      },
+    };
+  });
 
   const reactFlowEdges: Edge[] = edges.map(e => ({
     id: e.id,
