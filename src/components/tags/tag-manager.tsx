@@ -13,6 +13,8 @@ import {
   Trash2,
 } from "lucide-react";
 import { CyberButton as Button } from "@/components/ui/cyber-button";
+import { useSystemSettings } from "@/components/shared/system-settings-provider";
+import { playSuccessSound, playDeleteSound, playErrorSound } from "@/lib/sounds";
 import { CyberInput } from "@/components/ui/cyber-input";
 import { LoadingOrb } from "@/components/ui/loading-orb";
 import { NeonBadge } from "@/components/ui/neon-badge";
@@ -26,6 +28,7 @@ interface TagManagerProps {
 }
 
 export function TagManager({ TagEditorModalComponent }: TagManagerProps) {
+  const { soundEffects } = useSystemSettings();
   const [tags, setTags] = React.useState<Tag[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [query, setQuery] = React.useState("");
@@ -83,6 +86,7 @@ export function TagManager({ TagEditorModalComponent }: TagManagerProps) {
         );
         
         await updateTag({ id: editingTag.id, ...tagData });
+        if (soundEffects) playSuccessSound();
         toast.success("Tag updated");
       } else {
         // Optimistically add new tag
@@ -96,6 +100,7 @@ export function TagManager({ TagEditorModalComponent }: TagManagerProps) {
         setTags([...tags, newTag]);
         
         await createTag(tagData);
+        if (soundEffects) playSuccessSound();
         toast.success("Tag created");
       }
       
@@ -104,6 +109,7 @@ export function TagManager({ TagEditorModalComponent }: TagManagerProps) {
       setIsModalOpen(false);
     } catch (error) {
       console.error("Failed to save tag:", error);
+      if (soundEffects) playErrorSound();
       toast.error("Failed to save tag");
       // Reload to revert optimistic update
       await loadTags(sortBy);
@@ -117,9 +123,11 @@ export function TagManager({ TagEditorModalComponent }: TagManagerProps) {
       // Optimistically remove tag
       setTags(tags.filter((t) => t.id !== tagId));
       await deleteTag(tagId);
+      if (soundEffects) playDeleteSound();
       toast.success("Tag deleted");
     } catch (error) {
       console.error("Failed to delete tag:", error);
+      if (soundEffects) playErrorSound();
       toast.error("Failed to delete tag");
       // Reload to revert optimistic update
       await loadTags(sortBy);

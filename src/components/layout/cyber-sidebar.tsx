@@ -17,6 +17,8 @@ import { CyberButton } from "@/components/ui/cyber-button";
 import { getNodeCount, getEdgeCount } from "@/lib/actions/graph";
 import { getNoteCount, getNotes } from "@/lib/actions/notes";
 import { cn } from "@/lib/utils";
+import { useSystemSettings } from "@/components/shared/system-settings-provider";
+import { playNavigateSound } from "@/lib/sounds";
 
 interface NavItem {
   icon: React.ElementType;
@@ -39,6 +41,7 @@ interface RecentNote {
 
 export function CyberSidebar() {
   const pathname = usePathname();
+  const { soundEffects } = useSystemSettings();
 
   const navItems: NavItem[] = [
     { icon: Home, label: "Dashboard", href: "/" },
@@ -93,6 +96,7 @@ export function CyberSidebar() {
             <Link
               key={item.href}
               href={item.href}
+              onClick={() => { if (soundEffects) playNavigateSound(); }}
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200",
                 "hover:bg-glass-highlight hover:-translate-x-1",

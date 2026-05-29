@@ -79,15 +79,15 @@ body {
 /* Neon Glow Effects */
 .glow-text {
   text-shadow:
-    0 0 10px var(--color-neon-cyan),
-    0 0 20px var(--color-neon-purple),
-    0 0 30px var(--color-neon-cyan);
+    var(--theme-glow-1, 0 0 10px) var(--color-neon-cyan),
+    var(--theme-glow-2, 0 0 20px) var(--color-neon-purple),
+    var(--theme-glow-3, 0 0 30px) var(--color-neon-cyan);
 }
 
 .glow-border {
   box-shadow:
-    0 0 15px var(--color-neon-cyan),
-    inset 0 0 10px color-mix(in oklch, var(--color-neon-cyan) 10%, transparent);
+    var(--theme-border-glow, 0 0 15px) var(--color-neon-cyan),
+    var(--theme-inset-glow, inset 0 0 10px) color-mix(in oklch, var(--color-neon-cyan) 10%, transparent);
 }
 
 /* Glass Panels */
@@ -98,6 +98,22 @@ body {
   box-shadow:
     0 8px 32px rgba(0, 0, 0, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* System: Glassmorphism disabled */
+.system-no-glass .glass-panel {
+  backdrop-filter: none;
+  background: oklch(0.12 0.01 270 / 0.95);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* System: Animations disabled */
+.system-no-animations *,
+.system-no-animations *::before,
+.system-no-animations *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
 }
 
 /* Neon Grid Background */
@@ -125,7 +141,7 @@ body {
     var(--color-neon-cyan),
     transparent
   );
-  animation: scan 3s linear infinite;
+  animation: scan var(--theme-scan-speed, 3s) linear infinite;
 }
 
 @keyframes scan {

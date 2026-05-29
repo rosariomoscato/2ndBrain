@@ -8,6 +8,8 @@ import { MainViewport } from "@/components/layout/main-viewport";
 import { StarfieldBg } from "@/components/shared/starfield-bg";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { CyberThemeInjector } from "@/components/shared/cyber-theme-injector";
+import { SystemSettingsProvider } from "@/components/shared/system-settings-provider";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 
@@ -78,6 +80,8 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <CyberThemeInjector />
+          <SystemSettingsProvider>
           <StarfieldBg />
           {isAuthenticated ? (
             <div className="flex flex-col h-screen overflow-hidden bg-space-black relative z-10">
@@ -99,7 +103,8 @@ export default async function RootLayout({
             </div>
           )}
           <Toaster richColors position="top-right" />
-        </ThemeProvider>
+          </SystemSettingsProvider>
+         </ThemeProvider>
       </body>
     </html>
   );

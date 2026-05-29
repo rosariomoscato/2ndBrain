@@ -1,3 +1,5 @@
+"use client";
+
 import { ReactNode } from "react";
 
 interface MainViewportProps {
@@ -10,7 +12,10 @@ export function MainViewport({ children }: MainViewportProps) {
       {/* Background Effects */}
       <div className="absolute inset-0 pointer-events-none">
         {/* Animated grid */}
-        <div className="neon-grid absolute inset-0 opacity-30" />
+        <div
+          className="neon-grid absolute inset-0"
+          style={{ opacity: "var(--theme-grid-opacity, 0.3)" }}
+        />
 
         {/* Nebula glow effects */}
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-neon-purple/10 rounded-full blur-[120px] animate-pulse" />

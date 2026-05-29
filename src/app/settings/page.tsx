@@ -9,28 +9,32 @@ import { CyberInput } from "@/components/ui/cyber-input";
 import { LoadingOrb } from "@/components/ui/loading-orb";
 import { getSettings, updateSettings } from "@/lib/actions/settings";
 import type { UserThemeSettings, UserSystemSettings, UserAISettings } from "@/lib/types";
+import { applySystemSettingsUpdate } from "@/components/shared/system-settings-provider";
+import { useSystemSettings } from "@/components/shared/system-settings-provider";
+import { playToggleSound } from "@/lib/sounds";
+import { requestNotificationPermission, showNotification } from "@/lib/notifications";
 
 // Theme presets
 const THEME_PRESETS: Record<string, UserThemeSettings> = {
   minimal: {
-    neonIntensity: 30,
-    gridVisibility: 20,
-    particleDensity: 20,
+    neonIntensity: 20,
+    gridVisibility: 10,
+    particleDensity: 15,
     scanLineSpeed: 20,
     preset: "minimal",
   },
   balanced: {
     neonIntensity: 50,
-    gridVisibility: 50,
-    particleDensity: 50,
+    gridVisibility: 40,
+    particleDensity: 40,
     scanLineSpeed: 50,
     preset: "balanced",
   },
   cyberpunk: {
-    neonIntensity: 70,
-    gridVisibility: 50,
-    particleDensity: 60,
-    scanLineSpeed: 50,
+    neonIntensity: 100,
+    gridVisibility: 70,
+    particleDensity: 80,
+    scanLineSpeed: 80,
     preset: "cyberpunk",
   },
 };
@@ -63,31 +67,71 @@ function SettingsPanel() {
   const updateThemeSetting = async (key: keyof UserThemeSettings, value: number | string) => {
     if (!settings) return;
 
+    const newTheme = {
+      ...settings.theme,
+      [key]: value,
+    };
+
     const newSettings = {
       ...settings,
-      theme: {
-        ...settings.theme,
-        [key]: value,
-      },
+      theme: newTheme,
     };
 
     setSettings(newSettings);
-    await debouncedSave({ theme: newSettings.theme });
+
+    applyThemeVars(newTheme as Record<string, unknown>);
+
+    await debouncedSave({ theme: newTheme });
   };
+
+  const applyThemeVars = (theme: Record<string, unknown>) => {
+    const root = document.documentElement;
+    const neon = (theme.neonIntensity as number) ?? 70;
+    const grid = (theme.gridVisibility as number) ?? 50;
+    const particles = (theme.particleDensity as number) ?? 60;
+    const scanSpeed = (theme.scanLineSpeed as number) ?? 50;
+
+    root.style.setProperty("--theme-neon-intensity", `${neon / 100}`);
+    root.style.setProperty("--theme-grid-opacity", `${grid / 100}`);
+    root.style.setProperty("--theme-particle-density", `${particles / 100}`);
+    root.style.setProperty("--theme-scan-speed", `${6 - (scanSpeed / 100) * 5}s`);
+
+    const glowBlur1 = Math.round((neon / 100) * 20);
+    const glowBlur2 = Math.round((neon / 100) * 40);
+    const glowBlur3 = Math.round((neon / 100) * 60);
+    root.style.setProperty("--theme-glow-1", `0 0 ${glowBlur1}px`);
+    root.style.setProperty("--theme-glow-2", `0 0 ${glowBlur2}px`);
+    root.style.setProperty("--theme-glow-3", `0 0 ${glowBlur3}px`);
+
+    const borderGlow = Math.round((neon / 100) * 15);
+    root.style.setProperty("--theme-border-glow", `0 0 ${borderGlow}px`);
+    root.style.setProperty("--theme-inset-glow", `inset 0 0 ${Math.round(borderGlow * 0.67)}px`);
+  };
+
+  const systemSettings = useSystemSettings();
 
   const updateSystemSetting = async (key: keyof UserSystemSettings, value: boolean) => {
     if (!settings) return;
 
-    const newSettings = {
-      ...settings,
-      system: {
-        ...settings.system,
-        [key]: value,
-      },
-    };
+    const newSystem = { ...settings.system, [key]: value };
+    const newSettings = { ...settings, system: newSystem };
 
     setSettings(newSettings);
-    await debouncedSave({ system: newSettings.system });
+
+    applySystemSettingsUpdate(newSystem);
+
+    if (systemSettings.soundEffects) playToggleSound();
+
+    if (key === "notifications" && value) {
+      const granted = await requestNotificationPermission();
+      if (granted) {
+        showNotification("2ndBrain Notifications Enabled", {
+          body: "You will now receive desktop notifications.",
+        });
+      }
+    }
+
+    await debouncedSave({ system: newSystem });
   };
 
   const updateAISetting = async (key: keyof UserAISettings, value: string | boolean) => {

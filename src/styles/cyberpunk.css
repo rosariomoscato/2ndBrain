@@ -14,36 +14,36 @@
 
 .glow-text {
   text-shadow:
-    0 0 10px var(--color-neon-cyan),
-    0 0 20px var(--color-neon-purple),
-    0 0 30px var(--color-neon-cyan);
+    var(--theme-glow-1, 0 0 10px) var(--color-neon-cyan),
+    var(--theme-glow-2, 0 0 20px) var(--color-neon-purple),
+    var(--theme-glow-3, 0 0 30px) var(--color-neon-cyan);
 }
 
 .glow-text-purple {
   text-shadow:
-    0 0 10px var(--color-neon-purple),
-    0 0 20px var(--color-neon-pink),
-    0 0 30px var(--color-neon-purple);
+    var(--theme-glow-1, 0 0 10px) var(--color-neon-purple),
+    var(--theme-glow-2, 0 0 20px) var(--color-neon-pink),
+    var(--theme-glow-3, 0 0 30px) var(--color-neon-purple);
 }
 
 .glow-text-blue {
   text-shadow:
-    0 0 10px var(--color-neon-blue),
-    0 0 20px var(--color-neon-cyan),
-    0 0 30px var(--color-neon-blue);
+    var(--theme-glow-1, 0 0 10px) var(--color-neon-blue),
+    var(--theme-glow-2, 0 0 20px) var(--color-neon-cyan),
+    var(--theme-glow-3, 0 0 30px) var(--color-neon-blue);
 }
 
 .glow-text-green {
   text-shadow:
-    0 0 10px var(--color-neon-green),
-    0 0 20px var(--color-neon-cyan),
-    0 0 30px var(--color-neon-green);
+    var(--theme-glow-1, 0 0 10px) var(--color-neon-green),
+    var(--theme-glow-2, 0 0 20px) var(--color-neon-cyan),
+    var(--theme-glow-3, 0 0 30px) var(--color-neon-green);
 }
 
 .glow-border {
   box-shadow:
-    0 0 15px var(--color-neon-cyan),
-    inset 0 0 10px color-mix(in oklch, var(--color-neon-cyan) 10%, transparent);
+    var(--theme-border-glow, 0 0 15px) var(--color-neon-cyan),
+    var(--theme-inset-glow, inset 0 0 10px) color-mix(in oklch, var(--color-neon-cyan) 10%, transparent);
 }
 
 .glow-border-purple {
@@ -184,7 +184,7 @@
     var(--color-neon-cyan),
     transparent
   );
-  animation: scan 3s linear infinite;
+  animation: scan var(--theme-scan-speed, 3s) linear infinite;
   pointer-events: none;
 }
 

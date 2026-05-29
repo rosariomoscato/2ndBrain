@@ -7,6 +7,8 @@ import { MainViewport } from "@/components/layout/main-viewport";
 import { NoteEditor } from "@/components/notes/note-editor";
 import { LoadingOrb } from "@/components/ui/loading-orb";
 import { getNoteById, updateNote } from "@/lib/actions/notes";
+import { useSystemSettings } from "@/components/shared/system-settings-provider";
+import { playSuccessSound, playErrorSound } from "@/lib/sounds";
 
 interface NotePageProps {
   params: Promise<{
@@ -17,6 +19,7 @@ interface NotePageProps {
 export default function NotePage({ params }: NotePageProps) {
   const { id } = use(params);
   const router = useRouter();
+  const { soundEffects } = useSystemSettings();
   const [note, setNote] = useState<{ title: string; content: string; tags: string[] } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -52,8 +55,10 @@ export default function NotePage({ params }: NotePageProps) {
         content: updatedNote.content,
         tags: updatedNote.tags,
       });
+      if (soundEffects) playSuccessSound();
       toast.success("Note saved");
     } catch (error) {
+      if (soundEffects) playErrorSound();
       toast.error("Failed to save note");
       console.error(error);
     }
