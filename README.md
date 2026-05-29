@@ -7,9 +7,11 @@ Un'applicazione per la gestione della conoscenza personale (PKM) con knowledge g
 ## Funzionalità
 
 - **Note Markdown** — Crea, modifica e organizza note con editor markdown e preview live
-- **Knowledge Graph** — Visualizzazione interattiva delle connessioni tra note (tag-based e semantiche)
-- **Ricerca AI (RAG)** — Interroga le tue note in linguaggio naturale con retrieval-augmented generation
+- **Supporto PDF** — Carica PDF, estrai automaticamente il testo, allega alle note e visualizza inline
+- **Knowledge Graph** — Visualizzazione interattiva delle connessioni tra note (auto-collegamento per tag, similitudine semantica)
+- **Ricerca AI (RAG)** — Interroga le tue note in linguaggio naturale con retrieval-augmented generation (cerca per contenuti, tag e embeddings)
 - **Ricerca Semantica** — Embeddings vettoriali con pgvector per trovare note simili
+- **Gestione Tag** — I tag collegano automaticamente le note nel knowledge graph
 - **Autenticazione** — Better Auth con email/password, verifica email e reset password
 - **Multi-utente** — Ogni utente vede solo le proprie note e il proprio graph
 
@@ -92,11 +94,13 @@ src/
 │   ├── graph/         # ReactFlow graph components
 │   ├── layout/        # Header, Sidebar
 │   ├── notes/         # Note editor
+│   ├── pdf/           # Upload zone, viewer per PDF
 │   └── ui/            # Componenti UI base
 └── lib/               # Business logic
-    ├── actions/       # Server actions
+    ├── actions/       # Server actions (notes, pdf-upload, graph, ai-query)
     ├── auth.ts        # Better Auth config
     ├── db.ts          # Database connection
+    ├── pdf-parser.ts  # Estrazione testo da PDF
     ├── schema.ts      # Drizzle schema
     └── embeddings.ts  # Embedding & vector search
 ```
