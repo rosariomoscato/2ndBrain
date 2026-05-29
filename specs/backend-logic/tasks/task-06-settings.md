@@ -30,6 +30,7 @@ None
 ## Technical Details
 
 ### Default Settings
+
 ```typescript
 const DEFAULT_THEME = {
   neonIntensity: 70,
@@ -77,21 +78,27 @@ async function getSession() {
 ```
 
 2. **getSettings action:**
+
 ```typescript
 export async function getSettings() {
   const session = await getSession();
-  
-  let settings = await db.select().from(userSettings)
+
+  let settings = await db
+    .select()
+    .from(userSettings)
     .where(eq(userSettings.userId, session.user.id))
     .limit(1);
 
   if (settings.length === 0) {
-    const [created] = await db.insert(userSettings).values({
-      userId: session.user.id,
-      theme: DEFAULT_THEME,
-      system: DEFAULT_SYSTEM,
-      ai: DEFAULT_AI,
-    }).returning();
+    const [created] = await db
+      .insert(userSettings)
+      .values({
+        userId: session.user.id,
+        theme: DEFAULT_THEME,
+        system: DEFAULT_SYSTEM,
+        ai: DEFAULT_AI,
+      })
+      .returning();
     settings = [created];
   }
 
@@ -104,6 +111,7 @@ export async function getSettings() {
 ```
 
 3. **updateSettings action:**
+
 ```typescript
 export async function updateSettings(input: {
   theme?: UserThemeSettings;
@@ -113,7 +121,9 @@ export async function updateSettings(input: {
   const session = await getSession();
   const validated = updateSettingsSchema.parse(input);
 
-  const existing = await db.select().from(userSettings)
+  const existing = await db
+    .select()
+    .from(userSettings)
     .where(eq(userSettings.userId, session.user.id))
     .limit(1);
 
@@ -131,8 +141,7 @@ export async function updateSettings(input: {
     if (validated.ai) updates.ai = { ...existing[0].ai, ...validated.ai };
 
     if (Object.keys(updates).length > 0) {
-      await db.update(userSettings).set(updates)
-        .where(eq(userSettings.userId, session.user.id));
+      await db.update(userSettings).set(updates).where(eq(userSettings.userId, session.user.id));
     }
   }
 

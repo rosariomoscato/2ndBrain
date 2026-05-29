@@ -4,10 +4,10 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { MainViewport } from "@/components/layout/main-viewport";
 import { NoteEditor } from "@/components/notes/note-editor";
-import { createNote } from "@/lib/actions/notes";
 import { useSystemSettings } from "@/components/shared/system-settings-provider";
-import { playSuccessSound, playErrorSound } from "@/lib/sounds";
+import { createNote } from "@/lib/actions/notes";
 import { showNotification } from "@/lib/notifications";
+import { playSuccessSound, playErrorSound } from "@/lib/sounds";
 
 export default function NewNotePage() {
   const router = useRouter();

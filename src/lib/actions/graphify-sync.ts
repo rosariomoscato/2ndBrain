@@ -59,12 +59,7 @@ export async function syncGraphifyGraph() {
     const existing = await db
       .select()
       .from(graphNodes)
-      .where(
-        and(
-          eq(graphNodes.label, node.label),
-          eq(graphNodes.userId, session.user.id)
-        )
-      )
+      .where(and(eq(graphNodes.label, node.label), eq(graphNodes.userId, session.user.id)))
       .limit(1);
 
     // Only create if node doesn't exist
@@ -85,10 +80,7 @@ export async function syncGraphifyGraph() {
   let edgesCreated = 0;
 
   // Get all node IDs mapped by label for edge lookup
-  const allNodes = await db
-    .select()
-    .from(graphNodes)
-    .where(eq(graphNodes.userId, session.user.id));
+  const allNodes = await db.select().from(graphNodes).where(eq(graphNodes.userId, session.user.id));
   const labelToId = new Map(allNodes.map((n) => [n.label, n.id]));
 
   for (const edge of graphData.edges) {

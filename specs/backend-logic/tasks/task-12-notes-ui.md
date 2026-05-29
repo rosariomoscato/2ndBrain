@@ -31,6 +31,7 @@ Wire the notes list page, new note page, and note editor page to the real server
 ### Implementation Steps
 
 1. **src/app/notes/page.tsx:**
+
 - Replace `allNotes` hardcoded array with state loaded from `getNotes()`
 - Add `useEffect` to load notes on mount
 - Keep search and filter logic but operate on real data
@@ -39,6 +40,7 @@ Wire the notes list page, new note page, and note editor page to the real server
 - Add loading and empty states
 
 2. **src/app/notes/new/page.tsx:**
+
 - Replace `console.log("New note saved:", note)` with `createNote()` call
 - After successful creation, redirect to `/notes/${newNote.id}` using `useRouter`
 - Add error handling with toast notification (sonner)
@@ -70,6 +72,7 @@ const onSave = async (note: { title: string; content: string; tags: string[] }) 
 ```
 
 3. **src/app/notes/[id]/page.tsx:**
+
 - Replace mockNotes with real data from `getNoteById(params.id)`
 - Load note on mount using useEffect
 - Show 404 or redirect if note not found
@@ -90,7 +93,7 @@ useEffect(() => {
     setNote({
       title: data.title,
       content: data.content ?? "",
-      tags: data.tags.map(t => t.name),
+      tags: data.tags.map((t) => t.name),
     });
     setLoading(false);
   }
@@ -113,6 +116,7 @@ const onSave = async (updatedNote: { title: string; content: string; tags: strin
 ```
 
 4. **src/components/notes/note-editor.tsx:**
+
 - The `onSave` prop already exists — no changes needed here, the parent pages handle it
 - Remove `console.log("Saving note:", ...)` and `alert(...)` from the internal save handler
 - The save handler should call the `onSave` prop directly

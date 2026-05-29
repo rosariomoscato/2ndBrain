@@ -15,19 +15,17 @@ export function ThemeSettings() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <Palette className="h-5 w-5 text-neon-cyan" />
-        <h3 className="text-lg font-display font-bold text-text-primary">
-          Theme Customization
-        </h3>
+        <Palette className="text-neon-cyan h-5 w-5" />
+        <h3 className="font-display text-text-primary text-lg font-bold">Theme Customization</h3>
       </div>
 
       {/* Neon Intensity */}
       <CyberCard>
         <CardContent className="p-4">
-          <div className="flex items-center justify-between mb-2">
+          <div className="mb-2 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Zap className="h-4 w-4 text-neon-cyan" />
-              <span className="font-medium text-text-primary">Neon Intensity</span>
+              <Zap className="text-neon-cyan h-4 w-4" />
+              <span className="text-text-primary font-medium">Neon Intensity</span>
             </div>
             <NeonBadge variant="cyan">{neonIntensity}%</NeonBadge>
           </div>
@@ -37,7 +35,7 @@ export function ThemeSettings() {
             max="100"
             value={neonIntensity}
             onChange={(e) => setNeonIntensity(Number(e.target.value))}
-            className="w-full h-2 bg-glass-surface rounded-lg appearance-none cursor-pointer accent-neon-cyan"
+            className="bg-glass-surface accent-neon-cyan h-2 w-full cursor-pointer appearance-none rounded-lg"
           />
         </CardContent>
       </CyberCard>
@@ -45,10 +43,10 @@ export function ThemeSettings() {
       {/* Grid Visibility */}
       <CyberCard>
         <CardContent className="p-4">
-          <div className="flex items-center justify-between mb-2">
+          <div className="mb-2 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Sun className="h-4 w-4 text-neon-purple" />
-              <span className="font-medium text-text-primary">Grid Visibility</span>
+              <Sun className="text-neon-purple h-4 w-4" />
+              <span className="text-text-primary font-medium">Grid Visibility</span>
             </div>
             <NeonBadge variant="purple">{gridVisibility}%</NeonBadge>
           </div>
@@ -58,7 +56,7 @@ export function ThemeSettings() {
             max="100"
             value={gridVisibility}
             onChange={(e) => setGridVisibility(Number(e.target.value))}
-            className="w-full h-2 bg-glass-surface rounded-lg appearance-none cursor-pointer accent-neon-purple"
+            className="bg-glass-surface accent-neon-purple h-2 w-full cursor-pointer appearance-none rounded-lg"
           />
         </CardContent>
       </CyberCard>
@@ -66,10 +64,10 @@ export function ThemeSettings() {
       {/* Particle Density */}
       <CyberCard>
         <CardContent className="p-4">
-          <div className="flex items-center justify-between mb-2">
+          <div className="mb-2 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Moon className="h-4 w-4 text-neon-blue" />
-              <span className="font-medium text-text-primary">Particle Density</span>
+              <Moon className="text-neon-blue h-4 w-4" />
+              <span className="text-text-primary font-medium">Particle Density</span>
             </div>
             <NeonBadge variant="blue">{particleDensity}</NeonBadge>
           </div>
@@ -79,7 +77,7 @@ export function ThemeSettings() {
             max="100"
             value={particleDensity}
             onChange={(e) => setParticleDensity(Number(e.target.value))}
-            className="w-full h-2 bg-glass-surface rounded-lg appearance-none cursor-pointer accent-neon-blue"
+            className="bg-glass-surface accent-neon-blue h-2 w-full cursor-pointer appearance-none rounded-lg"
           />
         </CardContent>
       </CyberCard>
@@ -87,10 +85,10 @@ export function ThemeSettings() {
       {/* Scan Line Speed */}
       <CyberCard>
         <CardContent className="p-4">
-          <div className="flex items-center justify-between mb-2">
+          <div className="mb-2 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Zap className="h-4 w-4 text-neon-pink" />
-              <span className="font-medium text-text-primary">Scan Line Speed</span>
+              <Zap className="text-neon-pink h-4 w-4" />
+              <span className="text-text-primary font-medium">Scan Line Speed</span>
             </div>
             <NeonBadge variant="pink">{(scanLineSpeed / 1000).toFixed(1)}s</NeonBadge>
           </div>
@@ -101,7 +99,7 @@ export function ThemeSettings() {
             step="100"
             value={scanLineSpeed}
             onChange={(e) => setScanLineSpeed(Number(e.target.value))}
-            className="w-full h-2 bg-glass-surface rounded-lg appearance-none cursor-pointer accent-neon-pink"
+            className="bg-glass-surface accent-neon-pink h-2 w-full cursor-pointer appearance-none rounded-lg"
           />
         </CardContent>
       </CyberCard>

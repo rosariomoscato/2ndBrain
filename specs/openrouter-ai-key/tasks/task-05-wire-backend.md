@@ -18,6 +18,7 @@ Replace all hardcoded `process.env.OPENROUTER_API_KEY` references in the backend
 **Blocks:** None
 
 **Context from dependencies:**
+
 - task-01 creates `src/lib/crypto.ts` with `encrypt()` and `decrypt()` for AES-256-GCM
 - task-03 creates `src/lib/actions/ai-settings.ts` with:
   - `getUserOpenRouterKey(): Promise<string | null>` — decrypts and returns the user's API key (server-only)
@@ -69,7 +70,9 @@ export async function resolveOpenRouterConfig(): Promise<{ apiKey: string; model
 ### Changes to `src/lib/actions/ai-query.ts`
 
 In the `queryWithRAG` function:
+
 - Replace lines 80-85:
+
   ```ts
   // OLD:
   if (!process.env.OPENROUTER_API_KEY) {
@@ -80,7 +83,8 @@ In the `queryWithRAG` function:
 
   // NEW:
   const config = await resolveOpenRouterConfig();
-  if (!config) throw new Error("OpenRouter API key not configured. Go to Settings > AI to add your key.");
+  if (!config)
+    throw new Error("OpenRouter API key not configured. Go to Settings > AI to add your key.");
   const openrouter = createOpenRouter({ apiKey: config.apiKey });
   const model = config.model;
   ```
@@ -88,6 +92,7 @@ In the `queryWithRAG` function:
 ### Changes to `src/app/api/ai-query/route.ts`
 
 Same pattern as above (lines 110-120):
+
 - Replace `const apiKey = process.env.OPENROUTER_API_KEY` with `resolveOpenRouterConfig()` call
 - Add `import { resolveOpenRouterConfig } from "@/lib/actions/ai-settings"`
 - Note: This route already has the session, so `resolveOpenRouterConfig` can reuse it
@@ -95,6 +100,7 @@ Same pattern as above (lines 110-120):
 ### Changes to `src/app/api/chat/route.ts`
 
 Same pattern (lines 68-74):
+
 - Replace `const apiKey = process.env.OPENROUTER_API_KEY` with `resolveOpenRouterConfig()`
 
 ### Changes to `src/lib/embeddings.ts`
@@ -105,6 +111,7 @@ The embedding functions currently use `process.env.OPENROUTER_API_KEY` directly 
 - `getQueryEmbedding(query)` → needs to accept the API key since it's called from routes that have the session context
 
 The cleanest approach:
+
 1. Create a helper `getEmbeddingApiKey(userId?: string): Promise<string | null>` in embeddings.ts that:
    - If userId is provided, tries to decrypt user's key via `getUserOpenRouterKey(userId)`
    - Falls back to `process.env.OPENROUTER_API_KEY`
@@ -114,12 +121,14 @@ The cleanest approach:
 ### Also update the embedding model to be per-user
 
 In `embeddings.ts`, the `EMBEDDING_MODEL` is hardcoded to `"openai/text-embedding-3-small"`. Add a similar pattern:
+
 - Create `getEmbeddingModel(userId?: string): Promise<string>` that reads from user settings, falls back to the constant
 - Use it in the fetch call
 
 ### Error messages
 
 When no key is available, all AI endpoints should return a clear, user-friendly error:
+
 - For API routes: `{ error: "OpenRouter API key not configured. Go to Settings > AI to add your key." }` with status 403
 - For server actions: `throw new Error("OpenRouter API key not configured. Go to Settings > AI to add your key.")`
 

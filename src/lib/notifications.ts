@@ -18,5 +18,9 @@ export function showNotification(title: string, options?: NotificationOptions) {
 }
 
 export function canNotify(): boolean {
-  return typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted";
+  return (
+    typeof window !== "undefined" &&
+    "Notification" in window &&
+    Notification.permission === "granted"
+  );
 }

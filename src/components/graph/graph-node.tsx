@@ -1,9 +1,5 @@
 import { memo } from "react";
-import {
-  Handle,
-  Position,
-  NodeProps,
-} from "@xyflow/react";
+import { Handle, Position, NodeProps } from "@xyflow/react";
 import { FileText, Link, Tag as TagIcon } from "lucide-react";
 import { NeonBadge } from "@/components/ui/neon-badge";
 
@@ -71,16 +67,17 @@ const GraphNode = memo(({ data, selected }: NodeProps) => {
 
   return (
     <div
-      className={`glass-panel rounded-xl overflow-hidden min-w-[200px] max-w-[280px] border-2 ${config.borderColor} transition-all duration-200 ${
-        selected ? "scale-105 glow-border" : ""
+      className={`glass-panel max-w-[280px] min-w-[200px] overflow-hidden rounded-xl border-2 ${config.borderColor} transition-all duration-200 ${
+        selected ? "glow-border scale-105" : ""
       }`}
     >
       {/* Selected glow overlay */}
       {selected && (
         <div
-          className="absolute inset-0 pointer-events-none"
+          className="pointer-events-none absolute inset-0"
           style={{
-            background: "radial-gradient(circle, color-mix(in srgb, var(--color-neon-cyan) 10%, transparent) 0%, transparent 70%)"
+            background:
+              "radial-gradient(circle, color-mix(in srgb, var(--color-neon-cyan) 10%, transparent) 0%, transparent 70%)",
           }}
         />
       )}
@@ -89,19 +86,19 @@ const GraphNode = memo(({ data, selected }: NodeProps) => {
       <Handle
         type="target"
         position={Position.Top}
-        className={`!w-3 !h-3 !border-2 !border-space-black !bg-neon-cyan !transition-all duration-200 hover:!scale-125 hover:!glow-border`}
+        className={`!border-space-black !bg-neon-cyan hover:!glow-border !h-3 !w-3 !border-2 !transition-all duration-200 hover:!scale-125`}
       />
 
       {/* Node Content */}
-      <div className="relative p-3 space-y-2">
+      <div className="relative space-y-2 p-3">
         {/* Header */}
         <div className="flex items-start gap-2">
           <Icon
-            className={`w-4 h-4 mt-0.5 flex-shrink-0 ${config.color} ${selected ? "glow-text" : ""}`}
+            className={`mt-0.5 h-4 w-4 flex-shrink-0 ${config.color} ${selected ? "glow-text" : ""}`}
           />
-          <div className="flex-1 min-w-0">
+          <div className="min-w-0 flex-1">
             <h3
-              className={`text-sm font-semibold font-display line-clamp-2 leading-tight text-text-primary ${
+              className={`font-display text-text-primary line-clamp-2 text-sm leading-tight font-semibold ${
                 selected ? "glow-text" : ""
               }`}
             >
@@ -114,31 +111,30 @@ const GraphNode = memo(({ data, selected }: NodeProps) => {
         {tags && tags.length > 0 && (
           <div className="flex flex-wrap gap-1">
             {tags.slice(0, 3).map((tag: string, index: number) => (
-              <NeonBadge
-                key={index}
-                variant="cyan"
-                className="text-[10px]"
-              >
+              <NeonBadge key={index} variant="cyan" className="text-[10px]">
                 {tag}
               </NeonBadge>
             ))}
             {tags.length > 3 && (
-              <span className="text-[10px] text-text-dim">
-                +{tags.length - 3}
-              </span>
+              <span className="text-text-dim text-[10px]">+{tags.length - 3}</span>
             )}
           </div>
         )}
 
         {/* Stats */}
-        <div className="flex items-center justify-between pt-2 border-t border-glass-border">
-          <div className="flex items-center gap-1 text-[10px] text-text-dim">
-            <Link className="w-3 h-3" />
+        <div className="border-glass-border flex items-center justify-between border-t pt-2">
+          <div className="text-text-dim flex items-center gap-1 text-[10px]">
+            <Link className="h-3 w-3" />
             <span>{connections}</span>
           </div>
-          <div className="flex items-center gap-1 text-[10px] text-text-dim">
-            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <div className="text-text-dim flex items-center gap-1 text-[10px]">
+            <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
             <span>{formatTime(updatedAt)}</span>
           </div>
@@ -149,7 +145,7 @@ const GraphNode = memo(({ data, selected }: NodeProps) => {
           {[...Array(5)].map((_, index) => (
             <div
               key={index}
-              className={`w-1 h-3 rounded-sm ${
+              className={`h-3 w-1 rounded-sm ${
                 index < importance ? config.color : "bg-glass-border"
               }`}
             />
@@ -161,7 +157,7 @@ const GraphNode = memo(({ data, selected }: NodeProps) => {
       <Handle
         type="source"
         position={Position.Bottom}
-        className={`!w-3 !h-3 !border-2 !border-space-black !bg-neon-purple !transition-all duration-200 hover:!scale-125 hover:!glow-border`}
+        className={`!border-space-black !bg-neon-purple hover:!glow-border !h-3 !w-3 !border-2 !transition-all duration-200 hover:!scale-125`}
       />
     </div>
   );

@@ -379,6 +379,7 @@ export default function RootLayout({
 ### Code Snippets
 
 Grid layout pattern for responsive design:
+
 ```css
 /* Desktop: Sidebar + Viewport */
 .sidebar {

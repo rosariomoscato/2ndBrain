@@ -320,6 +320,7 @@ export function NoteEditor({ /* existing props */ }: NoteEditorProps) {
 ```
 
 3. Add Clock icon import (if not already imported):
+
 ```typescript
 import { Clock } from "lucide-react";
 ```
@@ -327,6 +328,7 @@ import { Clock } from "lucide-react";
 ### Code Snippets
 
 Message interface:
+
 ```typescript
 interface Message {
   id: string;
@@ -337,6 +339,7 @@ interface Message {
 ```
 
 Auto-scroll to bottom:
+
 ```typescript
 const messagesEndRef = useRef<HTMLDivElement>(null);
 

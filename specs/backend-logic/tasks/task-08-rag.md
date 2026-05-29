@@ -55,24 +55,25 @@ async function getSession() {
 ```
 
 2. **queryWithRAG action** (non-streaming, returns full response):
+
 ```typescript
 export async function queryWithRAG(query: string) {
   const session = await getSession();
-  
+
   const queryEmbedding = await getQueryEmbedding(query);
-  
+
   let context = "";
   let citations: Citation[] = [];
-  
+
   if (queryEmbedding) {
     const results = await searchSimilarNotes(queryEmbedding, 5, session.user.id);
-    
+
     const seenNoteIds = new Set<string>();
     const contextParts: string[] = [];
-    
+
     for (const result of results) {
       if (result.similarity < 0.5) continue;
-      
+
       if (!seenNoteIds.has(result.noteId)) {
         seenNoteIds.add(result.noteId);
         const note = await getNoteById(result.noteId);
@@ -89,10 +90,10 @@ export async function queryWithRAG(query: string) {
     }
     context = contextParts.join("\n\n");
   }
-  
+
   const openrouter = createOpenRouter({ apiKey: process.env.OPENROUTER_API_KEY });
   const model = process.env.OPENROUTER_MODEL ?? "openai/gpt-5-mini";
-  
+
   const systemPrompt = `You are an AI assistant for a personal knowledge management system called 2ndBrain. Answer questions based on the user's notes and knowledge base. Always cite your sources when referencing specific information from the notes. If the context doesn't contain relevant information, say so honestly.
 
 ${context ? `User's relevant notes:\n${context}` : "No relevant notes found for this query. Answer based on general knowledge but mention that no matching notes were found."}`;
@@ -104,14 +105,14 @@ ${context ? `User's relevant notes:\n${context}` : "No relevant notes found for 
   });
 
   const answer = await text;
-  
+
   await db.insert(aiQueries).values({
     userId: session.user.id,
     query,
     answer,
     citations,
   });
-  
+
   return {
     query,
     answer,
@@ -122,30 +123,34 @@ ${context ? `User's relevant notes:\n${context}` : "No relevant notes found for 
 ```
 
 3. **getQueryHistory action:**
+
 ```typescript
 export async function getQueryHistory(limit: number = 20): Promise<QueryHistoryItem[]> {
   const session = await getSession();
-  
-  const results = await db.select({
-    id: aiQueries.id,
-    query: aiQueries.query,
-    createdAt: aiQueries.createdAt,
-  })
-  .from(aiQueries)
-  .where(eq(aiQueries.userId, session.user.id))
-  .orderBy(desc(aiQueries.createdAt))
-  .limit(limit);
-  
-  return results.map(r => ({
+
+  const results = await db
+    .select({
+      id: aiQueries.id,
+      query: aiQueries.query,
+      createdAt: aiQueries.createdAt,
+    })
+    .from(aiQueries)
+    .where(eq(aiQueries.userId, session.user.id))
+    .orderBy(desc(aiQueries.createdAt))
+    .limit(limit);
+
+  return results.map((r) => ({
     id: r.id,
     query: r.query,
     timestamp: r.createdAt.toISOString(),
   }));
 }
 ```
+
 Add the missing imports: `import { eq, desc } from "drizzle-orm";`
 
 4. **clearQueryHistory action:**
+
 ```typescript
 export async function clearQueryHistory() {
   const session = await getSession();

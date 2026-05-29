@@ -29,6 +29,7 @@ Wire the AI Query page and AI chat panel in the note editor to real backend APIs
 ### Implementation Steps
 
 1. **src/app/ai/page.tsx:**
+
 - Replace the entire `handleQuery` function that uses setTimeout with a real call
 - Import `queryWithRAG`, `getQueryHistory`, `clearQueryHistory` from `@/lib/actions/ai-query`
 - Replace mock response with real AIResponse
@@ -70,6 +71,7 @@ const handleClearHistory = async () => {
 - Wire query history items to call handleQuery on click
 
 2. **src/components/notes/ai-panel.tsx:**
+
 - This component provides AI chat about the current note
 - Use the existing `/api/chat` route (already working with OpenRouter)
 - The key change: inject the note content as context in the system message
@@ -92,12 +94,14 @@ const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat(
 - Add a system prompt that includes the note context when provided
 
 ### Modify `src/app/api/chat/route.ts`:
+
 Add to the message validation or extract from body:
+
 ```typescript
 const { messages, context, noteTitle } = await request.json();
 
 // In the streamText call, add:
-system: context 
+system: context
   ? `You are an AI assistant helping the user work with their note "${noteTitle}". Here is the note content:\n\n${context}\n\nAnswer questions about this note, suggest improvements, help with research, and provide insights.`
   : "You are a helpful AI assistant for 2ndBrain, a personal knowledge management system.",
 ```

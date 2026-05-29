@@ -2,7 +2,17 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 export interface NeonBadgeProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: "purple" | "cyan" | "blue" | "pink" | "green" | "orange" | "neon" | "default" | "secondary" | "outline";
+  variant?:
+    | "purple"
+    | "cyan"
+    | "blue"
+    | "pink"
+    | "green"
+    | "orange"
+    | "neon"
+    | "default"
+    | "secondary"
+    | "outline";
 }
 
 const NeonBadge = React.forwardRef<HTMLDivElement, NeonBadgeProps>(
@@ -24,7 +34,7 @@ const NeonBadge = React.forwardRef<HTMLDivElement, NeonBadgeProps>(
       <div
         ref={ref}
         className={cn(
-          "inline-flex items-center border-2 rounded-full px-2.5 py-0.5 text-xs font-bold font-tech uppercase tracking-wider",
+          "font-tech inline-flex items-center rounded-full border-2 px-2.5 py-0.5 text-xs font-bold tracking-wider uppercase",
           "transition-all duration-200",
           "hover:scale-110",
           variants[variant],

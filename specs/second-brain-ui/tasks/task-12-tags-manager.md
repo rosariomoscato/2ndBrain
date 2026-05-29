@@ -486,6 +486,7 @@ export default function SettingsPage() {
 ```
 
 4. Add missing imports:
+
 ```typescript
 import { Calendar, Edit2, Trash2 } from "lucide-react";
 ```
@@ -493,6 +494,7 @@ import { Calendar, Edit2, Trash2 } from "lucide-react";
 ### Code Snippets
 
 Tag sorting logic:
+
 ```typescript
 const sortedTags = tags.sort((a, b) => {
   switch (sortBy) {
@@ -509,6 +511,7 @@ const sortedTags = tags.sort((a, b) => {
 ```
 
 Bulk selection:
+
 ```typescript
 const handleSelectAll = () => {
   if (selectedTags.length === filteredTags.length) {

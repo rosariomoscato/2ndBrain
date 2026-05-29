@@ -18,6 +18,7 @@ Create centralized TypeScript type definitions and Zod validation schemas for al
 **Blocks:** task-04-notes, task-05-tags, task-06-settings
 
 **Context from dependencies:** No dependencies on other tasks. The UI components define these local interfaces that need to be centralized:
+
 - `Note { id, title, excerpt, tags, updatedAt, connections, importance }` (in page.tsx, note-card.tsx, notes-grid.tsx, notes-list.tsx)
 - `Tag { id, name, color: TagColor, usageCount, createdAt }` (in tag-editor-modal.tsx)
 - `TagColor = "purple" | "cyan" | "blue" | "pink" | "green" | "orange"`
@@ -206,25 +207,31 @@ export const aiQuerySchema = z.object({
 });
 
 export const updateSettingsSchema = z.object({
-  theme: z.object({
-    neonIntensity: z.number().min(0).max(100).optional(),
-    gridVisibility: z.number().min(0).max(100).optional(),
-    particleDensity: z.number().min(0).max(100).optional(),
-    scanLineSpeed: z.number().min(0).max(100).optional(),
-    preset: z.enum(["minimal", "balanced", "cyberpunk"]).optional(),
-  }).optional(),
-  system: z.object({
-    glassmorphism: z.boolean().optional(),
-    animations: z.boolean().optional(),
-    notifications: z.boolean().optional(),
-    soundEffects: z.boolean().optional(),
-  }).optional(),
-  ai: z.object({
-    model: z.string().optional(),
-    streamResponses: z.boolean().optional(),
-    includeCitations: z.boolean().optional(),
-    desktopNotifications: z.boolean().optional(),
-  }).optional(),
+  theme: z
+    .object({
+      neonIntensity: z.number().min(0).max(100).optional(),
+      gridVisibility: z.number().min(0).max(100).optional(),
+      particleDensity: z.number().min(0).max(100).optional(),
+      scanLineSpeed: z.number().min(0).max(100).optional(),
+      preset: z.enum(["minimal", "balanced", "cyberpunk"]).optional(),
+    })
+    .optional(),
+  system: z
+    .object({
+      glassmorphism: z.boolean().optional(),
+      animations: z.boolean().optional(),
+      notifications: z.boolean().optional(),
+      soundEffects: z.boolean().optional(),
+    })
+    .optional(),
+  ai: z
+    .object({
+      model: z.string().optional(),
+      streamResponses: z.boolean().optional(),
+      includeCitations: z.boolean().optional(),
+      desktopNotifications: z.boolean().optional(),
+    })
+    .optional(),
 });
 
 export type CreateNoteInput = z.infer<typeof createNoteSchema>;

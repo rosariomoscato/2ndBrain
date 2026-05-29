@@ -56,24 +56,21 @@ export function GraphSearch({ nodes, onNodeSelect }: GraphSearchProps) {
   };
 
   return (
-    <div className="absolute top-6 left-1/2 -translate-x-1/2 z-20">
+    <div className="absolute top-6 left-1/2 z-20 -translate-x-1/2">
       {/* Search Input */}
-      <div className="relative w-96 glass-panel rounded-xl">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-dim" />
+      <div className="glass-panel relative w-96 rounded-xl">
+        <Search className="text-text-dim absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
         <input
           type="text"
           value={query}
           onChange={(e) => handleSearch(e.target.value)}
           placeholder="Search nodes..."
-          className="w-full h-10 pl-10 pr-8 bg-transparent text-sm text-text-primary placeholder:text-text-dim focus:outline-none border-none rounded-xl"
+          className="text-text-primary placeholder:text-text-dim h-10 w-full rounded-xl border-none bg-transparent pr-8 pl-10 text-sm focus:outline-none"
         />
         {query && (
-          <button
-            onClick={clearSearch}
-            className="absolute right-2 top-1/2 -translate-y-1/2"
-          >
-            <CyberButton variant="ghost" size="icon" className="w-6 h-6">
-              <X className="w-3 h-3" />
+          <button onClick={clearSearch} className="absolute top-1/2 right-2 -translate-y-1/2">
+            <CyberButton variant="ghost" size="icon" className="h-6 w-6">
+              <X className="h-3 w-3" />
             </CyberButton>
           </button>
         )}
@@ -81,24 +78,24 @@ export function GraphSearch({ nodes, onNodeSelect }: GraphSearchProps) {
 
       {/* Search Results Dropdown */}
       {isOpen && filteredNodes.length > 0 && (
-        <div className="absolute top-12 left-0 w-96 glass-panel rounded-xl animate-scale-in max-h-64 overflow-y-auto">
+        <div className="glass-panel animate-scale-in absolute top-12 left-0 max-h-64 w-96 overflow-y-auto rounded-xl">
           {filteredNodes.map((node, index) => (
             <button
               key={node.id}
               onClick={() => handleNodeSelect(node)}
-              className={`w-full px-4 py-3 text-left hover:bg-glass-highlight transition-colors ${
-                index !== filteredNodes.length - 1 ? "border-b border-glass-border" : ""
+              className={`hover:bg-glass-highlight w-full px-4 py-3 text-left transition-colors ${
+                index !== filteredNodes.length - 1 ? "border-glass-border border-b" : ""
               }`}
             >
               <div className="flex items-center gap-2">
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-text-primary truncate">
+                <div className="min-w-0 flex-1">
+                  <div className="text-text-primary truncate text-sm font-medium">
                     {String(node.data.label || "")}
                   </div>
                 </div>
                 <NeonBadge
                   variant={getTypeVariant(node.data.type as string | undefined)}
-                  className="text-[10px] flex-shrink-0"
+                  className="flex-shrink-0 text-[10px]"
                 >
                   {String(node.data.type || "").toUpperCase()}
                 </NeonBadge>
@@ -110,10 +107,8 @@ export function GraphSearch({ nodes, onNodeSelect }: GraphSearchProps) {
 
       {/* No Results Message */}
       {isOpen && query && filteredNodes.length === 0 && (
-        <div className="absolute top-12 left-0 w-96 glass-panel rounded-xl animate-scale-in p-4">
-          <p className="text-sm text-text-dim text-center">
-            No nodes found for "{query}"
-          </p>
+        <div className="glass-panel animate-scale-in absolute top-12 left-0 w-96 rounded-xl p-4">
+          <p className="text-text-dim text-center text-sm">No nodes found for "{query}"</p>
         </div>
       )}
     </div>

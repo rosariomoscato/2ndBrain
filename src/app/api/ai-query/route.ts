@@ -2,13 +2,13 @@ import { headers } from "next/headers";
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { streamText } from "ai";
 import { z } from "zod";
+import { resolveOpenRouterConfig } from "@/lib/actions/ai-settings";
 import { getNoteById } from "@/lib/actions/notes";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getQueryEmbedding, searchSimilarNotes } from "@/lib/embeddings";
 import { aiQueries } from "@/lib/schema";
 import type { Citation } from "@/lib/types";
-import { resolveOpenRouterConfig } from "@/lib/actions/ai-settings";
 
 // Zod schema for request validation
 const aiQueryRequestSchema = z.object({
@@ -17,9 +17,9 @@ const aiQueryRequestSchema = z.object({
 
 /**
  * POST /api/ai-query
- * 
+ *
  * Performs a RAG query with streaming response.
- * 
+ *
  * This endpoint:
  * 1. Verifies user authentication
  * 2. Validates the query
@@ -28,7 +28,7 @@ const aiQueryRequestSchema = z.object({
  * 5. Builds context from top-matching chunks
  * 6. Streams AI response from OpenRouter with context
  * 7. Stores query history after streaming completes
- * 
+ *
  * @returns Streaming response with AI-generated answer
  */
 export async function POST(req: Request) {
@@ -71,7 +71,12 @@ export async function POST(req: Request) {
   // Generate embedding for the query (uses OpenRouter API)
   const queryEmbedding = await getQueryEmbedding(query, session.user.id);
 
-  console.log("Query embedding result:", queryEmbedding ? `array of ${Array.isArray(queryEmbedding) ? queryEmbedding.length : 'non-array'} items` : 'null');
+  console.log(
+    "Query embedding result:",
+    queryEmbedding
+      ? `array of ${Array.isArray(queryEmbedding) ? queryEmbedding.length : "non-array"} items`
+      : "null"
+  );
 
   let context = "";
   const citations: Citation[] = [];
@@ -80,7 +85,14 @@ export async function POST(req: Request) {
   if (queryEmbedding) {
     console.log("Searching similar notes for user:", session.user.id);
     const results = await searchSimilarNotes(queryEmbedding, 5, session.user.id);
-    console.log("Similar notes found:", results.length, results.map((r: { noteId: string; similarity: number }) => ({ noteId: r.noteId, similarity: r.similarity })));
+    console.log(
+      "Similar notes found:",
+      results.length,
+      results.map((r: { noteId: string; similarity: number }) => ({
+        noteId: r.noteId,
+        similarity: r.similarity,
+      }))
+    );
 
     const seenNoteIds = new Set<string>();
     const contextParts: string[] = [];
@@ -154,5 +166,7 @@ ${
     },
   });
 
-  return (result as unknown as { toUIMessageStreamResponse: () => Response }).toUIMessageStreamResponse();
+  return (
+    result as unknown as { toUIMessageStreamResponse: () => Response }
+  ).toUIMessageStreamResponse();
 }

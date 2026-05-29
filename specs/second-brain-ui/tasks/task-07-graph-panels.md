@@ -482,6 +482,7 @@ export function GraphCanvas() {
 ### Code Snippets
 
 Node selection handler:
+
 ```typescript
 const handleNodeClick = useCallback((event: any, node: any) => {
   setSelectedNode(node.data);
@@ -494,10 +495,11 @@ const handleNodeClick = useCallback((event: any, node: any) => {
 ```
 
 Filter state management:
+
 ```typescript
 const [filters, setFilters] = useState({
   type: "all",
-  tags: [] as string[]
+  tags: [] as string[],
 });
 
 const handleFilterChange = (newFilters: any) => {

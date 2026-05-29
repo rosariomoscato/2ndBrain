@@ -8,11 +8,7 @@ interface ScanLineProps {
   opacity?: number;
 }
 
-export function ScanLine({
-  color = "cyan",
-  speed = 3000,
-  opacity = 0.3,
-}: ScanLineProps) {
+export function ScanLine({ color = "cyan", speed = 3000, opacity = 0.3 }: ScanLineProps) {
   const [position, setPosition] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
@@ -53,7 +49,7 @@ export function ScanLine({
       onMouseLeave={() => setIsPaused(false)}
     >
       <div
-        className={`blur-sm absolute inset-x-0`}
+        className={`absolute inset-x-0 blur-sm`}
         style={{
           top: `${position}%`,
           opacity: opacity * 0.5,

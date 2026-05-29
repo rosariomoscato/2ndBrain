@@ -43,7 +43,8 @@
 .glow-border {
   box-shadow:
     var(--theme-border-glow, 0 0 15px) var(--color-neon-cyan),
-    var(--theme-inset-glow, inset 0 0 10px) color-mix(in oklch, var(--color-neon-cyan) 10%, transparent);
+    var(--theme-inset-glow, inset 0 0 10px)
+      color-mix(in oklch, var(--color-neon-cyan) 10%, transparent);
 }
 
 .glow-border-purple {
@@ -130,16 +131,20 @@
 }
 
 @keyframes grid-pulse {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 0.6; }
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
 }
 
 /* Blueprint Surface */
 .blueprint-surface {
   background:
     linear-gradient(rgba(96, 247, 252, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(96, 247, 252, 0.05) 1px, transparent 1px),
-    var(--color-space-black);
+    linear-gradient(90deg, rgba(96, 247, 252, 0.05) 1px, transparent 1px), var(--color-space-black);
   background-size: 40px 40px;
 }
 
@@ -147,26 +152,34 @@
 .planner-bg {
   background:
     radial-gradient(circle at 25% 25%, var(--color-nebula-purple) 0%, transparent 50%),
-    radial-gradient(circle at 75% 75%, color-mix(in oklch, var(--color-neon-cyan) 20%, transparent) 0%, transparent 50%),
+    radial-gradient(
+      circle at 75% 75%,
+      color-mix(in oklch, var(--color-neon-cyan) 20%, transparent) 0%,
+      transparent 50%
+    ),
     var(--color-space-black);
 }
 
 /* Starfield Background */
 .starfield-bg {
   background:
-    radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 50px 160px, #ddd, rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 90px 40px, #fff, rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 130px 80px, #fff, rgba(0,0,0,0)),
-    var(--color-space-black);
+    radial-gradient(2px 2px at 20px 30px, #eee, rgba(0, 0, 0, 0)),
+    radial-gradient(2px 2px at 40px 70px, #fff, rgba(0, 0, 0, 0)),
+    radial-gradient(2px 2px at 50px 160px, #ddd, rgba(0, 0, 0, 0)),
+    radial-gradient(2px 2px at 90px 40px, #fff, rgba(0, 0, 0, 0)),
+    radial-gradient(2px 2px at 130px 80px, #fff, rgba(0, 0, 0, 0)), var(--color-space-black);
   background-size: 200px 200px;
   animation: starfield-pulse 8s ease-in-out infinite;
 }
 
 @keyframes starfield-pulse {
-  0%, 100% { opacity: 0.8; }
-  50% { opacity: 1; }
+  0%,
+  100% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 /* ============================================
@@ -178,20 +191,23 @@
   position: absolute;
   width: 100%;
   height: 2px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--color-neon-cyan),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, var(--color-neon-cyan), transparent);
   animation: scan var(--theme-scan-speed, 3s) linear infinite;
   pointer-events: none;
 }
 
 @keyframes scan {
-  0% { top: 0; opacity: 0; }
-  50% { opacity: 1; }
-  100% { top: 100%; opacity: 0; }
+  0% {
+    top: 0;
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
 }
 
 /* Glitch Effect */
@@ -224,21 +240,45 @@
 }
 
 @keyframes glitch-anim {
-  0% { clip: rect(61px, 9999px, 81px, 0); }
-  20% { clip: rect(9px, 9999px, 91px, 0); }
-  40% { clip: rect(48px, 9999px, 16px, 0); }
-  60% { clip: rect(76px, 9999px, 45px, 0); }
-  80% { clip: rect(6px, 9999px, 72px, 0); }
-  100% { clip: rect(29px, 9999px, 6px, 0); }
+  0% {
+    clip: rect(61px, 9999px, 81px, 0);
+  }
+  20% {
+    clip: rect(9px, 9999px, 91px, 0);
+  }
+  40% {
+    clip: rect(48px, 9999px, 16px, 0);
+  }
+  60% {
+    clip: rect(76px, 9999px, 45px, 0);
+  }
+  80% {
+    clip: rect(6px, 9999px, 72px, 0);
+  }
+  100% {
+    clip: rect(29px, 9999px, 6px, 0);
+  }
 }
 
 @keyframes glitch-anim2 {
-  0% { clip: rect(26px, 9999px, 86px, 0); }
-  20% { clip: rect(98px, 9999px, 13px, 0); }
-  40% { clip: rect(31px, 9999px, 62px, 0); }
-  60% { clip: rect(6px, 9999px, 88px, 0); }
-  80% { clip: rect(72px, 9999px, 27px, 0); }
-  100% { clip: rect(86px, 9999px, 66px, 0); }
+  0% {
+    clip: rect(26px, 9999px, 86px, 0);
+  }
+  20% {
+    clip: rect(98px, 9999px, 13px, 0);
+  }
+  40% {
+    clip: rect(31px, 9999px, 62px, 0);
+  }
+  60% {
+    clip: rect(6px, 9999px, 88px, 0);
+  }
+  80% {
+    clip: rect(72px, 9999px, 27px, 0);
+  }
+  100% {
+    clip: rect(86px, 9999px, 66px, 0);
+  }
 }
 
 /* ============================================
@@ -266,11 +306,7 @@
 
 /* Neon Gradient Background */
 .neon-gradient {
-  background: linear-gradient(
-    135deg,
-    var(--color-neon-cyan),
-    var(--color-neon-purple)
-  );
+  background: linear-gradient(135deg, var(--color-neon-cyan), var(--color-neon-purple));
 }
 
 .neon-gradient-horizontal {
@@ -477,8 +513,13 @@
 }
 
 @keyframes pulse-slow {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
 }
 
 /* Rotate Animation */
@@ -487,8 +528,12 @@
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Bounce Animation */
@@ -497,8 +542,13 @@
 }
 
 @keyframes bounce-gentle {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-0.25rem); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-0.25rem);
+  }
 }
 
 /* ============================================
@@ -506,39 +556,85 @@
    ============================================ */
 
 /* Cursor Styles */
-.cursor-pointer { cursor: pointer; }
-.cursor-not-allowed { cursor: not-allowed; }
-.cursor-wait { cursor: wait; }
-.cursor-crosshair { cursor: crosshair; }
+.cursor-pointer {
+  cursor: pointer;
+}
+.cursor-not-allowed {
+  cursor: not-allowed;
+}
+.cursor-wait {
+  cursor: wait;
+}
+.cursor-crosshair {
+  cursor: crosshair;
+}
 
 /* Overflow Utilities */
-.overflow-hidden { overflow: hidden; }
-.overflow-auto { overflow: auto; }
-.overflow-scroll { overflow: scroll; }
-.overflow-visible { overflow: visible; }
+.overflow-hidden {
+  overflow: hidden;
+}
+.overflow-auto {
+  overflow: auto;
+}
+.overflow-scroll {
+  overflow: scroll;
+}
+.overflow-visible {
+  overflow: visible;
+}
 
 /* Position Utilities */
-.position-relative { position: relative; }
-.position-absolute { position: absolute; }
-.position-fixed { position: fixed; }
-.position-sticky { position: sticky; }
+.position-relative {
+  position: relative;
+}
+.position-absolute {
+  position: absolute;
+}
+.position-fixed {
+  position: fixed;
+}
+.position-sticky {
+  position: sticky;
+}
 
 /* Z-index Utilities */
-.z-0 { z-index: 0; }
-.z-10 { z-index: 10; }
-.z-20 { z-index: 20; }
-.z-30 { z-index: 30; }
-.z-40 { z-index: 40; }
-.z-50 { z-index: 50; }
+.z-0 {
+  z-index: 0;
+}
+.z-10 {
+  z-index: 10;
+}
+.z-20 {
+  z-index: 20;
+}
+.z-30 {
+  z-index: 30;
+}
+.z-40 {
+  z-index: 40;
+}
+.z-50 {
+  z-index: 50;
+}
 
 /* Pointer Events */
-.pointer-events-none { pointer-events: none; }
-.pointer-events-auto { pointer-events: auto; }
+.pointer-events-none {
+  pointer-events: none;
+}
+.pointer-events-auto {
+  pointer-events: auto;
+}
 
 /* User Select */
-.select-none { user-select: none; }
-.select-text { user-select: text; }
-.select-all { user-select: all; }
+.select-none {
+  user-select: none;
+}
+.select-text {
+  user-select: text;
+}
+.select-all {
+  user-select: all;
+}
 
 /* ============================================
    RESPONSIVE UTILITIES

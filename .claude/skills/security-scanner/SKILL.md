@@ -24,15 +24,18 @@ Follow these four steps in order. Do not skip any step.
 Determine whether you are working within an existing project or a blank workspace.
 
 Check for source code by looking for common project indicators:
+
 - `package.json`, `requirements.txt`, `go.mod`, `pom.xml`, `Cargo.toml`, `Gemfile`, `*.csproj`, `composer.json`
 - Or any `src/`, `app/`, `lib/` directory containing code files
 
 **If source code is found:** Use the current working directory as the analysis target. Proceed to Step 2.
 
 **If NO source code is found:** Ask the user for a GitHub repository URL. Then clone it:
+
 ```bash
 gh repo clone <url> ./audit-target
 ```
+
 Use `./audit-target` as the analysis target directory. Proceed to Step 2.
 
 ### Step 2: Reconnaissance
@@ -60,51 +63,61 @@ For each OWASP category A01 through A10:
 Analyze each category in order:
 
 #### A01: Broken Access Control
+
 See [references/A01-broken-access-control.md](references/A01-broken-access-control.md) for CWEs, detection patterns, and fix examples.
 
 Focus on: missing auth middleware on routes, IDOR (user-controlled IDs without ownership checks), permissive CORS, directory traversal, missing CSRF protection, privilege escalation, force browsing to admin/debug endpoints.
 
 #### A02: Security Misconfiguration
+
 See [references/A02-security-misconfiguration.md](references/A02-security-misconfiguration.md).
 
 Focus on: debug mode in production, default credentials, verbose error messages exposing internals, unnecessary features enabled, missing security headers, hardcoded secrets, exposed environment variables.
 
 #### A03: Software Supply Chain Failures
+
 See [references/A03-software-supply-chain-failures.md](references/A03-software-supply-chain-failures.md).
 
 Focus on: known vulnerable dependency versions, unpinned dependencies, CDN scripts without SRI, missing lock files, dependencies from untrusted sources.
 
 #### A04: Cryptographic Failures
+
 See [references/A04-cryptographic-failures.md](references/A04-cryptographic-failures.md).
 
 Focus on: weak password hashing (MD5, SHA1), missing salt, hardcoded keys/secrets, weak randomness (Math.random for tokens), cookies missing Secure flag, sensitive data in logs, base64 used as "encryption."
 
 #### A05: Injection
+
 See [references/A05-injection.md](references/A05-injection.md).
 
 Focus on: SQL injection (string concatenation in queries), command injection (exec/spawn with user input), XSS (dangerouslySetInnerHTML, innerHTML), eval() with user input, SSRF (fetching user-supplied URLs), template injection.
 
 #### A06: Insecure Design
+
 See [references/A06-insecure-design.md](references/A06-insecure-design.md).
 
 Focus on: missing rate limiting on auth endpoints, no input validation, no password complexity requirements, missing account lockout, unrestricted file uploads, guessable/non-expiring tokens.
 
 #### A07: Authentication Failures
+
 See [references/A07-authentication-failures.md](references/A07-authentication-failures.md).
 
 Focus on: weak/predictable session tokens, sessions that never expire, credentials in logs/URLs, user enumeration via different error messages, reset tokens in API responses, cookies without HttpOnly/Secure/SameSite, hard-coded credentials.
 
 #### A08: Software or Data Integrity Failures
+
 See [references/A08-software-data-integrity-failures.md](references/A08-software-data-integrity-failures.md).
 
 Focus on: eval()/Function() with user input, deserialization of untrusted data, CDN scripts without integrity hashes, mass assignment/prototype pollution, auto-updates without signature verification.
 
 #### A09: Security Logging and Alerting Failures
+
 See [references/A09-security-logging-alerting-failures.md](references/A09-security-logging-alerting-failures.md).
 
 Focus on: passwords/tokens/PII in logs, missing audit logging for auth events, no logging on access control failures, error details exposed to users, console.log-only logging without persistence.
 
 #### A10: Mishandling of Exceptional Conditions
+
 See [references/A10-mishandling-exceptional-conditions.md](references/A10-mishandling-exceptional-conditions.md).
 
 Focus on: empty catch blocks, stack traces returned to users, fail-open patterns, missing error handling on async operations, resource leaks on exceptions, missing transaction rollbacks.
@@ -112,6 +125,7 @@ Focus on: empty catch blocks, stack traces returned to users, fail-open patterns
 ### Step 4: Generate Report
 
 1. Get today's date and create the output directory:
+
    ```bash
    mkdir -p ./audit/YYYY-MM-DD/
    ```
@@ -119,6 +133,7 @@ Focus on: empty catch blocks, stack traces returned to users, fail-open patterns
 2. Read the report template from [references/report-template.md](references/report-template.md)
 
 3. Fill in the template with all findings from Step 3 and write the completed report to:
+
    ```
    ./audit/YYYY-MM-DD/security-report.md
    ```
@@ -142,6 +157,7 @@ Assign each finding one of these severity levels:
 ## Risk Score
 
 Sum all finding points to calculate the overall risk score:
+
 - **0–10**: Low Risk
 - **11–30**: Moderate Risk
 - **31–60**: High Risk

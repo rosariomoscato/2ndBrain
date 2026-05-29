@@ -1,9 +1,9 @@
-import { NextResponse } from "next/server";
 import { headers } from "next/headers";
+import { NextResponse } from "next/server";
+import { eq, and, count } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { notes } from "@/lib/schema";
-import { eq, and, count } from "drizzle-orm";
 
 export async function GET() {
   try {

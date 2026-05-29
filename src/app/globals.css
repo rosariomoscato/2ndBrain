@@ -5,58 +5,58 @@
   /* Primary Neon Colors */
   --color-neon-purple: oklch(0.65 0.25 320);
   --color-neon-cyan: oklch(0.75 0.18 190);
-  --color-neon-blue: oklch(0.60 0.22 250);
-  --color-neon-pink: oklch(0.70 0.20 350);
-  --color-neon-green: oklch(0.70 0.20 140);
+  --color-neon-blue: oklch(0.6 0.22 250);
+  --color-neon-pink: oklch(0.7 0.2 350);
+  --color-neon-green: oklch(0.7 0.2 140);
 
   /* Space Backgrounds */
   --color-space-black: oklch(0.08 0.01 270);
   --color-starfield: oklch(0.12 0.02 270);
   --color-nebula-dark: oklch(0.15 0.04 260);
-  --color-nebula-purple: oklch(0.20 0.06 290);
+  --color-nebula-purple: oklch(0.2 0.06 290);
 
   /* Glass/Surfaces */
-  --color-glass-surface: oklch(0.10 0.03 270 / 0.6);
-  --color-glass-border: oklch(0.50 0.15 190 / 0.4);
-  --color-glass-highlight: oklch(0.60 0.15 190 / 0.2);
+  --color-glass-surface: oklch(0.1 0.03 270 / 0.6);
+  --color-glass-border: oklch(0.5 0.15 190 / 0.4);
+  --color-glass-highlight: oklch(0.6 0.15 190 / 0.2);
 
   /* Text */
   --color-text-primary: oklch(0.95 0.02 270);
-  --color-text-secondary: oklch(0.70 0.02 270);
-  --color-text-dim: oklch(0.50 0.02 270);
+  --color-text-secondary: oklch(0.7 0.02 270);
+  --color-text-dim: oklch(0.5 0.02 270);
 
   /* Status Colors */
-  --color-status-online: oklch(0.70 0.20 140);
+  --color-status-online: oklch(0.7 0.2 140);
   --color-status-processing: oklch(0.75 0.18 190);
   --color-status-error: oklch(0.65 0.25 320);
 
   /* Semantic Tokens */
   --color-background: oklch(0.08 0.01 270);
   --color-foreground: oklch(0.95 0.02 270);
-  --color-card: oklch(0.10 0.03 270 / 0.6);
+  --color-card: oklch(0.1 0.03 270 / 0.6);
   --color-card-foreground: oklch(0.95 0.02 270);
-  --color-popover: oklch(0.10 0.03 270 / 0.8);
+  --color-popover: oklch(0.1 0.03 270 / 0.8);
   --color-popover-foreground: oklch(0.95 0.02 270);
   --color-primary: oklch(0.65 0.25 320);
   --color-primary-foreground: oklch(0.95 0.02 270);
-  --color-secondary: oklch(0.20 0.06 290 / 0.8);
+  --color-secondary: oklch(0.2 0.06 290 / 0.8);
   --color-secondary-foreground: oklch(0.95 0.02 270);
   --color-muted: oklch(0.15 0.04 260 / 0.64);
-  --color-muted-foreground: oklch(0.70 0.02 270);
+  --color-muted-foreground: oklch(0.7 0.02 270);
   --color-accent: oklch(0.75 0.18 190);
   --color-accent-foreground: oklch(0.08 0.01 270);
   --color-destructive: oklch(0.65 0.25 320);
   --color-destructive-foreground: oklch(0.95 0.02 270);
-  --color-border: oklch(0.50 0.15 190 / 0.4);
-  --color-input: oklch(0.10 0.03 270 / 0.8);
-  --color-ring: oklch(0.80 0.15 178);
+  --color-border: oklch(0.5 0.15 190 / 0.4);
+  --color-input: oklch(0.1 0.03 270 / 0.8);
+  --color-ring: oklch(0.8 0.15 178);
 
   /* Chart Colors */
   --color-chart-1: oklch(0.65 0.25 320);
   --color-chart-2: oklch(0.75 0.18 190);
-  --color-chart-3: oklch(0.60 0.22 250);
-  --color-chart-4: oklch(0.70 0.20 350);
-  --color-chart-5: oklch(0.70 0.20 140);
+  --color-chart-3: oklch(0.6 0.22 250);
+  --color-chart-4: oklch(0.7 0.2 350);
+  --color-chart-5: oklch(0.7 0.2 140);
 
   /* Fonts */
   --font-display: "Orbitron", system-ui, sans-serif;
@@ -73,7 +73,9 @@ body {
   background-color: var(--color-space-black);
   color: var(--color-text-primary);
   font-family: var(--font-body);
-  font-feature-settings: "rlig" 1, "calt" 1;
+  font-feature-settings:
+    "rlig" 1,
+    "calt" 1;
 }
 
 /* Neon Glow Effects */
@@ -87,7 +89,8 @@ body {
 .glow-border {
   box-shadow:
     var(--theme-border-glow, 0 0 15px) var(--color-neon-cyan),
-    var(--theme-inset-glow, inset 0 0 10px) color-mix(in oklch, var(--color-neon-cyan) 10%, transparent);
+    var(--theme-inset-glow, inset 0 0 10px)
+      color-mix(in oklch, var(--color-neon-cyan) 10%, transparent);
 }
 
 /* Glass Panels */
@@ -126,8 +129,13 @@ body {
 }
 
 @keyframes grid-pulse {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 0.6; }
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
 }
 
 /* Scan Line Effect */
@@ -135,19 +143,22 @@ body {
   position: absolute;
   width: 100%;
   height: 2px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--color-neon-cyan),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, var(--color-neon-cyan), transparent);
   animation: scan var(--theme-scan-speed, 3s) linear infinite;
 }
 
 @keyframes scan {
-  0% { top: 0; opacity: 0; }
-  50% { opacity: 1; }
-  100% { top: 100%; opacity: 0; }
+  0% {
+    top: 0;
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
 }
 
 /* Command Strip Gradient */
@@ -163,16 +174,8 @@ body {
 /* Blueprint Surface */
 .blueprint-surface {
   background:
-    linear-gradient(
-      rgba(96, 247, 252, 0.05) 1px,
-      transparent 1px
-    ),
-    linear-gradient(
-      90deg,
-      rgba(96, 247, 252, 0.05) 1px,
-      transparent 1px
-    ),
-    var(--color-space-black);
+    linear-gradient(rgba(96, 247, 252, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(96, 247, 252, 0.05) 1px, transparent 1px), var(--color-space-black);
   background-size: 40px 40px;
 }
 
@@ -199,7 +202,11 @@ body {
 .planner-bg {
   background:
     radial-gradient(circle at 25% 25%, var(--color-nebula-purple) 0%, transparent 50%),
-    radial-gradient(circle at 75% 75%, color-mix(in oklch, var(--color-neon-cyan) 20%, transparent) 0%, transparent 50%),
+    radial-gradient(
+      circle at 75% 75%,
+      color-mix(in oklch, var(--color-neon-cyan) 20%, transparent) 0%,
+      transparent 50%
+    ),
     var(--color-space-black);
 }
 
@@ -455,7 +462,9 @@ body {
 
 .prose-neon h1 {
   font-size: 2rem;
-  text-shadow: 0 0 10px var(--color-neon-cyan), 0 0 20px var(--color-neon-purple);
+  text-shadow:
+    0 0 10px var(--color-neon-cyan),
+    0 0 20px var(--color-neon-purple);
 }
 
 .prose-neon h2 {
@@ -632,7 +641,8 @@ body {
 /* Advanced Animation Keyframes */
 
 @keyframes twinkle {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     opacity: 0.3;
   }
@@ -643,7 +653,8 @@ body {
 }
 
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -652,7 +663,8 @@ body {
 }
 
 @keyframes pulse-glow {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow:
       0 0 5px var(--color-neon-cyan),
       0 0 10px var(--color-neon-purple);
@@ -666,14 +678,22 @@ body {
 }
 
 @keyframes neon-flicker {
-  0%, 18%, 22%, 25%, 53%, 57%, 100% {
+  0%,
+  18%,
+  22%,
+  25%,
+  53%,
+  57%,
+  100% {
     text-shadow:
       0 0 4px var(--color-neon-cyan),
       0 0 11px var(--color-neon-cyan),
       0 0 19px var(--color-neon-cyan);
     opacity: 1;
   }
-  20%, 24%, 55% {
+  20%,
+  24%,
+  55% {
     text-shadow: none;
     opacity: 0.4;
   }

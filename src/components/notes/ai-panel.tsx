@@ -2,16 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useChat } from "@ai-sdk/react";
-import {
-  Send,
-  Sparkles,
-  Bot,
-  User,
-  Trash2,
-  Copy,
-  Check,
-  Clock,
-} from "lucide-react";
+import { Send, Sparkles, Bot, User, Trash2, Copy, Check, Clock } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { CyberButton } from "@/components/ui/cyber-button";
 import { CyberInput } from "@/components/ui/cyber-input";
@@ -38,10 +29,7 @@ interface AIChatPanelProps {
   onSuggestionClick?: (suggestion: string) => void;
 }
 
-export function AIChatPanel({
-  noteContext,
-  onSuggestionClick,
-}: AIChatPanelProps) {
+export function AIChatPanel({ noteContext, onSuggestionClick }: AIChatPanelProps) {
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -93,8 +81,8 @@ export function AIChatPanel({
     const parts = Array.isArray(message.parts)
       ? message.parts
       : Array.isArray(message.content)
-      ? message.content
-      : [];
+        ? message.content
+        : [];
     return parts
       .filter((p) => p?.type === "text" && p.text)
       .map((p) => p.text || "")
@@ -150,59 +138,54 @@ export function AIChatPanel({
   const suggestions = getSuggestions().slice(0, 3);
 
   return (
-    <div className="flex flex-col h-full glass-panel border-t border-neon-cyan/20">
+    <div className="glass-panel border-neon-cyan/20 flex h-full flex-col border-t">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2 border-b border-glass-border">
+      <div className="border-glass-border flex items-center justify-between border-b px-4 py-2">
         <div className="flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-neon-purple" />
-          <span className="font-tech text-xs text-neon-cyan">AI ASSISTANT</span>
+          <Sparkles className="text-neon-purple h-4 w-4" />
+          <span className="font-tech text-neon-cyan text-xs">AI ASSISTANT</span>
         </div>
         {messages.length > 0 && (
-          <CyberButton
-            variant="ghost"
-            size="sm"
-            onClick={handleClearChat}
-            className="h-8 w-8 p-0"
-          >
+          <CyberButton variant="ghost" size="sm" onClick={handleClearChat} className="h-8 w-8 p-0">
             <Trash2 className="h-4 w-4" />
           </CyberButton>
         )}
       </div>
 
       {/* Chat Messages */}
-      <div className="flex-1 overflow-auto p-4 space-y-4">
+      <div className="flex-1 space-y-4 overflow-auto p-4">
         {messages.length === 0 ? (
           /* Empty State */
-          <div className="flex flex-col items-center justify-center h-full text-center">
+          <div className="flex h-full flex-col items-center justify-center text-center">
             {/* Animated Orb */}
-            <div className="w-12 h-12 relative mb-6">
+            <div className="relative mb-6 h-12 w-12">
               {/* Outer ring */}
-              <div className="absolute inset-0 rounded-full border-2 border-neon-cyan animate-pulse" />
+              <div className="border-neon-cyan absolute inset-0 animate-pulse rounded-full border-2" />
               {/* Middle ring */}
-              <div className="absolute inset-0 rounded-full border-t-2 border-neon-purple animate-spin" />
+              <div className="border-neon-purple absolute inset-0 animate-spin rounded-full border-t-2" />
               {/* Inner core */}
-              <div className="absolute inset-2 rounded-full bg-neon-cyan animate-pulse glow-text" />
+              <div className="bg-neon-cyan glow-text absolute inset-2 animate-pulse rounded-full" />
             </div>
 
             {/* Welcome Message */}
             <div className="mb-8">
-              <h3 className="text-lg font-display font-bold text-neon-cyan mb-2">
+              <h3 className="font-display text-neon-cyan mb-2 text-lg font-bold">
                 AI Assistant Ready
               </h3>
-              <p className="text-sm text-text-dim">
+              <p className="text-text-dim text-sm">
                 Ask me anything about your notes or get AI-powered insights
               </p>
             </div>
 
             {/* Suggestions */}
-            <div className="flex flex-col gap-2 w-full max-w-md">
+            <div className="flex w-full max-w-md flex-col gap-2">
               {suggestions.map((suggestion, index) => (
                 <CyberButton
                   key={index}
                   variant="outline"
                   size="sm"
                   onClick={() => handleSuggestionClick(suggestion)}
-                  className="text-left justify-start hover:border-neon-purple hover:text-neon-purple"
+                  className="hover:border-neon-purple hover:text-neon-purple justify-start text-left"
                 >
                   {suggestion}
                 </CyberButton>
@@ -223,7 +206,7 @@ export function AIChatPanel({
                 >
                   {/* Avatar */}
                   <div
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                    className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg ${
                       message.role === "user"
                         ? "bg-neon-cyan text-space-black"
                         : "bg-neon-purple text-text-primary"
@@ -238,7 +221,7 @@ export function AIChatPanel({
 
                   {/* Message Bubble */}
                   <div
-                    className={`glass-panel rounded-xl p-3 max-w-[70%] relative group ${
+                    className={`glass-panel group relative max-w-[70%] rounded-xl p-3 ${
                       message.role === "user"
                         ? "bg-neon-cyan/10 border-neon-cyan/30"
                         : "bg-glass-surface border-glass-border"
@@ -247,22 +230,22 @@ export function AIChatPanel({
                     {/* Copy Button */}
                     <button
                       onClick={() => handleCopy(message.id, messageText)}
-                      className="absolute top-2 right-2 h-6 w-6 rounded-lg bg-glass-surface border border-glass-border opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-glass-highlight"
+                      className="bg-glass-surface border-glass-border hover:bg-glass-highlight absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-lg border opacity-0 transition-opacity group-hover:opacity-100"
                     >
                       {copiedMessageId === message.id ? (
-                        <Check className="h-3 w-3 text-neon-green" />
+                        <Check className="text-neon-green h-3 w-3" />
                       ) : (
-                        <Copy className="h-3 w-3 text-text-dim" />
+                        <Copy className="text-text-dim h-3 w-3" />
                       )}
                     </button>
 
                     {/* Message Content */}
-                    <div className="prose prose-invert prose-neon max-w-none text-sm mb-2">
+                    <div className="prose prose-invert prose-neon mb-2 max-w-none text-sm">
                       <ReactMarkdown>{messageText}</ReactMarkdown>
                     </div>
 
                     {/* Timestamp */}
-                    <div className="flex items-center gap-1 text-[10px] text-text-dim">
+                    <div className="text-text-dim flex items-center gap-1 text-[10px]">
                       <Clock className="h-3 w-3" />
                       {formatTimestamp()}
                     </div>
@@ -274,13 +257,13 @@ export function AIChatPanel({
             {/* Loading Indicator */}
             {isLoading && (
               <div className="flex gap-3">
-                <div className="w-8 h-8 rounded-lg bg-neon-purple text-text-primary flex items-center justify-center flex-shrink-0">
+                <div className="bg-neon-purple text-text-primary flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg">
                   <Bot className="h-4 w-4" />
                 </div>
-                <div className="glass-panel rounded-xl p-3 border-glass-border">
+                <div className="glass-panel border-glass-border rounded-xl p-3">
                   <div className="flex items-center gap-2">
                     <LoadingOrb size="sm" />
-                    <span className="text-sm text-text-primary">Thinking...</span>
+                    <span className="text-text-primary text-sm">Thinking...</span>
                   </div>
                 </div>
               </div>
@@ -293,13 +276,13 @@ export function AIChatPanel({
       </div>
 
       {/* Input Area */}
-      <div className="flex items-end gap-2 p-3 border-t border-glass-border">
+      <div className="border-glass-border flex items-end gap-2 border-t p-3">
         <CyberInput
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyPress}
           placeholder="Ask AI something..."
-          className="flex-1 h-10 text-sm"
+          className="h-10 flex-1 text-sm"
           disabled={isLoading}
         />
         <CyberButton
@@ -309,11 +292,7 @@ export function AIChatPanel({
           disabled={!input.trim() || isLoading}
           className="h-10 px-4"
         >
-          {isLoading ? (
-            <LoadingOrb size="sm" />
-          ) : (
-            <Send className="h-4 w-4" />
-          )}
+          {isLoading ? <LoadingOrb size="sm" /> : <Send className="h-4 w-4" />}
         </CyberButton>
       </div>
     </div>

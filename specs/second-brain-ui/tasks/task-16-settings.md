@@ -520,6 +520,7 @@ export default function SettingsPage() {
 ### Code Snippets
 
 Tab switching state:
+
 ```typescript
 const [activeTab, setActiveTab] = useState<Tab>("theme");
 
@@ -529,6 +530,7 @@ const [activeTab, setActiveTab] = useState<Tab>("theme");
 ```
 
 Range slider with display:
+
 ```typescript
 <input
   type="range"

@@ -411,6 +411,7 @@ export default function NoteEditorPage({ params }: { params: { id: string } }) {
 ### Code Snippets
 
 Monaco Editor options:
+
 ```typescript
 const editorOptions = {
   minimap: { enabled: false },
@@ -425,6 +426,7 @@ const editorOptions = {
 ```
 
 Markdown styling with prose classes:
+
 ```css
 .prose-neon {
   --prose-body: var(--color-text-secondary);

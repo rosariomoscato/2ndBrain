@@ -39,7 +39,8 @@ Add advanced animations and visual effects to enhance the cyberpunk atmosphere. 
 ```css
 /* Starfield Animation */
 @keyframes twinkle {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.3;
     transform: scale(1);
   }
@@ -50,7 +51,8 @@ Add advanced animations and visual effects to enhance the cyberpunk atmosphere. 
 }
 
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -59,7 +61,8 @@ Add advanced animations and visual effects to enhance the cyberpunk atmosphere. 
 }
 
 @keyframes pulse-glow {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow:
       0 0 5px var(--color-neon-cyan),
       0 0 10px var(--color-neon-cyan),
@@ -74,14 +77,23 @@ Add advanced animations and visual effects to enhance the cyberpunk atmosphere. 
 }
 
 @keyframes neon-flicker {
-  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+  0%,
+  19%,
+  21%,
+  23%,
+  25%,
+  54%,
+  56%,
+  100% {
     text-shadow:
       0 0 5px var(--color-neon-cyan),
       0 0 10px var(--color-neon-purple),
       0 0 15px var(--color-neon-cyan);
     opacity: 1;
   }
-  20%, 24%, 55% {
+  20%,
+  24%,
+  55% {
     text-shadow: none;
     opacity: 0.5;
   }
@@ -127,7 +139,8 @@ Add advanced animations and visual effects to enhance the cyberpunk atmosphere. 
 }
 
 @keyframes heartbeat {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
   }
   14% {
@@ -195,12 +208,24 @@ Add advanced animations and visual effects to enhance the cyberpunk atmosphere. 
 }
 
 /* Stagger Delays */
-.delay-100 { animation-delay: 100ms; }
-.delay-200 { animation-delay: 200ms; }
-.delay-300 { animation-delay: 300ms; }
-.delay-500 { animation-delay: 500ms; }
-.delay-700 { animation-delay: 700ms; }
-.delay-1000 { animation-delay: 1000ms; }
+.delay-100 {
+  animation-delay: 100ms;
+}
+.delay-200 {
+  animation-delay: 200ms;
+}
+.delay-300 {
+  animation-delay: 300ms;
+}
+.delay-500 {
+  animation-delay: 500ms;
+}
+.delay-700 {
+  animation-delay: 700ms;
+}
+.delay-1000 {
+  animation-delay: 1000ms;
+}
 ```
 
 2. Create src/components/shared/starfield-bg.tsx:
@@ -529,13 +554,25 @@ export default function RootLayout({
 ### Code Snippets
 
 CSS keyframe animations:
+
 ```css
 @keyframes neon-flicker {
-  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
-    text-shadow: 0 0 5px var(--color-neon-cyan), ...;
+  0%,
+  19%,
+  21%,
+  23%,
+  25%,
+  54%,
+  56%,
+  100% {
+    text-shadow:
+      0 0 5px var(--color-neon-cyan),
+      ...;
     opacity: 1;
   }
-  20%, 24%, 55% {
+  20%,
+  24%,
+  55% {
     text-shadow: none;
     opacity: 0.5;
   }
@@ -543,6 +580,7 @@ CSS keyframe animations:
 ```
 
 Canvas animation loop:
+
 ```typescript
 const animate = () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -658,7 +696,7 @@ No environment variables required for this task.
 - Particles removed when dead
 - Particles respawn when dead
 - Particles added periodically
-- Particles limited to count * 2
+- Particles limited to count \* 2
 - Particles use glow effect
 - Particles use shadowBlur
 - Particles use shadowColor

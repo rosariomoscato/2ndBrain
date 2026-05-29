@@ -74,9 +74,16 @@ export function encrypt(plaintext: string): string {
 
 export function decrypt(json: string): string {
   const { iv, ciphertext, tag } = JSON.parse(json);
-  const decipher = createDecipheriv("aes-256-gcm", getKey(), Buffer.from(iv, "hex"), Buffer.from(ciphertext, "hex"));
+  const decipher = createDecipheriv(
+    "aes-256-gcm",
+    getKey(),
+    Buffer.from(iv, "hex"),
+    Buffer.from(ciphertext, "hex")
+  );
   decipher.setAuthTag(Buffer.from(tag, "hex"));
-  return decipher.update(Buffer.from(ciphertext, "hex"), undefined, "utf8") + decipher.final("utf8");
+  return (
+    decipher.update(Buffer.from(ciphertext, "hex"), undefined, "utf8") + decipher.final("utf8")
+  );
 }
 ```
 

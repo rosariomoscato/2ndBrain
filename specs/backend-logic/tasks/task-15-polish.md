@@ -37,6 +37,7 @@ Fix all remaining navigation issues, add proper error handling and loading state
 ### Implementation Steps
 
 1. **Sidebar active state** (cyber-sidebar.tsx):
+
 - Use `usePathname()` from `next/navigation` to determine current route
 - Set `active: true` dynamically based on pathname match
 
@@ -53,13 +54,16 @@ const navItems = [
   { icon: Settings, label: "Settings", href: "/settings" },
 ];
 ```
+
 In the map: `item.href === pathname ? "bg-neon-cyan/10 border border-neon-cyan/30 text-neon-cyan glow-text" : "..."`
 
 2. **Dashboard header buttons:**
+
 - "Refresh" button: `onClick={() => window.location.reload()}`
 - "New Note" button: wrap in `<Link href="/notes/new">` or use `useRouter().push("/notes/new")`
 
 3. **Error boundaries** — Create cyberpunk-styled error pages:
+
 ```typescript
 // src/app/error.tsx
 "use client";
@@ -79,6 +83,7 @@ export default function Error({ error, reset }: { error: Error; reset: () => voi
 ```
 
 4. **Loading states:**
+
 ```typescript
 // src/app/notes/loading.tsx
 import { LoadingOrb } from "@/components/ui/loading-orb";
@@ -92,6 +97,7 @@ export default function Loading() {
 ```
 
 5. **404 page** — Update not-found.tsx with cyberpunk styling:
+
 ```typescript
 export default function NotFound() {
   return (
@@ -109,6 +115,7 @@ export default function NotFound() {
 ```
 
 6. **Toast notifications:**
+
 - Ensure `sonner` Toaster is in the root layout (check src/app/layout.tsx)
 - All server action calls should show success/error toasts
 - Use `toast.success()` and `toast.error()` from sonner

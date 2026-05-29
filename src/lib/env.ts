@@ -9,9 +9,7 @@ const serverEnvSchema = z.object({
   POSTGRES_URL: z.string().url("Invalid database URL"),
 
   // Authentication
-  BETTER_AUTH_SECRET: z
-    .string()
-    .min(32, "BETTER_AUTH_SECRET must be at least 32 characters"),
+  BETTER_AUTH_SECRET: z.string().min(32, "BETTER_AUTH_SECRET must be at least 32 characters"),
 
   // OAuth
   GOOGLE_CLIENT_ID: z.string().optional(),
@@ -33,9 +31,7 @@ const serverEnvSchema = z.object({
   BLOB_READ_WRITE_TOKEN: z.string().optional(),
 
   // App
-  NODE_ENV: z
-    .enum(["development", "production", "test"])
-    .default("development"),
+  NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
 });
 
 /**
@@ -57,10 +53,7 @@ export function getServerEnv(): ServerEnv {
   const parsed = serverEnvSchema.safeParse(process.env);
 
   if (!parsed.success) {
-    console.error(
-      "Invalid server environment variables:",
-      parsed.error.flatten().fieldErrors
-    );
+    console.error("Invalid server environment variables:", parsed.error.flatten().fieldErrors);
     throw new Error("Invalid server environment variables");
   }
 
@@ -77,10 +70,7 @@ export function getClientEnv(): ClientEnv {
   });
 
   if (!parsed.success) {
-    console.error(
-      "Invalid client environment variables:",
-      parsed.error.flatten().fieldErrors
-    );
+    console.error("Invalid client environment variables:", parsed.error.flatten().fieldErrors);
     throw new Error("Invalid client environment variables");
   }
 
@@ -117,11 +107,15 @@ export function checkEnv(): void {
   }
 
   if (!process.env.ENCRYPTION_KEY) {
-    warnings.push("ENCRYPTION_KEY is not set. Per-user API key encryption will not work. Generate with: node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\"");
+    warnings.push(
+      "ENCRYPTION_KEY is not set. Per-user API key encryption will not work. Generate with: node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\""
+    );
   }
 
   if (!process.env.RESEND_API_KEY) {
-    warnings.push("RESEND_API_KEY is not set. Email verification and password reset will not work.");
+    warnings.push(
+      "RESEND_API_KEY is not set. Email verification and password reset will not work."
+    );
   }
 
   if (!process.env.BLOB_READ_WRITE_TOKEN) {

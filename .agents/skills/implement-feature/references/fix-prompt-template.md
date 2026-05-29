@@ -30,6 +30,7 @@ You are fixing specific issues found during code review. Address every issue lis
 ## Placeholder Details
 
 - **{issues}**: the specific issues from the review that relate to this task. Include file paths, line numbers, descriptions, severity, and suggested fixes. Example:
+
   ```
   - Issue 1: src/api/users.ts:42 — Missing error handling for database connection failure — Severity: high — Suggested fix: wrap the query in try/catch and return a 500 response
   - Issue 2: src/api/users.ts:15 — Unused import 'Session' — Severity: low — Suggested fix: remove the import

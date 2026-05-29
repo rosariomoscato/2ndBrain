@@ -74,7 +74,7 @@ export function runGraphify(projectRoot: string): void {
 export function readGraphifyOutput(projectRoot: string): GraphifyGraph | null {
   const graphPath = join(projectRoot, "graphify-out", "graph.json");
   if (!existsSync(graphPath)) return null;
-  
+
   try {
     const raw = readFileSync(graphPath, "utf-8");
     return JSON.parse(raw) as GraphifyGraph;
@@ -105,21 +105,23 @@ async function getSession() {
 
 export async function syncGraphifyGraph() {
   const session = await getSession();
-  
+
   const projectRoot = process.cwd();
-  
+
   runGraphify(projectRoot);
-  
+
   const graphData = readGraphifyOutput(projectRoot);
   if (!graphData) {
     return { success: false, message: "No graph data generated" };
   }
 
   for (const node of graphData.nodes) {
-    const existing = await db.select().from(graphNodes)
+    const existing = await db
+      .select()
+      .from(graphNodes)
       .where(and(eq(graphNodes.label, node.label), eq(graphNodes.userId, session.user.id)))
       .limit(1);
-    
+
     if (existing.length === 0) {
       await db.insert(graphNodes).values({
         userId: session.user.id,
@@ -132,24 +134,27 @@ export async function syncGraphifyGraph() {
     }
   }
 
-  const allNodes = await db.select().from(graphNodes)
-    .where(eq(graphNodes.userId, session.user.id));
-  const labelToId = new Map(allNodes.map(n => [n.label, n.id]));
+  const allNodes = await db.select().from(graphNodes).where(eq(graphNodes.userId, session.user.id));
+  const labelToId = new Map(allNodes.map((n) => [n.label, n.id]));
 
   for (const edge of graphData.edges) {
     const sourceId = labelToId.get(edge.source);
     const targetId = labelToId.get(edge.target);
-    
+
     if (!sourceId || !targetId) continue;
-    
-    const existing = await db.select().from(graphEdges).where(
-      and(
-        eq(graphEdges.userId, session.user.id),
-        eq(graphEdges.sourceId, sourceId),
-        eq(graphEdges.targetId, targetId),
+
+    const existing = await db
+      .select()
+      .from(graphEdges)
+      .where(
+        and(
+          eq(graphEdges.userId, session.user.id),
+          eq(graphEdges.sourceId, sourceId),
+          eq(graphEdges.targetId, targetId)
+        )
       )
-    ).limit(1);
-    
+      .limit(1);
+
     if (existing.length === 0) {
       await db.insert(graphEdges).values({
         userId: session.user.id,
@@ -159,8 +164,8 @@ export async function syncGraphifyGraph() {
     }
   }
 
-  return { 
-    success: true, 
+  return {
+    success: true,
     nodesCreated: graphData.nodes.length,
     edgesCreated: graphData.edges.length,
   };

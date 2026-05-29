@@ -118,10 +118,7 @@ export function StarterPromptModal() {
 
   const handleCopy = async () => {
     const finalPrompt = projectDescription.trim()
-      ? STARTER_PROMPT.replace(
-          "[PROJECT_DESCRIPTION]",
-          projectDescription.trim()
-        )
+      ? STARTER_PROMPT.replace("[PROJECT_DESCRIPTION]", projectDescription.trim())
       : STARTER_PROMPT.replace("\n[PROJECT_DESCRIPTION]\n", "");
 
     try {
@@ -137,7 +134,7 @@ export function StarterPromptModal() {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button size="sm" className="w-full">
-          <Copy className="w-3.5 h-3.5 mr-1.5" />
+          <Copy className="mr-1.5 h-3.5 w-3.5" />
           Ottieni Prompt Iniziale AI
         </Button>
       </DialogTrigger>
@@ -153,7 +150,7 @@ export function StarterPromptModal() {
           <div className="space-y-2">
             <label
               htmlFor="project-description"
-              className="text-sm font-bold uppercase tracking-wider font-[family-name:var(--font-display)]"
+              className="font-[family-name:var(--font-display)] text-sm font-bold tracking-wider uppercase"
             >
               Descrivi il tuo progetto
             </label>
@@ -162,9 +159,9 @@ export function StarterPromptModal() {
               placeholder="es., Un'app di gestione attività per team con collaborazione in tempo reale..."
               value={projectDescription}
               onChange={(e) => setProjectDescription(e.target.value)}
-              className="w-full h-24 brutal-input resize-none"
+              className="brutal-input h-24 w-full resize-none"
             />
-            <p className="text-xs text-muted-foreground font-[family-name:var(--font-display)] uppercase tracking-wider">
+            <p className="text-muted-foreground font-[family-name:var(--font-display)] text-xs tracking-wider uppercase">
               Opzionale: Aggiungi dettagli per un prompt personalizzato
             </p>
           </div>
@@ -173,12 +170,12 @@ export function StarterPromptModal() {
             <Button onClick={handleCopy} className="flex-1">
               {copied ? (
                 <>
-                  <Check className="w-3.5 h-3.5 mr-1.5" />
+                  <Check className="mr-1.5 h-3.5 w-3.5" />
                   Copiato!
                 </>
               ) : (
                 <>
-                  <Copy className="w-3.5 h-3.5 mr-1.5" />
+                  <Copy className="mr-1.5 h-3.5 w-3.5" />
                   Copia Prompt Iniziale
                 </>
               )}
@@ -188,9 +185,9 @@ export function StarterPromptModal() {
             </Button>
           </div>
 
-          <div className="text-xs text-muted-foreground border-t-2 border-brutal-border pt-3 font-[family-name:var(--font-display)] uppercase tracking-wider">
-            <strong>Come usare:</strong> Copia questo prompt e incollalo in
-            Claude Code, Cursor, o qualsiasi assistente di coding AI.
+          <div className="text-muted-foreground border-brutal-border border-t-2 pt-3 font-[family-name:var(--font-display)] text-xs tracking-wider uppercase">
+            <strong>Come usare:</strong> Copia questo prompt e incollalo in Claude Code, Cursor, o
+            qualsiasi assistente di coding AI.
           </div>
         </div>
       </DialogContent>

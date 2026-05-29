@@ -69,18 +69,23 @@ export async function getSettings() {
   const session = await getSession();
 
   // Query for existing settings
-  let settings = await db.select().from(userSettings)
+  let settings = await db
+    .select()
+    .from(userSettings)
     .where(eq(userSettings.userId, session.user.id))
     .limit(1);
 
   // Create default settings if none exist (first-time user)
   if (settings.length === 0) {
-    const [created] = await db.insert(userSettings).values({
-      userId: session.user.id,
-      theme: DEFAULT_THEME,
-      system: DEFAULT_SYSTEM,
-      ai: DEFAULT_AI,
-    }).returning();
+    const [created] = await db
+      .insert(userSettings)
+      .values({
+        userId: session.user.id,
+        theme: DEFAULT_THEME,
+        system: DEFAULT_SYSTEM,
+        ai: DEFAULT_AI,
+      })
+      .returning();
     if (created) {
       settings = [created];
     }
@@ -98,8 +103,14 @@ export async function getSettings() {
   }
 
   return {
-    theme: { ...DEFAULT_THEME, ...(savedSettings.theme as Record<string, unknown>) } as UserThemeSettings,
-    system: { ...DEFAULT_SYSTEM, ...(savedSettings.system as Record<string, unknown>) } as UserSystemSettings,
+    theme: {
+      ...DEFAULT_THEME,
+      ...(savedSettings.theme as Record<string, unknown>),
+    } as UserThemeSettings,
+    system: {
+      ...DEFAULT_SYSTEM,
+      ...(savedSettings.system as Record<string, unknown>),
+    } as UserSystemSettings,
     ai: { ...DEFAULT_AI, ...(savedSettings.ai as Record<string, unknown>) } as UserAISettings,
   };
 }
@@ -126,7 +137,9 @@ export async function updateSettings(input: {
   const validated = updateSettingsSchema.parse(input);
 
   // Check for existing settings
-  const existing = await db.select().from(userSettings)
+  const existing = await db
+    .select()
+    .from(userSettings)
     .where(eq(userSettings.userId, session.user.id))
     .limit(1);
 
@@ -146,14 +159,22 @@ export async function updateSettings(input: {
 
     // Build update object by merging input with existing values
     const updates: Record<string, unknown> = {};
-    if (validated.theme) updates.theme = { ...(existingSettings.theme as Record<string, unknown>), ...validated.theme };
-    if (validated.system) updates.system = { ...(existingSettings.system as Record<string, unknown>), ...validated.system };
-    if (validated.ai) updates.ai = { ...(existingSettings.ai as Record<string, unknown>), ...validated.ai };
+    if (validated.theme)
+      updates.theme = {
+        ...(existingSettings.theme as Record<string, unknown>),
+        ...validated.theme,
+      };
+    if (validated.system)
+      updates.system = {
+        ...(existingSettings.system as Record<string, unknown>),
+        ...validated.system,
+      };
+    if (validated.ai)
+      updates.ai = { ...(existingSettings.ai as Record<string, unknown>), ...validated.ai };
 
     // Only update if there are changes
     if (Object.keys(updates).length > 0) {
-      await db.update(userSettings).set(updates)
-        .where(eq(userSettings.userId, session.user.id));
+      await db.update(userSettings).set(updates).where(eq(userSettings.userId, session.user.id));
     }
   }
 

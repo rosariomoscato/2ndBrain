@@ -26,7 +26,7 @@ export function NotePreview({ content }: NotePreviewProps) {
               </SyntaxHighlighter>
             ) : (
               <code
-                className="px-1.5 py-0.5 bg-glass-surface rounded text-neon-cyan font-tech text-sm"
+                className="bg-glass-surface text-neon-cyan font-tech rounded px-1.5 py-0.5 text-sm"
                 {...props}
               >
                 {children}
@@ -35,46 +35,42 @@ export function NotePreview({ content }: NotePreviewProps) {
           },
           // Headings with display font and glow effect
           h1: ({ children }) => (
-            <h1 className="text-3xl font-bold font-display text-text-primary glow-text mt-6 mb-4">
+            <h1 className="font-display text-text-primary glow-text mt-6 mb-4 text-3xl font-bold">
               {children}
             </h1>
           ),
           h2: ({ children }) => (
-            <h2 className="text-2xl font-bold font-display text-text-primary glow-text mt-5 mb-3">
+            <h2 className="font-display text-text-primary glow-text mt-5 mb-3 text-2xl font-bold">
               {children}
             </h2>
           ),
           h3: ({ children }) => (
-            <h3 className="text-xl font-bold font-display text-text-primary glow-text mt-4 mb-2">
+            <h3 className="font-display text-text-primary glow-text mt-4 mb-2 text-xl font-bold">
               {children}
             </h3>
           ),
           // Paragraphs with secondary color and leading
-          p: ({ children }) => (
-            <p className="text-text-secondary leading-7 mb-4">{children}</p>
-          ),
+          p: ({ children }) => <p className="text-text-secondary mb-4 leading-7">{children}</p>,
           // Links with neon cyan and hover effect
           a: ({ children, href }) => (
             <a
               href={href}
-              className="text-neon-cyan hover:text-neon-purple transition-colors underline hover-glow"
+              className="text-neon-cyan hover:text-neon-purple hover-glow underline transition-colors"
             >
               {children}
             </a>
           ),
           // Lists with proper indentation
           ul: ({ children }) => (
-            <ul className="list-disc list-inside mb-4 space-y-1">{children}</ul>
+            <ul className="mb-4 list-inside list-disc space-y-1">{children}</ul>
           ),
           ol: ({ children }) => (
-            <ol className="list-decimal list-inside mb-4 space-y-1">{children}</ol>
+            <ol className="mb-4 list-inside list-decimal space-y-1">{children}</ol>
           ),
-          li: ({ children }) => (
-            <li className="text-text-secondary leading-7">{children}</li>
-          ),
+          li: ({ children }) => <li className="text-text-secondary leading-7">{children}</li>,
           // Blockquotes with purple left border
           blockquote: ({ children }) => (
-            <blockquote className="border-l-4 border-neon-purple pl-4 py-2 my-4 bg-glass-surface rounded-r-lg">
+            <blockquote className="border-neon-purple bg-glass-surface my-4 rounded-r-lg border-l-4 py-2 pl-4">
               {children}
             </blockquote>
           ),

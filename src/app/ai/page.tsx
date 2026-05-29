@@ -3,9 +3,9 @@
 import { useState, useEffect } from "react";
 import { Sparkles, Clock, FileText, ExternalLink, ChevronRight, History, Trash2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import { CyberCard } from "@/components/ui/cyber-card";
 import { queryWithRAG, getQueryHistory, clearQueryHistory } from "@/lib/actions/ai-query";
 import type { Citation, QueryHistoryItem } from "@/lib/types";
-import { CyberCard } from "@/components/ui/cyber-card";
 
 export default function AIQueryPage() {
   const [isLoading, setIsLoading] = useState(false);

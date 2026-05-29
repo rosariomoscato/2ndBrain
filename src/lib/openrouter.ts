@@ -15,10 +15,12 @@ export type ModelInfo = {
   description?: string | undefined;
   contextLength?: number | undefined;
   dimension?: number | undefined;
-  pricing?: {
-    prompt: string;
-    completion: string;
-  } | undefined;
+  pricing?:
+    | {
+        prompt: string;
+        completion: string;
+      }
+    | undefined;
 };
 
 /**
@@ -54,7 +56,7 @@ export async function validateOpenRouterKey(
     const response = await fetch("https://openrouter.ai/api/v1/models", {
       method: "GET",
       headers: {
-        "Authorization": `Bearer ${apiKey}`,
+        Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
     });
@@ -64,7 +66,10 @@ export async function validateOpenRouterKey(
     }
 
     if (!response.ok) {
-      return { valid: false, error: `OpenRouter API returned status ${response.status}: ${response.statusText}` };
+      return {
+        valid: false,
+        error: `OpenRouter API returned status ${response.status}: ${response.statusText}`,
+      };
     }
 
     return { valid: true };
@@ -86,7 +91,7 @@ export async function fetchAvailableModels(
   const response = await fetch("https://openrouter.ai/api/v1/models", {
     method: "GET",
     headers: {
-      "Authorization": `Bearer ${apiKey}`,
+      Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
     },
   });
@@ -115,10 +120,12 @@ export async function fetchAvailableModels(
       name: model.name || model.id,
       description: model.description,
       contextLength: model.context_length,
-      pricing: model.pricing ? {
-        prompt: String(model.pricing.prompt),
-        completion: String(model.pricing.completion),
-      } : undefined,
+      pricing: model.pricing
+        ? {
+            prompt: String(model.pricing.prompt),
+            completion: String(model.pricing.completion),
+          }
+        : undefined,
     };
 
     // Check if this is an embedding model (by name or id)

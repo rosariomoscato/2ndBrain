@@ -11,7 +11,12 @@ function getAudioCtx(): AudioContext | null {
   }
 }
 
-function playTone(frequency: number, duration: number, type: OscillatorType = "sine", volume = 0.08) {
+function playTone(
+  frequency: number,
+  duration: number,
+  type: OscillatorType = "sine",
+  volume = 0.08
+) {
   const ctx = getAudioCtx();
   if (!ctx) return;
   const osc = ctx.createOscillator();

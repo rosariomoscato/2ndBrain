@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Save } from "lucide-react";
+import { Save, Upload, X, ChevronDown, ChevronUp, Trash2 } from "lucide-react";
 import { CyberButton } from "@/components/ui/cyber-button";
 import { CyberInput } from "@/components/ui/cyber-input";
 import { NeonBadge } from "@/components/ui/neon-badge";
 import { NotePreview } from "./note-preview";
 import { Toolbar } from "./toolbar";
+import { PDFViewer } from "@/components/pdf/pdf-viewer";
+import type { NoteAttachment } from "@/lib/types";
 
 interface NoteEditorProps {
   initialTitle?: string;
@@ -14,6 +16,10 @@ interface NoteEditorProps {
   initialTags?: string[];
   onSave?: (note: { title: string; content: string; tags: string[] }) => void;
   isReadOnly?: boolean;
+  attachment?: NoteAttachment;
+  onAttachPDF?: () => void;
+  onRemovePDF?: () => void;
+  onDelete?: () => void;
 }
 
 export function NoteEditor({
@@ -22,11 +28,16 @@ export function NoteEditor({
   initialTags = [],
   onSave,
   isReadOnly = false,
+  attachment,
+  onAttachPDF,
+  onRemovePDF,
+  onDelete,
 }: NoteEditorProps) {
   const [title, setTitle] = useState(initialTitle);
   const [content, setContent] = useState(initialContent);
   const [tags, setTags] = useState<string[]>(initialTags);
   const [newTag, setNewTag] = useState("");
+  const [pdfViewerOpen, setPdfViewerOpen] = useState(false);
 
   const hasUnsavedChanges =
     title !== initialTitle ||
@@ -34,9 +45,7 @@ export function NoteEditor({
     tags.join(",") !== initialTags.join(",");
 
   const handleToolbarAction = (action: string) => {
-    const textarea = document.querySelector(
-      ".note-content-textarea"
-    ) as HTMLTextAreaElement;
+    const textarea = document.querySelector(".note-content-textarea") as HTMLTextAreaElement;
     if (!textarea) return;
 
     const start = textarea.selectionStart;
@@ -102,21 +111,21 @@ export function NoteEditor({
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex h-full flex-col">
       {/* Header */}
-      <div className="glass-panel border-b border-glass-border px-6 py-4">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex-1 mr-6">
+      <div className="glass-panel border-glass-border border-b px-6 py-4">
+        <div className="mb-4 flex items-center justify-between">
+          <div className="mr-6 flex-1">
             <CyberInput
               placeholder="Note Title..."
-              className="h-12 text-2xl font-bold font-display mb-3"
+              className="font-display mb-3 h-12 text-2xl font-bold"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               disabled={isReadOnly}
             />
 
             {!isReadOnly && (
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex flex-wrap items-center gap-2">
                 {tags.map((tag) => (
                   <NeonBadge
                     key={tag}
@@ -157,6 +166,65 @@ export function NoteEditor({
               </NeonBadge>
             )}
 
+            {onDelete && (
+              <CyberButton
+                variant="outline"
+                size="sm"
+                onClick={onDelete}
+                className="gap-2 text-neon-pink border-neon-pink/50 hover:bg-neon-pink/10"
+              >
+                <Trash2 className="h-4 w-4" />
+                Delete
+              </CyberButton>
+            )}
+
+            {attachment && (
+              <CyberButton
+                variant="secondary"
+                size="sm"
+                onClick={() => setPdfViewerOpen(!pdfViewerOpen)}
+                className="gap-2"
+              >
+                {pdfViewerOpen ? (
+                  <>
+                    <ChevronUp className="h-4 w-4" />
+                    Hide PDF
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown className="h-4 w-4" />
+                    Show PDF
+                  </>
+                )}
+              </CyberButton>
+            )}
+
+            {!isReadOnly && (
+              <>
+                {attachment ? (
+                  <CyberButton
+                    variant="outline"
+                    size="sm"
+                    onClick={onRemovePDF}
+                    className="gap-2 text-neon-pink border-neon-pink/50 hover:bg-neon-pink/10"
+                  >
+                    <X className="h-4 w-4" />
+                    Remove PDF
+                  </CyberButton>
+                ) : (
+                  <CyberButton
+                    variant="secondary"
+                    size="sm"
+                    onClick={onAttachPDF}
+                    className="gap-2"
+                  >
+                    <Upload className="h-4 w-4" />
+                    Attach PDF
+                  </CyberButton>
+                )}
+              </>
+            )}
+
             <CyberButton
               variant="primary"
               size="md"
@@ -173,16 +241,28 @@ export function NoteEditor({
         <Toolbar onAction={handleToolbarAction} isReadOnly={isReadOnly} />
       </div>
 
+      {/* PDF Viewer Panel */}
+      {attachment && pdfViewerOpen && (
+        <div className="border-glass-border border-b">
+          <PDFViewer
+            fileUrl={attachment.fileUrl}
+            fileName={attachment.fileName}
+            fileSize={attachment.fileSize}
+            {...(attachment.pageCount !== undefined && { pageCount: attachment.pageCount })}
+          />
+        </div>
+      )}
+
       {/* Split View: Editor and Preview */}
-      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden min-h-0">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden lg:flex-row">
         {/* Editor Panel */}
-        <div className="flex-1 flex flex-col border-r border-glass-border lg:w-1/2 min-h-0">
-          <div className="glass-panel border-b border-glass-border px-4 py-2">
+        <div className="border-glass-border flex min-h-0 flex-1 flex-col border-r lg:w-1/2">
+          <div className="glass-panel border-glass-border border-b px-4 py-2">
             <span className="micro-label">EDITOR</span>
           </div>
-          <div className="flex-1 overflow-hidden p-0 min-h-0">
+          <div className="min-h-0 flex-1 overflow-hidden p-0">
             <textarea
-              className="note-content-textarea w-full h-full bg-glass-surface/30 text-text-primary font-mono text-sm p-4 resize-none outline-none border-0 focus:ring-0"
+              className="note-content-textarea bg-glass-surface/30 text-text-primary h-full w-full resize-none border-0 p-4 font-mono text-sm outline-none focus:ring-0"
               placeholder="Write your note in Markdown..."
               value={content}
               onChange={(e) => setContent(e.target.value)}
@@ -192,11 +272,11 @@ export function NoteEditor({
         </div>
 
         {/* Preview Panel */}
-        <div className="flex-1 flex flex-col border-l border-glass-border lg:w-1/2 min-h-0">
-          <div className="glass-panel border-b border-glass-border px-4 py-2">
+        <div className="border-glass-border flex min-h-0 flex-1 flex-col border-l lg:w-1/2">
+          <div className="glass-panel border-glass-border border-b px-4 py-2">
             <span className="micro-label">PREVIEW</span>
           </div>
-          <div className="flex-1 overflow-auto p-6 bg-glass-surface/30">
+          <div className="bg-glass-surface/30 flex-1 overflow-auto p-6">
             <NotePreview content={content} />
           </div>
         </div>

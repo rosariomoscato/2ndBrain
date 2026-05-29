@@ -37,10 +37,12 @@ You are implementing a single task from a feature specification. Your job is to 
 - **{requirements}**: paste the full text of `requirements.md`. This gives the agent overall feature context — the "what" and "why" — so it can make good judgment calls during implementation.
 
 - **{completed_tasks_summary}**: for each previously completed task, include a brief summary like:
+
   ```
   - task-01-setup-database: Created PostgreSQL schema with users and sessions tables. Files: src/db/schema.ts, src/db/migrations/001_initial.sql
   - task-02-auth-config: Set up Better Auth with email/password provider. Files: src/lib/auth.ts, src/lib/auth-client.ts
   ```
+
   Keep each entry to 1-2 lines. The purpose is to give the agent awareness of what exists, not full implementation details.
 
 - **{task_content}**: paste the full text of the task file (task-{nn}-{name}.md). This is the agent's primary instruction set — it contains the description, technical details, files to create/modify, and acceptance criteria.

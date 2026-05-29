@@ -18,6 +18,7 @@ Redesign the Settings > AI tab to support: (1) OpenRouter API key input with val
 **Blocks:** task-05-wire-backend.md
 
 **Context from dependencies:**
+
 - task-03 creates `src/lib/actions/ai-settings.ts` with server actions:
   - `getAISettings()` returns `{ hasKey, keyLast4, model, embeddingModel, streamResponses, includeCitations, desktopNotifications }`
   - `saveOpenRouterApiKey(apiKey)` validates and encrypts the key
@@ -36,6 +37,7 @@ Redesign the Settings > AI tab to support: (1) OpenRouter API key input with val
 ### UI States
 
 **State 1: No API Key configured** (initial state for new users)
+
 - Show a prominent card explaining that AI features require an OpenRouter key
 - Show a text input for the API key
 - Show a "Validate & Save" button
@@ -43,11 +45,13 @@ Redesign the Settings > AI tab to support: (1) OpenRouter API key input with val
 - Include a link to https://openrouter.ai/keys to get a key
 
 **State 2: Validating key** (loading state)
+
 - Show spinner on the save button
 - Disable the input
 
 **State 3: Key configured** (hasKey = true)
-- Show a card: "OpenRouter API Key: ****{keyLast4}" with a "Remove" button
+
+- Show a card: "OpenRouter API Key: \*\*\*\*{keyLast4}" with a "Remove" button
 - Show embedding model dropdown (from `SUPPORTED_EMBEDDING_MODELS` constant in task-02)
 - Show chat model dropdown with a "Load Models" button that calls `fetchModels()`
   - On click, fetches models from OpenRouter, populates dropdown
@@ -56,6 +60,7 @@ Redesign the Settings > AI tab to support: (1) OpenRouter API key input with val
 - If user changes embedding model, show a warning: "Changing the embedding model requires re-generating embeddings for all notes. Existing embeddings may be incompatible."
 
 **State 4: Validation failed**
+
 - Show error message below the input: "Invalid API key. Please check and try again."
 - Keep the input populated so user can correct it
 
@@ -102,7 +107,14 @@ Replace the existing AI tab section in `settings/page.tsx` (currently lines ~407
 ### Imports needed
 
 ```ts
-import { getAISettings, saveOpenRouterApiKey, removeOpenRouterApiKey, saveAIModel, saveAIEmbeddingModel, fetchModels } from "@/lib/actions/ai-settings";
+import {
+  getAISettings,
+  saveOpenRouterApiKey,
+  removeOpenRouterApiKey,
+  saveAIModel,
+  saveAIEmbeddingModel,
+  fetchModels,
+} from "@/lib/actions/ai-settings";
 import { SUPPORTED_EMBEDDING_MODELS, DEFAULT_CHAT_MODELS } from "@/lib/openrouter";
 ```
 
@@ -110,7 +122,7 @@ import { SUPPORTED_EMBEDDING_MODELS, DEFAULT_CHAT_MODELS } from "@/lib/openroute
 
 - [ ] Without a key, AI tab shows key input form only, no model selection
 - [ ] Entering an invalid key shows error message
-- [ ] Entering a valid key saves it and shows masked version (****{last4})
+- [ ] Entering a valid key saves it and shows masked version (\*\*\*\*{last4})
 - [ ] With a valid key, embedding model dropdown shows supported 1536-dim models
 - [ ] With a valid key, chat model dropdown can be populated from OpenRouter API
 - [ ] "Remove" button clears the key and returns to no-key state

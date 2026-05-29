@@ -19,19 +19,19 @@ export function SettingsPanel() {
   ];
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex h-full flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Settings className="h-6 w-6 text-neon-cyan" />
-          <h1 className="text-3xl font-display font-bold tracking-tight text-text-primary glow-text">
+          <Settings className="text-neon-cyan h-6 w-6" />
+          <h1 className="font-display text-text-primary glow-text text-3xl font-bold tracking-tight">
             SETTINGS
           </h1>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-1 border-b border-glass-border mb-6">
+      <div className="border-glass-border mb-6 flex items-center gap-1 border-b">
         {tabs.map((tab) => (
           <CyberButton
             key={tab.id}

@@ -17,21 +17,17 @@ const LoadingOrb = React.forwardRef<HTMLDivElement, LoadingOrbProps>(
     return (
       <div
         ref={ref}
-        className={cn(
-          "relative flex items-center justify-center",
-          sizes[size],
-          className
-        )}
+        className={cn("relative flex items-center justify-center", sizes[size], className)}
         {...props}
       >
         {/* Outer glow ring */}
-        <div className="absolute inset-0 rounded-full border-2 border-neon-cyan animate-pulse" />
+        <div className="border-neon-cyan absolute inset-0 animate-pulse rounded-full border-2" />
 
         {/* Spinning ring */}
-        <div className="absolute inset-0 rounded-full border-t-2 border-neon-purple animate-spin" />
+        <div className="border-neon-purple absolute inset-0 animate-spin rounded-full border-t-2" />
 
         {/* Inner core */}
-        <div className="absolute inset-2 rounded-full bg-neon-cyan animate-pulse glow-text" />
+        <div className="bg-neon-cyan glow-text absolute inset-2 animate-pulse rounded-full" />
       </div>
     );
   }

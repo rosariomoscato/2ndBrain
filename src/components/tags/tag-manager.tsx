@@ -1,24 +1,15 @@
 "use client";
 
 import * as React from "react";
+import { Plus, Search, SortAsc, Tag as TagIcon, Hash, Calendar, Edit2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import {
-  Plus,
-  Search,
-  SortAsc,
-  Tag as TagIcon,
-  Hash,
-  Calendar,
-  Edit2,
-  Trash2,
-} from "lucide-react";
-import { CyberButton as Button } from "@/components/ui/cyber-button";
 import { useSystemSettings } from "@/components/shared/system-settings-provider";
-import { playSuccessSound, playDeleteSound, playErrorSound } from "@/lib/sounds";
+import { CyberButton as Button } from "@/components/ui/cyber-button";
 import { CyberInput } from "@/components/ui/cyber-input";
 import { LoadingOrb } from "@/components/ui/loading-orb";
 import { NeonBadge } from "@/components/ui/neon-badge";
 import { getTags, createTag, updateTag, deleteTag, bulkDeleteTags } from "@/lib/actions/tags";
+import { playSuccessSound, playDeleteSound, playErrorSound } from "@/lib/sounds";
 import type { Tag, TagColor, TagEditorModal } from "./tag-editor-modal";
 
 type SortBy = "name" | "usage" | "date";
@@ -56,9 +47,7 @@ export function TagManager({ TagEditorModalComponent }: TagManagerProps) {
   }, [sortBy]);
 
   const filteredTags = React.useMemo(() => {
-    const result = tags.filter((tag) =>
-      tag.name.toLowerCase().includes(query.toLowerCase())
-    );
+    const result = tags.filter((tag) => tag.name.toLowerCase().includes(query.toLowerCase()));
     return result;
   }, [tags, query]);
 
@@ -79,12 +68,10 @@ export function TagManager({ TagEditorModalComponent }: TagManagerProps) {
         // Optimistically update UI
         setTags(
           tags.map((t) =>
-            t.id === editingTag.id
-              ? { ...t, name: tagData.name, color: tagData.color }
-              : t
+            t.id === editingTag.id ? { ...t, name: tagData.name, color: tagData.color } : t
           )
         );
-        
+
         await updateTag({ id: editingTag.id, ...tagData });
         if (soundEffects) playSuccessSound();
         toast.success("Tag updated");
@@ -98,12 +85,12 @@ export function TagManager({ TagEditorModalComponent }: TagManagerProps) {
           createdAt: new Date(),
         };
         setTags([...tags, newTag]);
-        
+
         await createTag(tagData);
         if (soundEffects) playSuccessSound();
         toast.success("Tag created");
       }
-      
+
       // Reload to get fresh data from server
       await loadTags(sortBy);
       setIsModalOpen(false);
@@ -140,9 +127,11 @@ export function TagManager({ TagEditorModalComponent }: TagManagerProps) {
       // Optimistically remove tags
       setTags(tags.filter((t) => !selectedTags.has(t.id)));
       setSelectedTags(new Set());
-      
+
       await bulkDeleteTags(tagIdsToDelete);
-      toast.success(`Deleted ${tagIdsToDelete.length} tag${tagIdsToDelete.length !== 1 ? 's' : ''}`);
+      toast.success(
+        `Deleted ${tagIdsToDelete.length} tag${tagIdsToDelete.length !== 1 ? "s" : ""}`
+      );
     } catch (error) {
       console.error("Failed to bulk delete tags:", error);
       toast.error("Failed to delete tags");
@@ -177,17 +166,15 @@ export function TagManager({ TagEditorModalComponent }: TagManagerProps) {
   return (
     <div className="flex-1 p-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="mb-6 flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-display font-bold glow-text mb-1">
-            Tag Manager
-          </h2>
+          <h2 className="font-display glow-text mb-1 text-2xl font-bold">Tag Manager</h2>
           <p className="text-text-secondary text-sm">
             {loading ? "Loading..." : `${tags.length} tag${tags.length !== 1 ? "s" : ""} total`}
           </p>
         </div>
         <Button variant="primary" onClick={handleCreateTag} disabled={loading}>
-          <Plus className="h-4 w-4 mr-2" />
+          <Plus className="mr-2 h-4 w-4" />
           New Tag
         </Button>
       </div>
@@ -203,9 +190,9 @@ export function TagManager({ TagEditorModalComponent }: TagManagerProps) {
       ) : (
         <>
           {/* Search and Sort */}
-          <div className="flex gap-3 mb-6">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-dim" />
+          <div className="mb-6 flex gap-3">
+            <div className="relative flex-1">
+              <Search className="text-text-dim absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
               <CyberInput
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -219,7 +206,7 @@ export function TagManager({ TagEditorModalComponent }: TagManagerProps) {
                 size="sm"
                 onClick={() => handleSortChange("name")}
               >
-                <SortAsc className="h-4 w-4 mr-2" />
+                <SortAsc className="mr-2 h-4 w-4" />
                 Name
               </Button>
               <Button
@@ -227,7 +214,7 @@ export function TagManager({ TagEditorModalComponent }: TagManagerProps) {
                 size="sm"
                 onClick={() => handleSortChange("usage")}
               >
-                <Hash className="h-4 w-4 mr-2" />
+                <Hash className="mr-2 h-4 w-4" />
                 Usage
               </Button>
               <Button
@@ -235,112 +222,94 @@ export function TagManager({ TagEditorModalComponent }: TagManagerProps) {
                 size="sm"
                 onClick={() => handleSortChange("date")}
               >
-                <Calendar className="h-4 w-4 mr-2" />
+                <Calendar className="mr-2 h-4 w-4" />
                 Date
               </Button>
             </div>
           </div>
 
-      {/* Bulk Actions */}
-      {selectedTags.size > 0 && (
-        <div className="glass-panel rounded-lg p-3 mb-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleSelectAll}
-            >
-              {selectedTags.size === filteredTags.length
-                ? "Deselect All"
-                : "Select All"}
-            </Button>
-            <span className="text-text-secondary text-sm">
-              {selectedTags.size} selected
-            </span>
-          </div>
-          <Button
-            variant="secondary"
-            onClick={handleBulkDelete}
-            className="text-destructive"
-          >
-            <Trash2 className="h-4 w-4 mr-2" />
-            Delete Selected
-          </Button>
-        </div>
-      )}
-
-      {/* Tags List */}
-      {filteredTags.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 text-center">
-          <TagIcon className="h-12 w-12 text-glass-border mb-4" />
-          <p className="text-text-secondary mb-2">
-            {query
-              ? "No tags found matching your search"
-              : "No tags yet"}
-          </p>
-          <p className="text-text-dim text-sm">
-            {query
-              ? "Try a different search term"
-              : "Create your first tag to get started"}
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-2">
-          {filteredTags.map((tag) => (
-            <div
-              key={tag.id}
-              className="glass-panel rounded-lg p-4 flex items-center justify-between hover-lift hover-glow-border transition-all duration-200 group"
-            >
-              <div className="flex items-center gap-4 flex-1">
-                {/* Checkbox */}
-                <input
-                  type="checkbox"
-                  checked={selectedTags.has(tag.id)}
-                  onChange={() => toggleTagSelection(tag.id)}
-                  className="h-4 w-4 accent-neon-cyan cursor-pointer"
-                />
-
-                {/* Tag Badge */}
-                <NeonBadge variant={tag.color}>{tag.name}</NeonBadge>
-
-                {/* Stats */}
-                <div className="flex items-center gap-4 text-text-secondary text-sm">
-                  <div className="flex items-center gap-1">
-                    <Hash className="h-3.5 w-3.5" />
-                    <span>{tag.usageCount}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Calendar className="h-3.5 w-3.5" />
-                    <span>{tag.createdAt.toLocaleDateString()}</span>
-                  </div>
-                </div>
+          {/* Bulk Actions */}
+          {selectedTags.size > 0 && (
+            <div className="glass-panel mb-4 flex items-center justify-between rounded-lg p-3">
+              <div className="flex items-center gap-3">
+                <Button variant="ghost" size="sm" onClick={handleSelectAll}>
+                  {selectedTags.size === filteredTags.length ? "Deselect All" : "Select All"}
+                </Button>
+                <span className="text-text-secondary text-sm">{selectedTags.size} selected</span>
               </div>
-
-              {/* Edit Button */}
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => handleEditTag(tag)}
-                className="opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <Edit2 className="h-4 w-4" />
+              <Button variant="secondary" onClick={handleBulkDelete} className="text-destructive">
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete Selected
               </Button>
             </div>
-          ))}
-        </div>
-      )}
+          )}
 
-      {/* Modal */}
-      <TagEditorModalComponent
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSave={handleSaveTag}
-        onDelete={
-          editingTag ? () => handleDeleteTag(editingTag.id) : undefined
-        }
-        initialTag={editingTag ?? null}
-        isSaving={isSaving}
-      />
+          {/* Tags List */}
+          {filteredTags.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <TagIcon className="text-glass-border mb-4 h-12 w-12" />
+              <p className="text-text-secondary mb-2">
+                {query ? "No tags found matching your search" : "No tags yet"}
+              </p>
+              <p className="text-text-dim text-sm">
+                {query ? "Try a different search term" : "Create your first tag to get started"}
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {filteredTags.map((tag) => (
+                <div
+                  key={tag.id}
+                  className="glass-panel hover-lift hover-glow-border group flex items-center justify-between rounded-lg p-4 transition-all duration-200"
+                >
+                  <div className="flex flex-1 items-center gap-4">
+                    {/* Checkbox */}
+                    <input
+                      type="checkbox"
+                      checked={selectedTags.has(tag.id)}
+                      onChange={() => toggleTagSelection(tag.id)}
+                      className="accent-neon-cyan h-4 w-4 cursor-pointer"
+                    />
+
+                    {/* Tag Badge */}
+                    <NeonBadge variant={tag.color}>{tag.name}</NeonBadge>
+
+                    {/* Stats */}
+                    <div className="text-text-secondary flex items-center gap-4 text-sm">
+                      <div className="flex items-center gap-1">
+                        <Hash className="h-3.5 w-3.5" />
+                        <span>{tag.usageCount}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Calendar className="h-3.5 w-3.5" />
+                        <span>{tag.createdAt.toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Edit Button */}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleEditTag(tag)}
+                    className="opacity-0 transition-opacity group-hover:opacity-100"
+                  >
+                    <Edit2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Modal */}
+          <TagEditorModalComponent
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            onSave={handleSaveTag}
+            onDelete={editingTag ? () => handleDeleteTag(editingTag.id) : undefined}
+            initialTag={editingTag ?? null}
+            isSaving={isSaving}
+          />
         </>
       )}
     </div>

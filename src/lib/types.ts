@@ -29,6 +29,20 @@ export type NoteTag = {
 };
 
 /**
+ * Note attachment information.
+ * Contains metadata about files (PDFs, images, etc.) attached to notes.
+ */
+export type NoteAttachment = {
+  id: string;
+  fileName: string;
+  fileUrl: string;
+  fileType: string;
+  fileSize: number;
+  pageCount?: number;
+  createdAt: string;
+};
+
+/**
  * Complete note representation.
  * Used by UI components and returned from server actions.
  */
@@ -41,6 +55,8 @@ export type Note = {
   updatedAt: string;
   connections: number;
   importance: number;
+  attachment?: NoteAttachment;
+  hasPdf: boolean;
 };
 
 /**
@@ -131,7 +147,7 @@ export type UserSystemSettings = {
 export type UserAISettings = {
   model?: string;
   embeddingModel?: string;
-  openrouterApiKey?: string;  // encrypted JSON string (never sent to client)
+  openrouterApiKey?: string; // encrypted JSON string (never sent to client)
   streamResponses?: boolean;
   includeCitations?: boolean;
   desktopNotifications?: boolean;

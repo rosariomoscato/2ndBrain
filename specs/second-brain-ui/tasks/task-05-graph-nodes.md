@@ -369,7 +369,9 @@ export function GraphCanvas() {
 /* Custom Edge Styles */
 .react-flow__edge-path {
   stroke-linecap: round;
-  transition: stroke-width 0.2s, stroke 0.2s;
+  transition:
+    stroke-width 0.2s,
+    stroke 0.2s;
 }
 
 /* Edge hover effect */
@@ -408,6 +410,7 @@ export function GraphCanvas() {
 ### Code Snippets
 
 Node data interface:
+
 ```typescript
 interface NodeData {
   label: string;
@@ -420,6 +423,7 @@ interface NodeData {
 ```
 
 Registering custom types:
+
 ```typescript
 const nodeTypes = {
   cyberNode: GraphNode,

@@ -50,27 +50,30 @@ async function getSession() {
 ```
 
 2. **getGraphData action** (returns React Flow formatted data):
+
 ```typescript
 export async function getGraphData() {
   const session = await getSession();
-  
-  const nodes = await db.select().from(graphNodes)
-    .where(eq(graphNodes.userId, session.user.id));
-  
-  const edges = await db.select().from(graphEdges)
-    .where(eq(graphEdges.userId, session.user.id));
-  
-  const nodeIds = nodes.map(n => n.id);
-  
-  const tagRows = nodeIds.length > 0 ? await db.select({
-    nodeId: graphNodes.id,
-    tagName: tags.name,
-  })
-  .from(graphNodes)
-  .leftJoin(notes, eq(graphNodes.noteId, notes.id))
-  .leftJoin(noteTags, eq(notes.id, noteTags.noteId))
-  .leftJoin(tags, eq(noteTags.tagId, tags.id))
-  .where(eq(graphNodes.userId, session.user.id)) : [];
+
+  const nodes = await db.select().from(graphNodes).where(eq(graphNodes.userId, session.user.id));
+
+  const edges = await db.select().from(graphEdges).where(eq(graphEdges.userId, session.user.id));
+
+  const nodeIds = nodes.map((n) => n.id);
+
+  const tagRows =
+    nodeIds.length > 0
+      ? await db
+          .select({
+            nodeId: graphNodes.id,
+            tagName: tags.name,
+          })
+          .from(graphNodes)
+          .leftJoin(notes, eq(graphNodes.noteId, notes.id))
+          .leftJoin(noteTags, eq(notes.id, noteTags.noteId))
+          .leftJoin(tags, eq(noteTags.tagId, tags.id))
+          .where(eq(graphNodes.userId, session.user.id))
+      : [];
 
   const nodeTagMap = new Map<string, string[]>();
   for (const t of tagRows) {
@@ -81,17 +84,20 @@ export async function getGraphData() {
     }
   }
 
-  const connectionCounts = await db.select({
-    nodeId: graphNodes.id,
-    count: sql<number>`(
+  const connectionCounts = await db
+    .select({
+      nodeId: graphNodes.id,
+      count: sql<number>`(
       SELECT COUNT(*) FROM graph_edges 
       WHERE graph_edges.source_id = ${graphNodes.id} OR graph_edges.target_id = ${graphNodes.id}
     )`,
-  }).from(graphNodes).where(eq(graphNodes.userId, session.user.id));
+    })
+    .from(graphNodes)
+    .where(eq(graphNodes.userId, session.user.id));
 
-  const connMap = new Map(connectionCounts.map(c => [c.nodeId, Number(c.count)]));
-  
-  const reactFlowNodes = nodes.map(n => ({
+  const connMap = new Map(connectionCounts.map((c) => [c.nodeId, Number(c.count)]));
+
+  const reactFlowNodes = nodes.map((n) => ({
     id: n.id,
     type: "cyber",
     position: { x: n.positionX ?? Math.random() * 800, y: n.positionY ?? Math.random() * 600 },
@@ -105,7 +111,7 @@ export async function getGraphData() {
     },
   }));
 
-  const reactFlowEdges = edges.map(e => ({
+  const reactFlowEdges = edges.map((e) => ({
     id: e.id,
     source: e.sourceId,
     target: e.targetId,
@@ -118,95 +124,120 @@ export async function getGraphData() {
 ```
 
 3. **createNodeForNote action** (auto-called when note is created):
+
 ```typescript
 export async function createNodeForNote(noteId: string, title: string, userId: string) {
-  const existing = await db.select().from(graphNodes)
+  const existing = await db
+    .select()
+    .from(graphNodes)
     .where(and(eq(graphNodes.noteId, noteId), eq(graphNodes.userId, userId)))
     .limit(1);
-  
+
   if (existing.length > 0) return existing[0];
 
-  const [node] = await db.insert(graphNodes).values({
-    userId,
-    noteId,
-    label: title,
-    type: "note",
-    importance: 3,
-    positionX: Math.floor(Math.random() * 800),
-    positionY: Math.floor(Math.random() * 600),
-  }).returning();
+  const [node] = await db
+    .insert(graphNodes)
+    .values({
+      userId,
+      noteId,
+      label: title,
+      type: "note",
+      importance: 3,
+      positionX: Math.floor(Math.random() * 800),
+      positionY: Math.floor(Math.random() * 600),
+    })
+    .returning();
 
   return node;
 }
 ```
 
 4. **updateNodePosition action:**
+
 ```typescript
 export async function updateNodePosition(nodeId: string, x: number, y: number) {
   const session = await getSession();
-  await db.update(graphNodes).set({ positionX: x, positionY: y })
+  await db
+    .update(graphNodes)
+    .set({ positionX: x, positionY: y })
     .where(and(eq(graphNodes.id, nodeId), eq(graphNodes.userId, session.user.id)));
   return { success: true };
 }
 ```
 
 5. **createEdge action:**
+
 ```typescript
 export async function createEdge(sourceId: string, targetId: string) {
   const session = await getSession();
-  
-  const existing = await db.select().from(graphEdges).where(
-    and(
-      eq(graphEdges.userId, session.user.id),
-      or(
-        and(eq(graphEdges.sourceId, sourceId), eq(graphEdges.targetId, targetId)),
-        and(eq(graphEdges.sourceId, targetId), eq(graphEdges.targetId, sourceId)),
+
+  const existing = await db
+    .select()
+    .from(graphEdges)
+    .where(
+      and(
+        eq(graphEdges.userId, session.user.id),
+        or(
+          and(eq(graphEdges.sourceId, sourceId), eq(graphEdges.targetId, targetId)),
+          and(eq(graphEdges.sourceId, targetId), eq(graphEdges.targetId, sourceId))
+        )
       )
     )
-  ).limit(1);
-  
+    .limit(1);
+
   if (existing.length > 0) return existing[0];
-  
-  const [edge] = await db.insert(graphEdges).values({
-    userId: session.user.id,
-    sourceId,
-    targetId,
-  }).returning();
-  
+
+  const [edge] = await db
+    .insert(graphEdges)
+    .values({
+      userId: session.user.id,
+      sourceId,
+      targetId,
+    })
+    .returning();
+
   return edge;
 }
 ```
+
 Add `import { or } from "drizzle-orm";`
 
 6. **deleteEdge action:**
+
 ```typescript
 export async function deleteEdge(edgeId: string) {
   const session = await getSession();
-  await db.delete(graphEdges).where(
-    and(eq(graphEdges.id, edgeId), eq(graphEdges.userId, session.user.id))
-  );
+  await db
+    .delete(graphEdges)
+    .where(and(eq(graphEdges.id, edgeId), eq(graphEdges.userId, session.user.id)));
   return { success: true };
 }
 ```
 
 7. **getNodeCount and getEdgeCount** (for dashboard):
+
 ```typescript
 export async function getNodeCount() {
   const session = await getSession();
-  const result = await db.select({ count: sql<number>`count(*)` })
-    .from(graphNodes).where(eq(graphNodes.userId, session.user.id));
+  const result = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(graphNodes)
+    .where(eq(graphNodes.userId, session.user.id));
   return result[0].count;
 }
 
 export async function getEdgeCount() {
   const session = await getSession();
-  const result = await db.select({ count: sql<number>`count(*)` })
-    .from(graphEdges).where(eq(graphEdges.userId, session.user.id));
+  const result = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(graphEdges)
+    .where(eq(graphEdges.userId, session.user.id));
   return result[0].count;
 }
 ```
 
 8. Modify `src/lib/actions/notes.ts`:
+
 - Import `createNodeForNote` from `@/lib/actions/graph`
 - In `createNote`, after the note insert: `await createNodeForNote(note.id, validated.title, session.user.id).catch(console.error);`
 - In `updateNote`, after the update: if title changed, update graph node label too

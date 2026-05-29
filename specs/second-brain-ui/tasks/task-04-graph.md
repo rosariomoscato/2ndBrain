@@ -260,6 +260,7 @@ export function GraphCanvas() {
 ### Code Snippets
 
 React Flow provider (use in parent if needed, usually layout handles it):
+
 ```typescript
 // Wrap application or layout component
 import { ReactFlowProvider } from "@xyflow/react";
@@ -274,13 +275,16 @@ function App() {
 ```
 
 Node configuration:
+
 ```typescript
 const node: Node = {
   id: "1",
   type: "customNodeType", // Defined in task-05
   position: { x: 0, y: 0 },
   data: { label: "Node Text" },
-  style: { /* inline styles override defaults */ },
+  style: {
+    /* inline styles override defaults */
+  },
 };
 ```
 

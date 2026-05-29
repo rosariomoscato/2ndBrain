@@ -28,6 +28,7 @@ The key insight: implementation plans that live in a single file are either too 
 If the conversation already contains planning context (requirements discussed, technical decisions made, architecture outlined), extract all of it. Review the entire conversation to ensure nothing is lost — the spec is the single source of truth, and anything not captured here disappears.
 
 If no planning conversation exists, interview the user:
+
 - What does this feature do and why does it matter?
 - What are the acceptance criteria?
 - What technical constraints or decisions have been made?
@@ -40,6 +41,7 @@ Choose a kebab-case name that clearly identifies the feature (e.g., `add-user-au
 ### Step 3: Decompose into Tasks
 
 Break the implementation into atomic tasks. Each task should:
+
 - Be completable in a single coding session by one agent
 - Have a clear, specific scope (one concern per task)
 - Produce working, testable code when complete
@@ -52,6 +54,7 @@ Do NOT include testing tasks (unit tests, e2e tests) unless the user explicitly 
 ### Step 4: Build the Dependency Graph
 
 For each task, identify:
+
 - **What it depends on**: which tasks must complete before this one can start
 - **What depends on it**: which tasks are blocked until this one finishes
 
@@ -75,6 +78,7 @@ specs/{feature-name}/
 ```
 
 Read the templates in `references/` before writing each file:
+
 - `references/readme-template.md` — for the README (dependency graph, wave table, status tracking)
 - `references/task-template.md` — for each task file (self-contained with all context)
 - `references/requirements-template.md` ��� for the requirements document

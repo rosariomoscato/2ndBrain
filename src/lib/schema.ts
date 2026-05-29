@@ -1,7 +1,17 @@
-import { pgTable, text, timestamp, boolean, index, uuid, jsonb, integer, primaryKey, uniqueIndex } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  timestamp,
+  boolean,
+  index,
+  uuid,
+  jsonb,
+  integer,
+  primaryKey,
+  uniqueIndex,
+} from "drizzle-orm/pg-core";
 
 // IMPORTANT! ID fields should ALWAYS use UUID types, EXCEPT the BetterAuth tables.
-
 
 export const user = pgTable(
   "user",
@@ -84,99 +94,176 @@ export const verification = pgTable("verification", {
 // Second Brain application tables
 // All IDs use UUID, referencing Better Auth user.id (text)
 
-export const notes = pgTable("notes", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
-  title: text("title").notNull(),
-  content: text("content").notNull().default(""),
-  excerpt: text("excerpt").notNull().default(""),
-  importance: integer("importance").notNull().default(3),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull().$onUpdate(() => new Date()),
-}, (table) => [
-  index("notes_user_id_idx").on(table.userId),
-  index("notes_updated_at_idx").on(table.updatedAt),
-]);
+export const notes = pgTable(
+  "notes",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    content: text("content").notNull().default(""),
+    excerpt: text("excerpt").notNull().default(""),
+    importance: integer("importance").notNull().default(3),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull()
+      .$onUpdate(() => new Date()),
+  },
+  (table) => [
+    index("notes_user_id_idx").on(table.userId),
+    index("notes_updated_at_idx").on(table.updatedAt),
+  ]
+);
 
-export const tags = pgTable("tags", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
-  name: text("name").notNull(),
-  color: text("color").notNull().default("cyan"),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-}, (table) => [
-  index("tags_user_id_idx").on(table.userId),
-  uniqueIndex("tags_user_name_idx").on(table.userId, table.name),
-]);
+export const tags = pgTable(
+  "tags",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    color: text("color").notNull().default("cyan"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("tags_user_id_idx").on(table.userId),
+    uniqueIndex("tags_user_name_idx").on(table.userId, table.name),
+  ]
+);
 
-export const noteTags = pgTable("note_tags", {
-  noteId: uuid("note_id").notNull().references(() => notes.id, { onDelete: "cascade" }),
-  tagId: uuid("tag_id").notNull().references(() => tags.id, { onDelete: "cascade" }),
-}, (table) => [
-  primaryKey({ columns: [table.noteId, table.tagId] }),
-  index("note_tags_tag_id_idx").on(table.tagId),
-]);
+export const noteTags = pgTable(
+  "note_tags",
+  {
+    noteId: uuid("note_id")
+      .notNull()
+      .references(() => notes.id, { onDelete: "cascade" }),
+    tagId: uuid("tag_id")
+      .notNull()
+      .references(() => tags.id, { onDelete: "cascade" }),
+  },
+  (table) => [
+    primaryKey({ columns: [table.noteId, table.tagId] }),
+    index("note_tags_tag_id_idx").on(table.tagId),
+  ]
+);
 
-export const graphNodes = pgTable("graph_nodes", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
-  noteId: uuid("note_id").references(() => notes.id, { onDelete: "set null" }),
-  label: text("label").notNull(),
-  type: text("type").notNull().default("note"),
-  importance: integer("importance").notNull().default(3),
-  positionX: integer("position_x"),
-  positionY: integer("position_y"),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull().$onUpdate(() => new Date()),
-}, (table) => [
-  index("graph_nodes_user_id_idx").on(table.userId),
-  index("graph_nodes_note_id_idx").on(table.noteId),
-]);
+export const graphNodes = pgTable(
+  "graph_nodes",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    noteId: uuid("note_id").references(() => notes.id, { onDelete: "set null" }),
+    label: text("label").notNull(),
+    type: text("type").notNull().default("note"),
+    importance: integer("importance").notNull().default(3),
+    positionX: integer("position_x"),
+    positionY: integer("position_y"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull()
+      .$onUpdate(() => new Date()),
+  },
+  (table) => [
+    index("graph_nodes_user_id_idx").on(table.userId),
+    index("graph_nodes_note_id_idx").on(table.noteId),
+  ]
+);
 
-export const graphEdges = pgTable("graph_edges", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
-  sourceId: uuid("source_id").notNull().references(() => graphNodes.id, { onDelete: "cascade" }),
-  targetId: uuid("target_id").notNull().references(() => graphNodes.id, { onDelete: "cascade" }),
-  type: text("type").default("tag").notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-}, (table) => [
-  index("graph_edges_user_id_idx").on(table.userId),
-  index("graph_edges_source_idx").on(table.sourceId),
-  index("graph_edges_target_idx").on(table.targetId),
-]);
+export const graphEdges = pgTable(
+  "graph_edges",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    sourceId: uuid("source_id")
+      .notNull()
+      .references(() => graphNodes.id, { onDelete: "cascade" }),
+    targetId: uuid("target_id")
+      .notNull()
+      .references(() => graphNodes.id, { onDelete: "cascade" }),
+    type: text("type").default("tag").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("graph_edges_user_id_idx").on(table.userId),
+    index("graph_edges_source_idx").on(table.sourceId),
+    index("graph_edges_target_idx").on(table.targetId),
+  ]
+);
 
-export const noteEmbeddings = pgTable("note_embeddings", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  noteId: uuid("note_id").notNull().references(() => notes.id, { onDelete: "cascade" }),
-  contentHash: text("content_hash").notNull(),
-  chunkIndex: integer("chunk_index").notNull().default(0),
-  chunkText: text("chunk_text").notNull(),
-  embedding: text("embedding"),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-}, (table) => [
-  index("note_embeddings_note_id_idx").on(table.noteId),
-]);
+export const noteEmbeddings = pgTable(
+  "note_embeddings",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    noteId: uuid("note_id")
+      .notNull()
+      .references(() => notes.id, { onDelete: "cascade" }),
+    contentHash: text("content_hash").notNull(),
+    chunkIndex: integer("chunk_index").notNull().default(0),
+    chunkText: text("chunk_text").notNull(),
+    embedding: text("embedding"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [index("note_embeddings_note_id_idx").on(table.noteId)]
+);
 
-export const aiQueries = pgTable("ai_queries", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
-  query: text("query").notNull(),
-  answer: text("answer").notNull().default(""),
-  citations: jsonb("citations").notNull().default([]),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-}, (table) => [
-  index("ai_queries_user_id_idx").on(table.userId),
-]);
+export const aiQueries = pgTable(
+  "ai_queries",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    query: text("query").notNull(),
+    answer: text("answer").notNull().default(""),
+    citations: jsonb("citations").notNull().default([]),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [index("ai_queries_user_id_idx").on(table.userId)]
+);
 
-export const userSettings = pgTable("user_settings", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }).unique(),
-  theme: jsonb("theme").notNull().default({}),
-  system: jsonb("system").notNull().default({}),
-  ai: jsonb("ai").notNull().default({}),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull().$onUpdate(() => new Date()),
-}, (table) => [
-  index("user_settings_user_id_idx").on(table.userId),
-]);
+export const userSettings = pgTable(
+  "user_settings",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" })
+      .unique(),
+    theme: jsonb("theme").notNull().default({}),
+    system: jsonb("system").notNull().default({}),
+    ai: jsonb("ai").notNull().default({}),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull()
+      .$onUpdate(() => new Date()),
+  },
+  (table) => [index("user_settings_user_id_idx").on(table.userId)]
+);
+
+export const noteAttachments = pgTable(
+  "note_attachments",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    noteId: uuid("note_id")
+      .references(() => notes.id, { onDelete: "cascade" })
+      .notNull(),
+    fileName: text("file_name").notNull(),
+    fileUrl: text("file_url").notNull(),
+    fileType: text("file_type").notNull().default("application/pdf"),
+    fileSize: integer("file_size").notNull(),
+    extractedText: text("extracted_text"),
+    pageCount: integer("page_count"),
+    pdfMetadata: jsonb("pdf_metadata").$type<{ title?: string; author?: string }>(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [index("note_attachments_note_id_idx").on(table.noteId)]
+);

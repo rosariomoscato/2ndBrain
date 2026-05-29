@@ -236,9 +236,7 @@ export async function saveAIModel(modelId: string): Promise<{ success: boolean }
  * @returns Promise resolving to { success: boolean }
  * @throws Error if user is not authenticated
  */
-export async function saveAIEmbeddingModel(
-  modelId: string
-): Promise<{ success: boolean }> {
+export async function saveAIEmbeddingModel(modelId: string): Promise<{ success: boolean }> {
   try {
     const session = await getSession();
 

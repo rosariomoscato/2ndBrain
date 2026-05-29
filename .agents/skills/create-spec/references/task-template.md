@@ -52,11 +52,13 @@ pending
 ### Environment Variables
 
 {If applicable:}
+
 - `VAR_NAME` — {Purpose and example value}
 
 ### API Endpoints
 
 {If applicable:}
+
 - `METHOD /path` — {Request/response shape}
 
 ## Acceptance Criteria

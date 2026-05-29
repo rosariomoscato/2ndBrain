@@ -21,7 +21,10 @@ export function StarfieldBg() {
     if (!ctx) return;
 
     const getDensity = () => {
-      const val = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--theme-particle-density") || "0.6");
+      const val = parseFloat(
+        getComputedStyle(document.documentElement).getPropertyValue("--theme-particle-density") ||
+          "0.6"
+      );
       return Math.max(0.1, val);
     };
 
@@ -84,10 +87,5 @@ export function StarfieldBg() {
     };
   }, []);
 
-  return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 z-0 pointer-events-none"
-    />
-  );
+  return <canvas ref={canvasRef} className="pointer-events-none fixed inset-0 z-0" />;
 }

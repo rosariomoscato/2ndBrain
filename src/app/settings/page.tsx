@@ -20,8 +20,12 @@ import { getSettings, updateSettings } from "@/lib/actions/settings";
 import { requestNotificationPermission, showNotification } from "@/lib/notifications";
 import { SUPPORTED_EMBEDDING_MODELS, DEFAULT_CHAT_MODELS, type ModelInfo } from "@/lib/openrouter";
 import { playToggleSound } from "@/lib/sounds";
-import type { AISettingsResponse, UserAISettings, UserSystemSettings, UserThemeSettings } from "@/lib/types";
-
+import type {
+  AISettingsResponse,
+  UserAISettings,
+  UserSystemSettings,
+  UserThemeSettings,
+} from "@/lib/types";
 
 // Theme presets
 const THEME_PRESETS: Record<string, UserThemeSettings> = {
@@ -48,7 +52,11 @@ const THEME_PRESETS: Record<string, UserThemeSettings> = {
   },
 };
 
-function AITabContent({ updateAISetting }: { updateAISetting: (key: keyof UserAISettings, value: string | boolean) => Promise<void> }) {
+function AITabContent({
+  updateAISetting,
+}: {
+  updateAISetting: (key: keyof UserAISettings, value: string | boolean) => Promise<void>;
+}) {
   const [aiSettings, setAISettings] = React.useState<AISettingsResponse | null>(null);
   const [apiKeyInput, setApiKeyInput] = React.useState("");
   const [isValidating, setIsValidating] = React.useState(false);
@@ -151,7 +159,7 @@ function AITabContent({ updateAISetting }: { updateAISetting: (key: keyof UserAI
 
   if (!aiSettings) {
     return (
-      <div className="flex items-center justify-center h-full">
+      <div className="flex h-full items-center justify-center">
         <LoadingOrb size="md" />
       </div>
     );
@@ -161,28 +169,29 @@ function AITabContent({ updateAISetting }: { updateAISetting: (key: keyof UserAI
   if (!aiSettings.hasKey) {
     return (
       <div className="space-y-6">
-        <h3 className="text-xl font-display font-bold glow-text">AI Settings</h3>
+        <h3 className="font-display glow-text text-xl font-bold">AI Settings</h3>
 
-        <div className="glass-panel rounded-xl p-6 space-y-4">
+        <div className="glass-panel space-y-4 rounded-xl p-6">
           <div>
-            <h4 className="text-lg font-semibold font-display text-text-primary mb-2">
+            <h4 className="font-display text-text-primary mb-2 text-lg font-semibold">
               OpenRouter API Key Required
             </h4>
-            <p className="text-sm text-text-secondary mb-4">
-              Enter your OpenRouter API key to enable AI features including chat, RAG queries, and semantic search.
+            <p className="text-text-secondary mb-4 text-sm">
+              Enter your OpenRouter API key to enable AI features including chat, RAG queries, and
+              semantic search.
             </p>
             <a
               href="https://openrouter.ai/keys"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-neon-cyan hover:underline text-sm"
+              className="text-neon-cyan text-sm hover:underline"
             >
               Get an API key from OpenRouter →
             </a>
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-semibold font-display text-text-primary block">
+            <label className="font-display text-text-primary block text-sm font-semibold">
               API Key
             </label>
             <div className="relative">
@@ -192,27 +201,21 @@ function AITabContent({ updateAISetting }: { updateAISetting: (key: keyof UserAI
                 onChange={(e) => setApiKeyInput(e.target.value)}
                 disabled={isValidating}
                 placeholder="sk-or-..."
-                className="w-full px-4 py-2 bg-glass-surface border border-glass-border rounded-lg text-text-primary placeholder:text-text-secondary focus:outline-none focus:ring-2 focus:ring-neon-cyan disabled:opacity-50"
+                className="bg-glass-surface border-glass-border text-text-primary placeholder:text-text-secondary focus:ring-neon-cyan w-full rounded-lg border px-4 py-2 focus:ring-2 focus:outline-none disabled:opacity-50"
               />
               <button
                 type="button"
                 onClick={() => setShowApiKey(!showApiKey)}
                 disabled={isValidating}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary disabled:opacity-50"
+                className="text-text-secondary hover:text-text-primary absolute top-1/2 right-3 -translate-y-1/2 disabled:opacity-50"
               >
                 {showApiKey ? "🙈" : "👁️"}
               </button>
             </div>
-            {validationError && (
-              <p className="text-neon-pink text-sm">{validationError}</p>
-            )}
+            {validationError && <p className="text-neon-pink text-sm">{validationError}</p>}
           </div>
 
-          <Button
-            onClick={handleSaveKey}
-            disabled={isValidating}
-            className="w-full"
-          >
+          <Button onClick={handleSaveKey} disabled={isValidating} className="w-full">
             {isValidating ? (
               <span className="flex items-center gap-2">
                 <LoadingOrb size="sm" />
@@ -225,7 +228,7 @@ function AITabContent({ updateAISetting }: { updateAISetting: (key: keyof UserAI
         </div>
 
         <div className="glass-panel rounded-xl p-4 opacity-50">
-          <p className="text-sm text-text-secondary">
+          <p className="text-text-secondary text-sm">
             Model selection and AI features are disabled until an API key is configured.
           </p>
         </div>
@@ -236,37 +239,33 @@ function AITabContent({ updateAISetting }: { updateAISetting: (key: keyof UserAI
   // State 3: Key configured
   return (
     <div className="space-y-6">
-      <h3 className="text-xl font-display font-bold glow-text">AI Settings</h3>
+      <h3 className="font-display glow-text text-xl font-bold">AI Settings</h3>
 
       {/* API Key Card */}
-      <div className="glass-panel rounded-xl p-4 flex items-center justify-between">
+      <div className="glass-panel flex items-center justify-between rounded-xl p-4">
         <div>
-          <label className="text-sm font-semibold font-display text-text-primary block mb-1">
+          <label className="font-display text-text-primary mb-1 block text-sm font-semibold">
             OpenRouter API Key
           </label>
-          <p className="text-xs text-neon-cyan">****{aiSettings.keyLast4}</p>
+          <p className="text-neon-cyan text-xs">****{aiSettings.keyLast4}</p>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleRemoveKey}
-        >
+        <Button variant="outline" size="sm" onClick={handleRemoveKey}>
           Remove
         </Button>
       </div>
 
       {/* Embedding Model */}
-      <div className="glass-panel rounded-xl p-4 space-y-3">
+      <div className="glass-panel space-y-3 rounded-xl p-4">
         <div>
-          <label className="text-sm font-semibold font-display text-text-primary block mb-1">
+          <label className="font-display text-text-primary mb-1 block text-sm font-semibold">
             Embedding Model
           </label>
-          <p className="text-xs text-text-secondary">Used for semantic search and RAG</p>
+          <p className="text-text-secondary text-xs">Used for semantic search and RAG</p>
         </div>
         <select
           value={aiSettings.embeddingModel || SUPPORTED_EMBEDDING_MODELS[0]?.id}
           onChange={(e) => handleEmbeddingModelChange(e.target.value)}
-          className="w-full px-4 py-2 bg-glass-surface border border-glass-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-neon-cyan cursor-pointer"
+          className="bg-glass-surface border-glass-border text-text-primary focus:ring-neon-cyan w-full cursor-pointer rounded-lg border px-4 py-2 focus:ring-2 focus:outline-none"
         >
           {SUPPORTED_EMBEDDING_MODELS.map((model) => (
             <option key={model.id} value={model.id} className="bg-space-black text-text-primary">
@@ -275,20 +274,21 @@ function AITabContent({ updateAISetting }: { updateAISetting: (key: keyof UserAI
           ))}
         </select>
         {showEmbeddingWarning && (
-          <p className="text-sm text-neon-pink">
-            ⚠️ Changing the embedding model requires re-generating embeddings for all notes. Existing embeddings may be incompatible.
+          <p className="text-neon-pink text-sm">
+            ⚠️ Changing the embedding model requires re-generating embeddings for all notes.
+            Existing embeddings may be incompatible.
           </p>
         )}
       </div>
 
       {/* Chat Model */}
-      <div className="glass-panel rounded-xl p-4 space-y-3">
+      <div className="glass-panel space-y-3 rounded-xl p-4">
         <div className="flex items-center justify-between">
           <div>
-            <label className="text-sm font-semibold font-display text-text-primary block mb-1">
+            <label className="font-display text-text-primary mb-1 block text-sm font-semibold">
               Chat Model
             </label>
-            <p className="text-xs text-text-secondary">Used for AI responses and queries</p>
+            <p className="text-text-secondary text-xs">Used for AI responses and queries</p>
           </div>
           <Button
             variant="secondary"
@@ -309,7 +309,7 @@ function AITabContent({ updateAISetting }: { updateAISetting: (key: keyof UserAI
         <select
           value={aiSettings.model || DEFAULT_CHAT_MODELS[0]?.id}
           onChange={(e) => handleModelChange(e.target.value)}
-          className="w-full px-4 py-2 bg-glass-surface border border-glass-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-neon-cyan cursor-pointer"
+          className="bg-glass-surface border-glass-border text-text-primary focus:ring-neon-cyan w-full cursor-pointer rounded-lg border px-4 py-2 focus:ring-2 focus:outline-none"
         >
           {chatModels.map((model) => (
             <option key={model.id} value={model.id} className="bg-space-black text-text-primary">
@@ -321,50 +321,50 @@ function AITabContent({ updateAISetting }: { updateAISetting: (key: keyof UserAI
       </div>
 
       {/* Stream Responses */}
-      <div className="glass-panel rounded-xl p-4 flex items-center justify-between">
+      <div className="glass-panel flex items-center justify-between rounded-xl p-4">
         <div>
-          <label className="text-sm font-semibold font-display text-text-primary block mb-1">
+          <label className="font-display text-text-primary mb-1 block text-sm font-semibold">
             Stream Responses
           </label>
-          <p className="text-xs text-text-secondary">Show AI responses as they're generated</p>
+          <p className="text-text-secondary text-xs">Show AI responses as they're generated</p>
         </div>
         <input
           type="checkbox"
           checked={aiSettings.streamResponses}
           onChange={(e) => updateAISetting("streamResponses", e.target.checked)}
-          className="h-5 w-5 accent-neon-cyan cursor-pointer"
+          className="accent-neon-cyan h-5 w-5 cursor-pointer"
         />
       </div>
 
       {/* Include Citations */}
-      <div className="glass-panel rounded-xl p-4 flex items-center justify-between">
+      <div className="glass-panel flex items-center justify-between rounded-xl p-4">
         <div>
-          <label className="text-sm font-semibold font-display text-text-primary block mb-1">
+          <label className="font-display text-text-primary mb-1 block text-sm font-semibold">
             Include Citations
           </label>
-          <p className="text-xs text-text-secondary">Show note references in AI responses</p>
+          <p className="text-text-secondary text-xs">Show note references in AI responses</p>
         </div>
         <input
           type="checkbox"
           checked={aiSettings.includeCitations}
           onChange={(e) => updateAISetting("includeCitations", e.target.checked)}
-          className="h-5 w-5 accent-neon-cyan cursor-pointer"
+          className="accent-neon-cyan h-5 w-5 cursor-pointer"
         />
       </div>
 
       {/* Desktop Notifications */}
-      <div className="glass-panel rounded-xl p-4 flex items-center justify-between">
+      <div className="glass-panel flex items-center justify-between rounded-xl p-4">
         <div>
-          <label className="text-sm font-semibold font-display text-text-primary block mb-1">
+          <label className="font-display text-text-primary mb-1 block text-sm font-semibold">
             Desktop Notifications
           </label>
-          <p className="text-xs text-text-secondary">Notify when AI query completes</p>
+          <p className="text-text-secondary text-xs">Notify when AI query completes</p>
         </div>
         <input
           type="checkbox"
           checked={aiSettings.desktopNotifications}
           onChange={(e) => updateAISetting("desktopNotifications", e.target.checked)}
-          className="h-5 w-5 accent-neon-cyan cursor-pointer"
+          className="accent-neon-cyan h-5 w-5 cursor-pointer"
         />
       </div>
     </div>
@@ -528,7 +528,7 @@ function SettingsPanel() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full">
+      <div className="flex h-full items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <LoadingOrb size="lg" />
           <p className="text-text-secondary text-sm">Loading settings...</p>
@@ -539,7 +539,7 @@ function SettingsPanel() {
 
   if (!settings) {
     return (
-      <div className="flex items-center justify-center h-full">
+      <div className="flex h-full items-center justify-center">
         <p className="text-text-secondary">Failed to load settings</p>
       </div>
     );
@@ -548,7 +548,7 @@ function SettingsPanel() {
   return (
     <div className="flex-1 p-6">
       {/* Tab Navigation */}
-      <div className="flex gap-2 mb-6">
+      <div className="mb-6 flex gap-2">
         {["tags", "theme", "system", "ai"].map((tab) => (
           <Button
             key={tab}
@@ -562,18 +562,16 @@ function SettingsPanel() {
       </div>
 
       {/* Tags Tab */}
-      {activeTab === "tags" && (
-        <TagManager TagEditorModalComponent={TagEditorModal} />
-      )}
+      {activeTab === "tags" && <TagManager TagEditorModalComponent={TagEditorModal} />}
 
       {/* Theme Tab */}
       {activeTab === "theme" && (
         <div className="space-y-6">
-          <h3 className="text-xl font-display font-bold glow-text">Theme Settings</h3>
+          <h3 className="font-display glow-text text-xl font-bold">Theme Settings</h3>
 
           {/* Presets */}
           <div className="glass-panel rounded-xl p-4">
-            <h4 className="text-sm font-semibold font-display text-text-primary mb-4">
+            <h4 className="font-display text-text-primary mb-4 text-sm font-semibold">
               Theme Presets
             </h4>
             <div className="flex gap-2">
@@ -592,11 +590,11 @@ function SettingsPanel() {
 
           {/* Neon Intensity */}
           <div className="glass-panel rounded-xl p-4">
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-semibold font-display text-text-primary">
+            <div className="mb-2 flex items-center justify-between">
+              <label className="font-display text-text-primary text-sm font-semibold">
                 Neon Intensity
               </label>
-              <span className="text-xs text-neon-cyan">{settings.theme.neonIntensity}%</span>
+              <span className="text-neon-cyan text-xs">{settings.theme.neonIntensity}%</span>
             </div>
             <input
               type="range"
@@ -604,17 +602,17 @@ function SettingsPanel() {
               max="100"
               value={settings.theme.neonIntensity ?? 70}
               onChange={(e) => updateThemeSetting("neonIntensity", parseInt(e.target.value))}
-              className="w-full h-2 bg-glass-surface rounded-lg appearance-none cursor-pointer accent-neon-cyan"
+              className="bg-glass-surface accent-neon-cyan h-2 w-full cursor-pointer appearance-none rounded-lg"
             />
           </div>
 
           {/* Grid Visibility */}
           <div className="glass-panel rounded-xl p-4">
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-semibold font-display text-text-primary">
+            <div className="mb-2 flex items-center justify-between">
+              <label className="font-display text-text-primary text-sm font-semibold">
                 Grid Visibility
               </label>
-              <span className="text-xs text-neon-cyan">{settings.theme.gridVisibility}%</span>
+              <span className="text-neon-cyan text-xs">{settings.theme.gridVisibility}%</span>
             </div>
             <input
               type="range"
@@ -622,17 +620,17 @@ function SettingsPanel() {
               max="100"
               value={settings.theme.gridVisibility ?? 50}
               onChange={(e) => updateThemeSetting("gridVisibility", parseInt(e.target.value))}
-              className="w-full h-2 bg-glass-surface rounded-lg appearance-none cursor-pointer accent-neon-cyan"
+              className="bg-glass-surface accent-neon-cyan h-2 w-full cursor-pointer appearance-none rounded-lg"
             />
           </div>
 
           {/* Particle Density */}
           <div className="glass-panel rounded-xl p-4">
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-semibold font-display text-text-primary">
+            <div className="mb-2 flex items-center justify-between">
+              <label className="font-display text-text-primary text-sm font-semibold">
                 Particle Density
               </label>
-              <span className="text-xs text-neon-cyan">{settings.theme.particleDensity}%</span>
+              <span className="text-neon-cyan text-xs">{settings.theme.particleDensity}%</span>
             </div>
             <input
               type="range"
@@ -640,17 +638,17 @@ function SettingsPanel() {
               max="100"
               value={settings.theme.particleDensity ?? 60}
               onChange={(e) => updateThemeSetting("particleDensity", parseInt(e.target.value))}
-              className="w-full h-2 bg-glass-surface rounded-lg appearance-none cursor-pointer accent-neon-cyan"
+              className="bg-glass-surface accent-neon-cyan h-2 w-full cursor-pointer appearance-none rounded-lg"
             />
           </div>
 
           {/* Scan Line Speed */}
           <div className="glass-panel rounded-xl p-4">
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-semibold font-display text-text-primary">
+            <div className="mb-2 flex items-center justify-between">
+              <label className="font-display text-text-primary text-sm font-semibold">
                 Scan Line Speed
               </label>
-              <span className="text-xs text-neon-cyan">{settings.theme.scanLineSpeed}%</span>
+              <span className="text-neon-cyan text-xs">{settings.theme.scanLineSpeed}%</span>
             </div>
             <input
               type="range"
@@ -658,7 +656,7 @@ function SettingsPanel() {
               max="100"
               value={settings.theme.scanLineSpeed ?? 50}
               onChange={(e) => updateThemeSetting("scanLineSpeed", parseInt(e.target.value))}
-              className="w-full h-2 bg-glass-surface rounded-lg appearance-none cursor-pointer accent-neon-cyan"
+              className="bg-glass-surface accent-neon-cyan h-2 w-full cursor-pointer appearance-none rounded-lg"
             />
           </div>
         </div>
@@ -667,69 +665,71 @@ function SettingsPanel() {
       {/* System Tab */}
       {activeTab === "system" && (
         <div className="space-y-6">
-          <h3 className="text-xl font-display font-bold glow-text">System Settings</h3>
+          <h3 className="font-display glow-text text-xl font-bold">System Settings</h3>
 
           {/* Glassmorphism */}
-          <div className="glass-panel rounded-xl p-4 flex items-center justify-between">
+          <div className="glass-panel flex items-center justify-between rounded-xl p-4">
             <div>
-              <label className="text-sm font-semibold font-display text-text-primary block mb-1">
+              <label className="font-display text-text-primary mb-1 block text-sm font-semibold">
                 Glassmorphism
               </label>
-              <p className="text-xs text-text-secondary">Enable glass-effect panels and cards</p>
+              <p className="text-text-secondary text-xs">Enable glass-effect panels and cards</p>
             </div>
             <input
               type="checkbox"
               checked={settings.system.glassmorphism ?? true}
               onChange={(e) => updateSystemSetting("glassmorphism", e.target.checked)}
-              className="h-5 w-5 accent-neon-cyan cursor-pointer"
+              className="accent-neon-cyan h-5 w-5 cursor-pointer"
             />
           </div>
 
           {/* Animations */}
-          <div className="glass-panel rounded-xl p-4 flex items-center justify-between">
+          <div className="glass-panel flex items-center justify-between rounded-xl p-4">
             <div>
-              <label className="text-sm font-semibold font-display text-text-primary block mb-1">
+              <label className="font-display text-text-primary mb-1 block text-sm font-semibold">
                 Animations
               </label>
-              <p className="text-xs text-text-secondary">Enable smooth transitions and animations</p>
+              <p className="text-text-secondary text-xs">
+                Enable smooth transitions and animations
+              </p>
             </div>
             <input
               type="checkbox"
               checked={settings.system.animations ?? true}
               onChange={(e) => updateSystemSetting("animations", e.target.checked)}
-              className="h-5 w-5 accent-neon-cyan cursor-pointer"
+              className="accent-neon-cyan h-5 w-5 cursor-pointer"
             />
           </div>
 
           {/* Notifications */}
-          <div className="glass-panel rounded-xl p-4 flex items-center justify-between">
+          <div className="glass-panel flex items-center justify-between rounded-xl p-4">
             <div>
-              <label className="text-sm font-semibold font-display text-text-primary block mb-1">
+              <label className="font-display text-text-primary mb-1 block text-sm font-semibold">
                 Notifications
               </label>
-              <p className="text-xs text-text-secondary">Show desktop notifications for updates</p>
+              <p className="text-text-secondary text-xs">Show desktop notifications for updates</p>
             </div>
             <input
               type="checkbox"
               checked={settings.system.notifications ?? false}
               onChange={(e) => updateSystemSetting("notifications", e.target.checked)}
-              className="h-5 w-5 accent-neon-cyan cursor-pointer"
+              className="accent-neon-cyan h-5 w-5 cursor-pointer"
             />
           </div>
 
           {/* Sound Effects */}
-          <div className="glass-panel rounded-xl p-4 flex items-center justify-between">
+          <div className="glass-panel flex items-center justify-between rounded-xl p-4">
             <div>
-              <label className="text-sm font-semibold font-display text-text-primary block mb-1">
+              <label className="font-display text-text-primary mb-1 block text-sm font-semibold">
                 Sound Effects
               </label>
-              <p className="text-xs text-text-secondary">Play sounds for interactions and events</p>
+              <p className="text-text-secondary text-xs">Play sounds for interactions and events</p>
             </div>
             <input
               type="checkbox"
               checked={settings.system.soundEffects ?? false}
               onChange={(e) => updateSystemSetting("soundEffects", e.target.checked)}
-              className="h-5 w-5 accent-neon-cyan cursor-pointer"
+              className="accent-neon-cyan h-5 w-5 cursor-pointer"
             />
           </div>
         </div>
@@ -740,9 +740,9 @@ function SettingsPanel() {
 
       {/* Saving Indicator */}
       {saving && (
-        <div className="fixed bottom-6 right-6 glass-panel rounded-lg px-4 py-3 flex items-center gap-3 animate-scale-in">
+        <div className="glass-panel animate-scale-in fixed right-6 bottom-6 flex items-center gap-3 rounded-lg px-4 py-3">
           <LoadingOrb size="sm" />
-          <span className="text-sm text-text-primary">Saving settings...</span>
+          <span className="text-text-primary text-sm">Saving settings...</span>
         </div>
       )}
     </div>
@@ -751,15 +751,11 @@ function SettingsPanel() {
 
 export default function SettingsPage() {
   return (
-    <div className="flex-col h-full">
+    <div className="h-full flex-col">
       {/* Header */}
-      <div className="glass-panel border-b border-neon-cyan/20 px-6 py-4">
-        <h1 className="text-3xl font-display font-bold glow-text">
-          SETTINGS
-        </h1>
-        <p className="text-text-secondary mt-1">
-          Customize your Second Brain experience
-        </p>
+      <div className="glass-panel border-neon-cyan/20 border-b px-6 py-4">
+        <h1 className="font-display glow-text text-3xl font-bold">SETTINGS</h1>
+        <p className="text-text-secondary mt-1">Customize your Second Brain experience</p>
       </div>
 
       {/* Main Content */}

@@ -360,6 +360,7 @@ export default function NotesPage() {
 ### Code Snippets
 
 Note interface:
+
 ```typescript
 interface Note {
   id: string;
@@ -373,6 +374,7 @@ interface Note {
 ```
 
 Filtering logic:
+
 ```typescript
 const filteredNotes = allNotes.filter((note) => {
   const matchesSearch =
@@ -380,8 +382,7 @@ const filteredNotes = allNotes.filter((note) => {
     note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     note.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
 
-  const matchesFilter =
-    activeFilter === null || note.tags.includes(activeFilter);
+  const matchesFilter = activeFilter === null || note.tags.includes(activeFilter);
 
   return matchesSearch && matchesFilter;
 });

@@ -14,9 +14,9 @@ export function BottomPanel() {
   ];
 
   return (
-    <div className="glass-panel border-t border-neon-cyan/20 h-80 flex flex-col">
+    <div className="glass-panel border-neon-cyan/20 flex h-80 flex-col border-t">
       {/* Tabs */}
-      <div className="flex items-center gap-1 p-2 border-b border-glass-border">
+      <div className="border-glass-border flex items-center gap-1 border-b p-2">
         {tabs.map((tab) => (
           <CyberButton
             key={tab.id}
@@ -34,29 +34,29 @@ export function BottomPanel() {
       {/* Tab Content */}
       <div className="flex-1 overflow-auto p-4">
         {activeTab === "ai" && (
-          <div className="h-full flex items-center justify-center text-text-dim">
+          <div className="text-text-dim flex h-full items-center justify-center">
             <div className="text-center">
-              <MessageSquare className="h-12 w-12 mx-auto mb-2 text-neon-cyan/50" />
+              <MessageSquare className="text-neon-cyan/50 mx-auto mb-2 h-12 w-12" />
               <p>AI chat panel content</p>
-              <p className="text-sm mt-1">Ask questions about your notes</p>
+              <p className="mt-1 text-sm">Ask questions about your notes</p>
             </div>
           </div>
         )}
         {activeTab === "related" && (
-          <div className="h-full flex items-center justify-center text-text-dim">
+          <div className="text-text-dim flex h-full items-center justify-center">
             <div className="text-center">
-              <Network className="h-12 w-12 mx-auto mb-2 text-neon-purple/50" />
+              <Network className="text-neon-purple/50 mx-auto mb-2 h-12 w-12" />
               <p>Related notes content</p>
-              <p className="text-sm mt-1">Connected nodes from knowledge graph</p>
+              <p className="mt-1 text-sm">Connected nodes from knowledge graph</p>
             </div>
           </div>
         )}
         {activeTab === "details" && (
-          <div className="h-full flex items-center justify-center text-text-dim">
+          <div className="text-text-dim flex h-full items-center justify-center">
             <div className="text-center">
-              <Info className="h-12 w-12 mx-auto mb-2 text-neon-blue/50" />
+              <Info className="text-neon-blue/50 mx-auto mb-2 h-12 w-12" />
               <p>Node details content</p>
-              <p className="text-sm mt-1">Metadata and connections</p>
+              <p className="mt-1 text-sm">Metadata and connections</p>
             </div>
           </div>
         )}

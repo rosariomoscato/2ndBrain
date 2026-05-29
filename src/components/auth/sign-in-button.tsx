@@ -1,61 +1,61 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { signIn, useSession } from "@/lib/auth-client"
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { signIn, useSession } from "@/lib/auth-client";
 
 export function SignInButton() {
-  const { data: session, isPending: sessionPending } = useSession()
-  const router = useRouter()
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [error, setError] = useState("")
-  const [isPending, setIsPending] = useState(false)
+  const { data: session, isPending: sessionPending } = useSession();
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isPending, setIsPending] = useState(false);
 
   if (sessionPending) {
     return (
-      <div className="flex items-center justify-center gap-3 text-muted-foreground font-[family-name:var(--font-display)] uppercase tracking-wider text-sm">
-        <div className="w-2 h-2 bg-neon rounded-full animate-pulse" />
+      <div className="text-muted-foreground flex items-center justify-center gap-3 font-[family-name:var(--font-display)] text-sm tracking-wider uppercase">
+        <div className="bg-neon h-2 w-2 animate-pulse rounded-full" />
         Caricamento...
       </div>
-    )
+    );
   }
 
   if (session) {
-    return null
+    return null;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
-    setIsPending(true)
+    e.preventDefault();
+    setError("");
+    setIsPending(true);
 
     try {
       const result = await signIn.email({
         email,
         password,
         callbackURL: "/",
-      })
+      });
 
       if (result.error) {
-        setError(result.error.message || "Accesso non riuscito")
+        setError(result.error.message || "Accesso non riuscito");
       } else {
-        router.push("/")
-        router.refresh()
+        router.push("/");
+        router.refresh();
       }
     } catch {
-      setError("Si è verificato un errore imprevisto")
+      setError("Si è verificato un errore imprevisto");
     } finally {
-      setIsPending(false)
+      setIsPending(false);
     }
-  }
+  };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-sm">
+    <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4">
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
         <Input
@@ -81,29 +81,34 @@ export function SignInButton() {
         />
       </div>
       {error && (
-        <div className="p-3 border-2 border-destructive bg-destructive/5 text-destructive text-sm font-[family-name:var(--font-display)] uppercase tracking-wider">
+        <div className="border-destructive bg-destructive/5 text-destructive border-2 p-3 font-[family-name:var(--font-display)] text-sm tracking-wider uppercase">
           {error}
         </div>
       )}
       <Button type="submit" className="w-full" disabled={isPending}>
         {isPending ? "Accesso in corso..." : "Accedi"}
       </Button>
-      <div className="text-center text-sm text-muted-foreground">
+      <div className="text-muted-foreground text-center text-sm">
         <Link href="/forgot-password" className="hover:text-neon transition-colors">
           Password dimenticata?
         </Link>
       </div>
       <div className="flex items-center gap-2">
-        <div className="flex-1 h-[1px] bg-border" />
-        <span className="text-xs text-muted-foreground font-[family-name:var(--font-display)] uppercase tracking-wider">oppure</span>
-        <div className="flex-1 h-[1px] bg-border" />
+        <div className="bg-border h-[1px] flex-1" />
+        <span className="text-muted-foreground font-[family-name:var(--font-display)] text-xs tracking-wider uppercase">
+          oppure
+        </span>
+        <div className="bg-border h-[1px] flex-1" />
       </div>
-      <div className="text-center text-sm text-muted-foreground">
+      <div className="text-muted-foreground text-center text-sm">
         Non hai un account?{" "}
-        <Link href="/register" className="text-neon hover:underline font-[family-name:var(--font-display)] uppercase tracking-wider text-xs">
+        <Link
+          href="/register"
+          className="text-neon font-[family-name:var(--font-display)] text-xs tracking-wider uppercase hover:underline"
+        >
           Registrati
         </Link>
       </div>
     </form>
-  )
+  );
 }

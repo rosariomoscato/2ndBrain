@@ -22,17 +22,18 @@ export async function getTags(options?: { sortBy?: "name" | "usage" | "date" }) 
   const session = await getSession();
   const sortBy = options?.sortBy ?? "name";
 
-  const result = await db.select({
-    id: tags.id,
-    name: tags.name,
-    color: tags.color,
-    createdAt: tags.createdAt,
-    usageCount: sql<number>`(SELECT COUNT(*) FROM note_tags WHERE note_tags.tag_id = ${tags.id})`,
-  })
-  .from(tags)
-  .where(eq(tags.userId, session.user.id));
+  const result = await db
+    .select({
+      id: tags.id,
+      name: tags.name,
+      color: tags.color,
+      createdAt: tags.createdAt,
+      usageCount: sql<number>`(SELECT COUNT(*) FROM note_tags WHERE note_tags.tag_id = ${tags.id})`,
+    })
+    .from(tags)
+    .where(eq(tags.userId, session.user.id));
 
-  const tagList: Tag[] = result.map(t => ({
+  const tagList: Tag[] = result.map((t) => ({
     id: t.id,
     name: t.name,
     color: t.color as Tag["color"],
@@ -58,25 +59,36 @@ export async function createTag(input: { name: string; color: string }) {
   const session = await getSession();
   const validated = createTagSchema.parse(input);
 
-  const existing = await db.select().from(tags).where(
-    and(eq(tags.userId, session.user.id), eq(tags.name, validated.name))
-  ).limit(1);
+  const existing = await db
+    .select()
+    .from(tags)
+    .where(and(eq(tags.userId, session.user.id), eq(tags.name, validated.name)))
+    .limit(1);
 
   if (existing.length > 0) {
     throw new Error(`Tag "${validated.name}" already exists`);
   }
 
-  const [tag] = await db.insert(tags).values({
-    userId: session.user.id,
-    name: validated.name,
-    color: validated.color,
-  }).returning();
+  const [tag] = await db
+    .insert(tags)
+    .values({
+      userId: session.user.id,
+      name: validated.name,
+      color: validated.color,
+    })
+    .returning();
 
   if (!tag) {
     throw new Error("Failed to create tag");
   }
 
-  return { id: tag.id, name: tag.name, color: tag.color as Tag["color"], usageCount: 0, createdAt: new Date(tag.createdAt) } satisfies Tag;
+  return {
+    id: tag.id,
+    name: tag.name,
+    color: tag.color as Tag["color"],
+    usageCount: 0,
+    createdAt: new Date(tag.createdAt),
+  } satisfies Tag;
 }
 
 /**
@@ -91,17 +103,22 @@ export async function updateTag(input: { id: string; name?: string; color?: stri
   if (validated.name !== undefined) updates.name = validated.name;
   if (validated.color !== undefined) updates.color = validated.color;
 
-  await db.update(tags).set(updates).where(
-    and(eq(tags.id, validated.id), eq(tags.userId, session.user.id))
-  );
+  await db
+    .update(tags)
+    .set(updates)
+    .where(and(eq(tags.id, validated.id), eq(tags.userId, session.user.id)));
 
-  const result = await db.select({
-    id: tags.id,
-    name: tags.name,
-    color: tags.color,
-    createdAt: tags.createdAt,
-    usageCount: sql<number>`(SELECT COUNT(*) FROM note_tags WHERE note_tags.tag_id = ${tags.id})`,
-  }).from(tags).where(eq(tags.id, validated.id)).limit(1);
+  const result = await db
+    .select({
+      id: tags.id,
+      name: tags.name,
+      color: tags.color,
+      createdAt: tags.createdAt,
+      usageCount: sql<number>`(SELECT COUNT(*) FROM note_tags WHERE note_tags.tag_id = ${tags.id})`,
+    })
+    .from(tags)
+    .where(eq(tags.id, validated.id))
+    .limit(1);
 
   const tag = result[0];
   if (!tag) {
@@ -124,10 +141,8 @@ export async function updateTag(input: { id: string; name?: string; color?: stri
 export async function deleteTag(id: string) {
   const session = await getSession();
   const validated = deleteTagSchema.parse({ id });
-  
-  await db.delete(tags).where(
-    and(eq(tags.id, validated.id), eq(tags.userId, session.user.id))
-  );
+
+  await db.delete(tags).where(and(eq(tags.id, validated.id), eq(tags.userId, session.user.id)));
   return { success: true };
 }
 
@@ -137,11 +152,9 @@ export async function deleteTag(id: string) {
  */
 export async function bulkDeleteTags(ids: string[]) {
   const session = await getSession();
-  
+
   for (const id of ids) {
-    await db.delete(tags).where(
-      and(eq(tags.id, id), eq(tags.userId, session.user.id))
-    );
+    await db.delete(tags).where(and(eq(tags.id, id), eq(tags.userId, session.user.id)));
   }
   return { success: true, deletedCount: ids.length };
 }

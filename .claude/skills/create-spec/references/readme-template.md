@@ -4,7 +4,7 @@ Use this structure for the README.md at the root of each spec folder. The README
 
 ## Template
 
-```markdown
+````markdown
 # {Feature Name}
 
 ## Overview
@@ -18,31 +18,33 @@ Use this structure for the README.md at the root of each spec folder. The README
 
 ## Dependency Graph
 
-​```mermaid
+​`mermaid
 graph TD
     task-01-name["01: Task Title"]
     task-02-name["02: Task Title"]
     task-03-name["03: Task Title"]
     task-01-name --> task-03-name
     task-02-name --> task-03-name
-​```
+​`
 
 ## Waves
 
-| Wave | Tasks | Description |
-|------|-------|-------------|
-| 1 | task-01, task-02 | {Brief description of what this wave accomplishes} |
-| 2 | task-03 | {Brief description} |
+| Wave | Tasks            | Description                                        |
+| ---- | ---------------- | -------------------------------------------------- |
+| 1    | task-01, task-02 | {Brief description of what this wave accomplishes} |
+| 2    | task-03          | {Brief description}                                |
 
 ## Task Status
 
 ### Wave 1
+
 - [ ] [task-01-{name}](./tasks/task-01-{name}.md) — {One-line title}
 - [ ] [task-02-{name}](./tasks/task-02-{name}.md) — {One-line title}
 
 ### Wave 2
+
 - [ ] [task-03-{name}](./tasks/task-03-{name}.md) — {One-line title}
-```
+````
 
 ## Key Points
 

@@ -1,7 +1,7 @@
 import { sql, eq } from "drizzle-orm";
+import { decrypt } from "@/lib/crypto";
 import { db } from "@/lib/db";
 import { noteEmbeddings, userSettings } from "@/lib/schema";
-import { decrypt } from "@/lib/crypto";
 
 const CHUNK_SIZE = 1000;
 const CHUNK_OVERLAP = 200;
@@ -192,7 +192,7 @@ export async function generateEmbeddings(noteId: string, content: string, userId
       } as any);
 
       const vecStr = embedding.join(",");
-      await db.execute(sql`UPDATE note_embeddings SET embedding_vec = ${vecStr}::vector(${EMBEDDING_DIMENSION}) WHERE note_id = ${noteId} AND chunk_index = ${i}`);
+      await db.execute(sql`UPDATE note_embeddings SET embedding_vec = ${vecStr}::vector WHERE note_id = ${noteId} AND chunk_index = ${i}`);
     }
   } catch (error) {
     console.error(`Failed to generate embeddings for note ${noteId}:`, error);

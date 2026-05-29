@@ -20,6 +20,7 @@ Broken Access Control is the #1 vulnerability in OWASP Top 10:2025. 100% of appl
 ## What to Look For
 
 ### General Patterns
+
 - Routes/endpoints missing authentication middleware or guards
 - Missing authorization/role checks on protected routes (any authenticated user can access admin routes)
 - IDOR: user-controlled IDs in URLs or request bodies used to fetch records without ownership verification
@@ -54,18 +55,21 @@ csrf|csrfToken|_csrf
 ```
 
 ### JavaScript / TypeScript / Node.js
+
 - Express/Next.js routes without auth middleware (`getSession`, `getServerSession`, `requireAuth`)
 - API routes that read `params.id` or `query.id` and fetch records without checking ownership against session user
 - `next.config.js` with permissive CORS headers
 - Missing `withAuth` or session validation wrappers on API handlers
 
 ### Python (Django/Flask)
+
 - Views without `@login_required` or `@permission_required` decorators
 - `request.GET['id']` used directly in queries without ownership filter
 - Missing `CSRF_COOKIE_SECURE` or `CSRF_COOKIE_HTTPONLY` settings
 - `CORS_ALLOW_ALL_ORIGINS = True`
 
 ### Java (Spring)
+
 - Controllers without `@PreAuthorize` or `@Secured` annotations
 - Missing `SecurityFilterChain` configuration
 - `@CrossOrigin(origins = "*")`
@@ -86,44 +90,52 @@ csrf|csrfToken|_csrf
 ## Example Attack Scenarios
 
 **Scenario 1 — Parameter Tampering:**
+
 ```
 https://example.com/app/accountInfo?acct=notmyacct
 ```
+
 Attacker modifies the `acct` parameter to access any user's account.
 
 **Scenario 2 — Forced Browsing:**
+
 ```
 https://example.com/app/admin_getappInfo
 ```
+
 Unauthenticated users access admin pages via direct URL.
 
 **Scenario 3 — Client-Side Only Controls:**
+
 ```bash
 curl https://example.com/app/admin_getappInfo
 ```
+
 Frontend JavaScript protections bypassed via direct API calls.
 
 ## Fix Examples
 
 **Before (IDOR vulnerability):**
+
 ```typescript
 // Any authenticated user can access any note
 export async function GET(req, { params }) {
-  const note = await db.get('SELECT * FROM notes WHERE id = ?', params.id);
+  const note = await db.get("SELECT * FROM notes WHERE id = ?", params.id);
   return Response.json(note);
 }
 ```
 
 **After (ownership check):**
+
 ```typescript
 export async function GET(req, { params }) {
   const session = await getSession(req);
-  if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 });
-  const note = await db.get(
-    'SELECT * FROM notes WHERE id = ? AND user_id = ?',
-    [params.id, session.userId]
-  );
-  if (!note) return Response.json({ error: 'Not found' }, { status: 404 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
+  const note = await db.get("SELECT * FROM notes WHERE id = ? AND user_id = ?", [
+    params.id,
+    session.userId,
+  ]);
+  if (!note) return Response.json({ error: "Not found" }, { status: 404 });
   return Response.json(note);
 }
 ```

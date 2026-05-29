@@ -185,12 +185,7 @@ export function NoteCard({ note, onClick }: NoteCardProps) {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(96, 247, 252, 0.1),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgba(96, 247, 252, 0.1), transparent);
   transition: left 0.5s ease;
   pointer-events: none;
 }
@@ -218,6 +213,7 @@ export function NoteCard({ note, onClick }: NoteCardProps) {
 ### Code Snippets
 
 Card hover with 3D transform:
+
 ```css
 .note-card:hover {
   transform: perspective(1000px) rotateX(2deg) rotateY(-2deg) translateY(-0.25rem);
@@ -228,6 +224,7 @@ Card hover with 3D transform:
 ```
 
 Scan line effect:
+
 ```css
 .note-card::after {
   content: "";
@@ -236,12 +233,7 @@ Scan line effect:
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(96, 247, 252, 0.1),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgba(96, 247, 252, 0.1), transparent);
   transition: left 0.5s ease;
   pointer-events: none;
 }

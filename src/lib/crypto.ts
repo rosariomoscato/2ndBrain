@@ -33,10 +33,7 @@ export function encrypt(plaintext: string): string {
   const iv = randomBytes(12);
   const cipher = createCipheriv("aes-256-gcm", getKey(), iv);
 
-  const encrypted = Buffer.concat([
-    cipher.update(plaintext, "utf8"),
-    cipher.final(),
-  ]);
+  const encrypted = Buffer.concat([cipher.update(plaintext, "utf8"), cipher.final()]);
   const tag = cipher.getAuthTag();
 
   return JSON.stringify({
@@ -64,15 +61,10 @@ export function encrypt(plaintext: string): string {
 export function decrypt(json: string): string {
   const { iv, ciphertext, tag } = JSON.parse(json);
 
-  const decipher = createDecipheriv(
-    "aes-256-gcm",
-    getKey(),
-    Buffer.from(iv, "hex")
-  );
+  const decipher = createDecipheriv("aes-256-gcm", getKey(), Buffer.from(iv, "hex"));
   decipher.setAuthTag(Buffer.from(tag, "hex"));
 
   return (
-    decipher.update(Buffer.from(ciphertext, "hex"), undefined, "utf8") +
-    decipher.final("utf8")
+    decipher.update(Buffer.from(ciphertext, "hex"), undefined, "utf8") + decipher.final("utf8")
   );
 }

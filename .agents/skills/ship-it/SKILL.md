@@ -21,9 +21,11 @@ This skill complements `checkpoint`. Use `checkpoint` to commit locally (with qu
 Verify tooling before doing anything else.
 
 1. **GitHub CLI installed?**
+
    ```bash
    gh --version
    ```
+
    If the command fails (not found):
    - Detect the platform and attempt to install:
      - **Windows:** `winget install --id GitHub.cli`
@@ -32,15 +34,19 @@ Verify tooling before doing anything else.
    - If auto-install fails, tell the user what to install and stop.
 
 2. **GitHub CLI authenticated?**
+
    ```bash
    gh auth status
    ```
+
    If not authenticated, tell the user:
+
    ```
    GitHub CLI is not logged in. Please run this in the prompt:
      ! gh auth login
    Then re-run /ship-it.
    ```
+
    Stop here — do not proceed until auth is confirmed.
 
 3. **Git remote exists?**
@@ -65,6 +71,7 @@ Run these commands to understand the current state:
 3. `git status --porcelain` — check for uncommitted changes
 
 If there are uncommitted changes, stop and tell the user:
+
 ```
 You have uncommitted changes. Run /checkpoint first to commit them, then /ship-it to push.
 ```
@@ -76,16 +83,19 @@ Store the default branch name for use throughout the remaining steps.
 Determine if there are commits that haven't been pushed yet.
 
 **If on a feature branch with a remote tracking branch:**
+
 ```bash
 git log @{upstream}..HEAD --oneline
 ```
 
 **If on a feature branch with no remote tracking branch, or on the default branch:**
+
 ```bash
 git log origin/{default_branch}..HEAD --oneline
 ```
 
 If there are **no unpushed commits**, stop and tell the user:
+
 ```
 Nothing to ship — all commits are already pushed.
 ```
@@ -95,10 +105,12 @@ Save the list of unpushed commit messages for use in later steps.
 ### Step 3: Handle Branching
 
 **If already on a feature branch** (not the default branch):
+
 - Stay on it. No branching needed.
 - Skip to Step 4.
 
 **If on the default branch:**
+
 - Generate a branch name from the unpushed commit messages:
   - Read the commit subjects
   - Derive a kebab-case branch name with a conventional prefix: `feat/`, `fix/`, `refactor/`, `chore/`, `docs/` based on the commit content
@@ -127,6 +139,7 @@ gh pr view --json number,url,title,state 2>/dev/null
 ```
 
 If a PR already exists and is **open**:
+
 - Do NOT create a new one
 - Skip to Step 7 and report the existing PR with a note that new commits were pushed.
 

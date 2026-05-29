@@ -15,14 +15,14 @@
 
 **Overall Risk Score:** [SCORE] ([Low/Moderate/High/Critical] Risk)
 
-| Severity | Count |
-|----------|-------|
-| Critical | [X]   |
-| High     | [X]   |
-| Medium   | [X]   |
-| Low      | [X]   |
-| Info     | [X]   |
-| **Total**| **[X]** |
+| Severity  | Count   |
+| --------- | ------- |
+| Critical  | [X]     |
+| High      | [X]     |
+| Medium    | [X]     |
+| Low       | [X]     |
+| Info      | [X]     |
+| **Total** | **[X]** |
 
 ---
 
@@ -33,6 +33,7 @@
 [If findings exist, list each one using the format below. If no findings, write: "No issues identified. Checked: [list what was checked]."]
 
 #### [SEVERITY] [Finding Title]
+
 - **File:** `[path/to/file.ext]`
 - **Line(s):** [XX-YY]
 - **CWE:** [CWE-XXX: Name]
@@ -106,19 +107,19 @@
 
 Scoring: Critical = 10 pts, High = 7 pts, Medium = 4 pts, Low = 2 pts, Info = 0 pts.
 
-| Category | Critical | High | Medium | Low | Info | Points |
-|----------|----------|------|--------|-----|------|--------|
-| A01 — Broken Access Control        | [X] | [X] | [X] | [X] | [X] | [XX] |
-| A02 — Security Misconfiguration    | [X] | [X] | [X] | [X] | [X] | [XX] |
-| A03 — Supply Chain Failures        | [X] | [X] | [X] | [X] | [X] | [XX] |
-| A04 — Cryptographic Failures       | [X] | [X] | [X] | [X] | [X] | [XX] |
-| A05 — Injection                    | [X] | [X] | [X] | [X] | [X] | [XX] |
-| A06 — Insecure Design              | [X] | [X] | [X] | [X] | [X] | [XX] |
-| A07 — Authentication Failures      | [X] | [X] | [X] | [X] | [X] | [XX] |
-| A08 — Data Integrity Failures      | [X] | [X] | [X] | [X] | [X] | [XX] |
-| A09 — Logging & Alerting Failures  | [X] | [X] | [X] | [X] | [X] | [XX] |
-| A10 — Exceptional Conditions       | [X] | [X] | [X] | [X] | [X] | [XX] |
-| **Total**                           |     |     |     |     |     | **[XX]** |
+| Category                          | Critical | High | Medium | Low | Info | Points   |
+| --------------------------------- | -------- | ---- | ------ | --- | ---- | -------- |
+| A01 — Broken Access Control       | [X]      | [X]  | [X]    | [X] | [X]  | [XX]     |
+| A02 — Security Misconfiguration   | [X]      | [X]  | [X]    | [X] | [X]  | [XX]     |
+| A03 — Supply Chain Failures       | [X]      | [X]  | [X]    | [X] | [X]  | [XX]     |
+| A04 — Cryptographic Failures      | [X]      | [X]  | [X]    | [X] | [X]  | [XX]     |
+| A05 — Injection                   | [X]      | [X]  | [X]    | [X] | [X]  | [XX]     |
+| A06 — Insecure Design             | [X]      | [X]  | [X]    | [X] | [X]  | [XX]     |
+| A07 — Authentication Failures     | [X]      | [X]  | [X]    | [X] | [X]  | [XX]     |
+| A08 — Data Integrity Failures     | [X]      | [X]  | [X]    | [X] | [X]  | [XX]     |
+| A09 — Logging & Alerting Failures | [X]      | [X]  | [X]    | [X] | [X]  | [XX]     |
+| A10 — Exceptional Conditions      | [X]      | [X]  | [X]    | [X] | [X]  | [XX]     |
+| **Total**                         |          |      |        |     |      | **[XX]** |
 
 **Risk Rating:** 0-10 = Low | 11-30 = Moderate | 31-60 = High | 61+ = Critical
 
@@ -131,7 +132,7 @@ Scoring: Critical = 10 pts, High = 7 pts, Medium = 4 pts, Low = 2 pts, Info = 0 
 1. **[Most critical finding]** — [why this is urgent and what to do]
 2. **[Second most critical]** — [why and what]
 3. **[Third most critical]** — [why and what]
-[Continue as needed...]
+   [Continue as needed...]
 
 ---
 

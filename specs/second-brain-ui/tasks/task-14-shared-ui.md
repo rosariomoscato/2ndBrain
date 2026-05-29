@@ -308,23 +308,24 @@ export { CyberButton as Button } from "./cyber-button";
 ### Code Snippets
 
 CSS utility classes used:
+
 ```typescript
 cn(
   // Base classes
   "glass-panel", // Glassmorphism with backdrop blur
-  "glow-text",   // Neon glow on text
+  "glow-text", // Neon glow on text
   "glow-border", // Neon glow on borders
   "command-strip", // Gradient background
   "micro-label", // Uppercase monospace label
 
   // Interaction states
-  "hover-lift",  // -translate-y-0.5 on hover
+  "hover-lift", // -translate-y-0.5 on hover
   "hover-glow-border", // Glow effect on hover
   "focus-visible:ring-[3px] focus-visible:ring-accent/50", // Focus ring
 
   // Transitions
-  "transition-all duration-200",
-)
+  "transition-all duration-200"
+);
 ```
 
 ### Environment Variables

@@ -212,6 +212,7 @@ export function GraphCanvas() {
 ### Code Snippets
 
 React Flow camera controls:
+
 ```typescript
 import { useReactFlow } from "@xyflow/react";
 
@@ -224,6 +225,7 @@ setCenter(x, y, { zoom: 1, duration: 500 });
 ```
 
 Local storage persistence:
+
 ```typescript
 import { useEffect } from "react";
 

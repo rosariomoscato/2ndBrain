@@ -15,6 +15,7 @@ Security Logging and Alerting Failures is #9 in OWASP Top 10:2025. This category
 ## What to Look For
 
 ### General Patterns
+
 - Sensitive data written to logs (passwords, tokens, credit cards, PII, session IDs)
 - Missing audit logging for security-relevant events (login, failed auth, privilege changes, data access)
 - No logging on authentication failures or access control failures
@@ -51,6 +52,7 @@ res\.json.*err|response.*error.*message|render.*error.*stack
 ```
 
 ### JavaScript / TypeScript / Node.js
+
 - `console.log('Login attempt:', email, password)` — passwords in logs
 - `console.log('Session created:', sessionToken)` — tokens in logs
 - Using only `console.log` without a logging framework (no levels, no persistence, no structure)
@@ -58,12 +60,14 @@ res\.json.*err|response.*error.*message|render.*error.*stack
 - Error responses including `err.message` or `err.stack` sent to client
 
 ### Python (Django/Flask)
+
 - `print(f"User {email} login with password {password}")` — passwords in logs
 - Missing `LOGGING` configuration in Django settings
 - No audit trail for admin actions
 - `logging.debug()` containing sensitive request data
 
 ### Java (Spring)
+
 - `logger.info("Auth token: " + token)` — tokens in logs
 - Missing Spring Security audit events configuration
 - No `@EventListener` for `AuthenticationFailureBadCredentialsEvent`
@@ -93,6 +97,7 @@ res\.json.*err|response.*error.*message|render.*error.*stack
 ## Fix Examples
 
 **Before (sensitive data in logs):**
+
 ```typescript
 console.log(`Login attempt: ${email} / ${password}`);
 // ...
@@ -100,24 +105,27 @@ console.log(`Session created: ${sessionToken}`);
 ```
 
 **After (safe logging):**
+
 ```typescript
-import { logger } from './logger';
-logger.info('Login attempt', { email, ip: req.ip, timestamp: new Date().toISOString() });
+import { logger } from "./logger";
+logger.info("Login attempt", { email, ip: req.ip, timestamp: new Date().toISOString() });
 // ...
-logger.info('Session created', { userId: user.id, ip: req.ip });
+logger.info("Session created", { userId: user.id, ip: req.ip });
 // Never log passwords, tokens, or session IDs
 ```
 
 **Before (no security event logging):**
+
 ```typescript
-if (!user) return Response.json({ error: 'Invalid credentials' }, { status: 401 });
+if (!user) return Response.json({ error: "Invalid credentials" }, { status: 401 });
 ```
 
 **After (with audit logging):**
+
 ```typescript
 if (!user) {
-  logger.warn('Failed login attempt', { email, ip: req.ip, reason: 'user_not_found' });
-  return Response.json({ error: 'Invalid credentials' }, { status: 401 });
+  logger.warn("Failed login attempt", { email, ip: req.ip, reason: "user_not_found" });
+  return Response.json({ error: "Invalid credentials" }, { status: 401 });
 }
 ```
 

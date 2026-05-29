@@ -22,6 +22,13 @@
       "when": 1779956397745,
       "tag": "0002_glossy_prodigy",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1780071614275,
+      "tag": "0003_stiff_songbird",
+      "breakpoints": true
     }
   ]
 }

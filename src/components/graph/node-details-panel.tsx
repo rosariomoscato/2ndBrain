@@ -22,10 +22,7 @@ export function NodeDetailsPanel({
 
   const { type, label, tags, connections, importance } = node;
 
-  const typeConfig: Record<
-    string,
-    { color: string; bgColor: string }
-  > = {
+  const typeConfig: Record<string, { color: string; bgColor: string }> = {
     note: {
       color: "text-neon-cyan",
       bgColor: "bg-neon-cyan/20",
@@ -70,51 +67,44 @@ export function NodeDetailsPanel({
   };
 
   return (
-    <div className="absolute top-6 right-6 w-80 glass-panel rounded-xl animate-scale-in z-10">
+    <div className="glass-panel animate-scale-in absolute top-6 right-6 z-10 w-80 rounded-xl">
       {/* Header */}
-      <div className="flex items-start justify-between p-4 border-b border-glass-border">
-        <div className="flex-1 min-w-0">
-          <div className={`text-[10px] font-bold font-tech uppercase tracking-wider ${config.color} mb-1`}>
+      <div className="border-glass-border flex items-start justify-between border-b p-4">
+        <div className="min-w-0 flex-1">
+          <div
+            className={`font-tech text-[10px] font-bold tracking-wider uppercase ${config.color} mb-1`}
+          >
             {type}
           </div>
-          <h2 className="text-sm font-semibold font-display text-text-primary line-clamp-2 leading-tight">
+          <h2 className="font-display text-text-primary line-clamp-2 text-sm leading-tight font-semibold">
             {label}
           </h2>
         </div>
         <button
           onClick={onClose}
-          className="ml-2 flex-shrink-0 p-1 text-text-dim hover:text-text-primary transition-colors"
+          className="text-text-dim hover:text-text-primary ml-2 flex-shrink-0 p-1 transition-colors"
         >
-          <X className="w-4 h-4" />
+          <X className="h-4 w-4" />
         </button>
       </div>
 
       {/* Content */}
-      <div className="p-4 space-y-4">
+      <div className="space-y-4 p-4">
         {/* Type Badge */}
-        <NeonBadge
-          variant={getTypeVariant(type)}
-          className="text-[10px]"
-        >
+        <NeonBadge variant={getTypeVariant(type)} className="text-[10px]">
           {type.toUpperCase()}
         </NeonBadge>
 
         {/* Excerpt */}
         {node.excerpt && (
-          <div className="text-xs text-text-secondary line-clamp-4">
-            {node.excerpt}
-          </div>
+          <div className="text-text-secondary line-clamp-4 text-xs">{node.excerpt}</div>
         )}
 
         {/* Tags */}
         {tags && tags.length > 0 && (
           <div className="flex flex-wrap gap-1">
             {tags.map((tag: string, index: number) => (
-              <NeonBadge
-                key={index}
-                variant="cyan"
-                className="text-[10px]"
-              >
+              <NeonBadge key={index} variant="cyan" className="text-[10px]">
                 {tag}
               </NeonBadge>
             ))}
@@ -125,23 +115,27 @@ export function NodeDetailsPanel({
         <div className="grid grid-cols-2 gap-2">
           {/* Connections */}
           <div className="glass-panel rounded-lg p-3">
-            <div className="flex items-center gap-2 mb-1">
-              <Link2 className="w-3 h-3 text-text-dim" />
-              <span className="text-[10px] text-text-dim uppercase tracking-wider">Connections</span>
+            <div className="mb-1 flex items-center gap-2">
+              <Link2 className="text-text-dim h-3 w-3" />
+              <span className="text-text-dim text-[10px] tracking-wider uppercase">
+                Connections
+              </span>
             </div>
-            <div className="text-lg font-bold font-display text-neon-cyan glow-text">
+            <div className="font-display text-neon-cyan glow-text text-lg font-bold">
               {connections}
             </div>
           </div>
 
           {/* Importance */}
-          <div className="glass-panel rounded-lg p-3 relative group">
-            <div className="flex items-center gap-2 mb-1">
-              <Clock className="w-3 h-3 text-text-dim" />
-              <span className="text-[10px] text-text-dim uppercase tracking-wider">Importance</span>
-              <Info className="w-3 h-3 text-text-dim cursor-help" />
-              <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-64 p-3 rounded-lg bg-space-black/95 border border-neon-purple/30 text-[10px] text-text-secondary leading-relaxed z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none">
-                <div className="font-bold text-text-primary mb-1">How it&apos;s calculated (1-5)</div>
+          <div className="glass-panel group relative rounded-lg p-3">
+            <div className="mb-1 flex items-center gap-2">
+              <Clock className="text-text-dim h-3 w-3" />
+              <span className="text-text-dim text-[10px] tracking-wider uppercase">Importance</span>
+              <Info className="text-text-dim h-3 w-3 cursor-help" />
+              <div className="bg-space-black/95 border-neon-purple/30 text-text-secondary pointer-events-none invisible absolute top-full left-1/2 z-50 mt-2 w-64 -translate-x-1/2 rounded-lg border p-3 text-[10px] leading-relaxed opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100">
+                <div className="text-text-primary mb-1 font-bold">
+                  How it&apos;s calculated (1-5)
+                </div>
                 <div className="space-y-0.5">
                   <div>+1 base (every node)</div>
                   <div>+1 if 1+ connections</div>
@@ -151,7 +145,7 @@ export function NodeDetailsPanel({
                 </div>
               </div>
             </div>
-            <div className="text-lg font-bold font-display text-neon-purple glow-text">
+            <div className="font-display text-neon-purple glow-text text-lg font-bold">
               {importance}/5
             </div>
           </div>
@@ -160,37 +154,27 @@ export function NodeDetailsPanel({
         {/* Timestamps */}
         <div className="space-y-2">
           {node.createdAt && (
-            <div className="flex items-center gap-2 text-[10px] text-text-dim">
-              <Clock className="w-3 h-3" />
+            <div className="text-text-dim flex items-center gap-2 text-[10px]">
+              <Clock className="h-3 w-3" />
               <span>Created: {formatDate(node.createdAt)}</span>
             </div>
           )}
-          <div className="flex items-center gap-2 text-[10px] text-text-dim">
-            <Clock className="w-3 h-3" />
+          <div className="text-text-dim flex items-center gap-2 text-[10px]">
+            <Clock className="h-3 w-3" />
             <span>Updated: {formatDate(node.updatedAt)}</span>
           </div>
         </div>
 
         {/* Actions */}
-        <div className="flex flex-col gap-2 pt-2 border-t border-glass-border">
+        <div className="border-glass-border flex flex-col gap-2 border-t pt-2">
           {node.noteId && onNavigate && (
-            <CyberButton
-              variant="outline"
-              size="sm"
-              className="w-full"
-              onClick={onNavigate}
-            >
-              <ExternalLink className="w-4 h-4 mr-2" />
+            <CyberButton variant="outline" size="sm" className="w-full" onClick={onNavigate}>
+              <ExternalLink className="mr-2 h-4 w-4" />
               View Full Note
             </CyberButton>
           )}
-          <CyberButton
-            variant="ghost"
-            size="sm"
-            className="w-full"
-            onClick={onShowConnections}
-          >
-            <Link2 className="w-4 h-4 mr-2" />
+          <CyberButton variant="ghost" size="sm" className="w-full" onClick={onShowConnections}>
+            <Link2 className="mr-2 h-4 w-4" />
             Show Connections
           </CyberButton>
         </div>

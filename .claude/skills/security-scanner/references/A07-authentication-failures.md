@@ -19,6 +19,7 @@ Authentication Failures is #7 in OWASP Top 10:2025. It encompasses 36 CWEs with 
 ## What to Look For
 
 ### General Patterns
+
 - Weak session token generation (predictable, sequential, or base64-encoded user data)
 - Sessions that never expire or have excessively long lifetimes
 - Credentials appearing in URLs, logs, or error messages
@@ -68,6 +69,7 @@ token.*response|json.*token.*reset
 ```
 
 ### JavaScript / TypeScript / Node.js
+
 - Session token built as `Buffer.from(userId + ':' + timestamp).toString('base64')` — trivially decodable
 - `Math.random()` used for session or reset tokens
 - Cookie set without `{ httpOnly: true, secure: true, sameSite: 'strict' }`
@@ -77,12 +79,14 @@ token.*response|json.*token.*reset
 - No session invalidation in logout handler
 
 ### Python (Django/Flask)
+
 - Custom session management instead of Django's built-in
 - `SESSION_COOKIE_HTTPONLY = False` or `SESSION_COOKIE_SECURE = False`
 - Different error messages for invalid username vs invalid password
 - Flask `session.permanent = True` without `PERMANENT_SESSION_LIFETIME`
 
 ### Java (Spring)
+
 - `HttpSession` without timeout configuration
 - Custom `AuthenticationProvider` without proper credential validation
 - Missing `invalidateHttpSession(true)` in logout configuration
@@ -114,31 +118,35 @@ token.*response|json.*token.*reset
 ## Fix Examples
 
 **Before (user enumeration):**
+
 ```typescript
-if (!user) return Response.json({ error: 'User not found' }, { status: 401 });
-if (!validPassword) return Response.json({ error: 'Incorrect password' }, { status: 401 });
+if (!user) return Response.json({ error: "User not found" }, { status: 401 });
+if (!validPassword) return Response.json({ error: "Incorrect password" }, { status: 401 });
 ```
 
 **After (consistent error message):**
+
 ```typescript
 if (!user || !validPassword) {
-  return Response.json({ error: 'Invalid credentials' }, { status: 401 });
+  return Response.json({ error: "Invalid credentials" }, { status: 401 });
 }
 ```
 
 **Before (insecure session cookie):**
+
 ```typescript
-response.cookies.set('session', token, { httpOnly: false, path: '/' });
+response.cookies.set("session", token, { httpOnly: false, path: "/" });
 ```
 
 **After (secure session cookie):**
+
 ```typescript
-response.cookies.set('session', token, {
+response.cookies.set("session", token, {
   httpOnly: true,
   secure: true,
-  sameSite: 'strict',
+  sameSite: "strict",
   maxAge: 3600,
-  path: '/'
+  path: "/",
 });
 ```
 

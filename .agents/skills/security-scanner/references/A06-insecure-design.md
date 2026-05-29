@@ -18,6 +18,7 @@ Insecure Design is #6 in OWASP Top 10:2025. This category focuses on architectur
 ## What to Look For
 
 ### General Patterns
+
 - Missing rate limiting on sensitive endpoints (login, registration, password reset, OTP verification)
 - No input validation or schema validation on API endpoints
 - Business logic flaws (no password complexity requirements, unlimited retries)
@@ -60,6 +61,7 @@ lockout|maxAttempts|failedAttempts|loginAttempts|accountLock
 ```
 
 ### JavaScript / TypeScript / Node.js
+
 - Express/Next.js API routes without `express-rate-limit` or equivalent middleware
 - Login/register endpoints accepting any password (no length/complexity check)
 - Password reset tokens using short numeric codes without expiration
@@ -67,12 +69,14 @@ lockout|maxAttempts|failedAttempts|loginAttempts|accountLock
 - Missing input validation — `req.body` used directly without Zod/Joi/Yup schema
 
 ### Python (Django/Flask)
+
 - Views without `@ratelimit` decorator on auth endpoints
 - Missing `AUTH_PASSWORD_VALIDATORS` in Django settings
 - File uploads without `ALLOWED_EXTENSIONS` check
 - No `django-axes` or equivalent brute-force protection
 
 ### Java (Spring)
+
 - Missing `@RateLimiter` on authentication controllers
 - No password policy configuration in `SecurityConfig`
 - `MultipartFile` accepted without content type validation
@@ -100,39 +104,44 @@ lockout|maxAttempts|failedAttempts|loginAttempts|accountLock
 ## Fix Examples
 
 **Before (no rate limiting on login):**
+
 ```typescript
 export async function POST(req) {
   const { email, password } = await req.json();
-  const user = await db.get('SELECT * FROM users WHERE email = ?', email);
+  const user = await db.get("SELECT * FROM users WHERE email = ?", email);
   // ... verify password and return token
 }
 ```
 
 **After (with rate limiting):**
+
 ```typescript
-import rateLimit from 'express-rate-limit';
+import rateLimit from "express-rate-limit";
 
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 5, // 5 attempts per window
-  message: { error: 'Too many login attempts, please try again later' }
+  message: { error: "Too many login attempts, please try again later" },
 });
 
 // Apply loginLimiter middleware to the login route
 ```
 
 **Before (no password policy):**
+
 ```typescript
 const { password } = await req.json();
 const hash = await bcrypt.hash(password, 12);
 ```
 
 **After (with password policy):**
+
 ```typescript
 const { password } = await req.json();
-if (password.length < 12) return Response.json({ error: 'Password must be at least 12 characters' }, { status: 400 });
+if (password.length < 12)
+  return Response.json({ error: "Password must be at least 12 characters" }, { status: 400 });
 if (!/[A-Z]/.test(password) || !/[0-9]/.test(password)) {
-  return Response.json({ error: 'Password must contain uppercase and numbers' }, { status: 400 });
+  return Response.json({ error: "Password must contain uppercase and numbers" }, { status: 400 });
 }
 const hash = await bcrypt.hash(password, 12);
 ```

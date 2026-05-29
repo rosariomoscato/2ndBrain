@@ -30,6 +30,7 @@ Wire the knowledge graph canvas and tag manager to real backend data. Replace th
 ### Implementation Steps
 
 1. **src/components/graph/graph-canvas.tsx:**
+
 - Add state for nodes and edges
 - Load from `getGraphData()` on mount
 - Wire `handleConnect` to `createEdge()` server action
@@ -55,16 +56,24 @@ useEffect(() => {
   loadGraph();
 }, []);
 
-const onConnect = useCallback(async (connection: Connection) => {
-  if (!connection.source || !connection.target) return;
-  const edge = await createEdge(connection.source, connection.target);
-  setEdges(eds => addEdge({
-    id: edge.id,
-    source: connection.source!,
-    target: connection.target!,
-    animated: true,
-  }, eds));
-}, [setEdges]);
+const onConnect = useCallback(
+  async (connection: Connection) => {
+    if (!connection.source || !connection.target) return;
+    const edge = await createEdge(connection.source, connection.target);
+    setEdges((eds) =>
+      addEdge(
+        {
+          id: edge.id,
+          source: connection.source!,
+          target: connection.target!,
+          animated: true,
+        },
+        eds
+      )
+    );
+  },
+  [setEdges]
+);
 
 const onNodeDragStop = useCallback(async (_: MouseEvent, node: Node) => {
   await updateNodePosition(node.id, node.position.x, node.position.y);
@@ -72,10 +81,11 @@ const onNodeDragStop = useCallback(async (_: MouseEvent, node: Node) => {
 ```
 
 2. **src/components/tags/tag-manager.tsx:**
+
 - Replace `mockTags` with state loaded from `getTags()`
 - Wire save to `createTag()` / `updateTag()`
 - Wire delete to `deleteTag()` / `bulkDeleteTags()`
-- Add sort options that call `getTags({ sortBy })` 
+- Add sort options that call `getTags({ sortBy })`
 
 ```typescript
 const [tags, setTags] = useState<Tag[]>([]);
@@ -91,7 +101,9 @@ async function loadTags(sortBy?: "name" | "usage" | "date") {
   }
 }
 
-useEffect(() => { loadTags(); }, []);
+useEffect(() => {
+  loadTags();
+}, []);
 
 const handleSaveTag = async (tagData: { name: string; color: string }) => {
   if (editingTag) {
@@ -104,6 +116,7 @@ const handleSaveTag = async (tagData: { name: string; color: string }) => {
 ```
 
 3. **src/app/settings/page.tsx:**
+
 - Load settings from `getSettings()` on mount
 - Wire each setting change to `updateSettings()` with the relevant section
 - Wire theme presets to update all theme values at once

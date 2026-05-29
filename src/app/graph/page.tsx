@@ -4,11 +4,11 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Network, FileText, Plus, AlertCircle, TrendingUp, RefreshCw, Filter } from "lucide-react";
 import { toast } from "sonner";
+import { GraphCanvas } from "@/components/graph/graph-canvas";
 import { MainViewport } from "@/components/layout/main-viewport";
 import { CyberButton } from "@/components/ui/cyber-button";
 import { CyberCard, CardContent, CardHeader, CardTitle } from "@/components/ui/cyber-card";
 import { NeonBadge } from "@/components/ui/neon-badge";
-import { GraphCanvas } from "@/components/graph/graph-canvas";
 
 export default function GraphPage() {
   const router = useRouter();

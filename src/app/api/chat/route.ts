@@ -2,8 +2,8 @@ import { headers } from "next/headers";
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { streamText, UIMessage, convertToModelMessages } from "ai";
 import { z } from "zod";
-import { auth } from "@/lib/auth";
 import { resolveOpenRouterConfig } from "@/lib/actions/ai-settings";
+import { auth } from "@/lib/auth";
 
 // Zod schema for message validation
 const messagePartSchema = z.object({

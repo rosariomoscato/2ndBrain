@@ -57,6 +57,7 @@ function generateExcerpt(content: string): string {
 ```
 
 2. **getNotes action:**
+
 ```typescript
 export async function getNotes(options?: {
   search?: string;
@@ -69,48 +70,58 @@ export async function getNotes(options?: {
   const limit = options?.limit ?? 50;
   const offset = options?.offset ?? 0;
 
-  let query = db.select({
-    id: notes.id,
-    title: notes.title,
-    content: notes.content,
-    excerpt: notes.excerpt,
-    importance: notes.importance,
-    updatedAt: notes.updatedAt,
-  }).from(notes).where(eq(notes.userId, userId));
+  let query = db
+    .select({
+      id: notes.id,
+      title: notes.title,
+      content: notes.content,
+      excerpt: notes.excerpt,
+      importance: notes.importance,
+      updatedAt: notes.updatedAt,
+    })
+    .from(notes)
+    .where(eq(notes.userId, userId));
 
-  const result = await db.select({
-    id: notes.id,
-    title: notes.title,
-    content: notes.content,
-    excerpt: notes.excerpt,
-    importance: notes.importance,
-    updatedAt: notes.updatedAt,
-  })
-  .from(notes)
-  .where(
-    and(
-      eq(notes.userId, userId),
-      options?.search ? or(
-        ilike(notes.title, `%${options.search}%`),
-        ilike(notes.content, `%${options.search}%`)
-      ) : undefined,
+  const result = await db
+    .select({
+      id: notes.id,
+      title: notes.title,
+      content: notes.content,
+      excerpt: notes.excerpt,
+      importance: notes.importance,
+      updatedAt: notes.updatedAt,
+    })
+    .from(notes)
+    .where(
+      and(
+        eq(notes.userId, userId),
+        options?.search
+          ? or(
+              ilike(notes.title, `%${options.search}%`),
+              ilike(notes.content, `%${options.search}%`)
+            )
+          : undefined
+      )
     )
-  )
-  .orderBy(desc(notes.updatedAt))
-  .limit(limit)
-  .offset(offset);
+    .orderBy(desc(notes.updatedAt))
+    .limit(limit)
+    .offset(offset);
 
   // Get tags for all notes
-  const noteIds = result.map(n => n.id);
-  const tagRows = noteIds.length > 0 ? await db.select({
-    noteId: noteTags.noteId,
-    tagId: tags.id,
-    tagName: tags.name,
-    tagColor: tags.color,
-  })
-  .from(noteTags)
-  .innerJoin(tags, eq(noteTags.tagId, tags.id))
-  .where(sql`${noteTags.noteId} IN ${noteIds}`) : [];
+  const noteIds = result.map((n) => n.id);
+  const tagRows =
+    noteIds.length > 0
+      ? await db
+          .select({
+            noteId: noteTags.noteId,
+            tagId: tags.id,
+            tagName: tags.name,
+            tagColor: tags.color,
+          })
+          .from(noteTags)
+          .innerJoin(tags, eq(noteTags.tagId, tags.id))
+          .where(sql`${noteTags.noteId} IN ${noteIds}`)
+      : [];
 
   const tagMap = new Map<string, NoteTag[]>();
   for (const t of tagRows) {
@@ -122,13 +133,13 @@ export async function getNotes(options?: {
   // If tag filter specified, filter results
   let filtered = result;
   if (options?.tag) {
-    filtered = result.filter(n => {
+    filtered = result.filter((n) => {
       const noteTagsList = tagMap.get(n.id) ?? [];
-      return noteTagsList.some(t => t.name === options.tag);
+      return noteTagsList.some((t) => t.name === options.tag);
     });
   }
 
-  return filtered.map(n => ({
+  return filtered.map((n) => ({
     id: n.id,
     title: n.title,
     excerpt: n.excerpt,
@@ -142,21 +153,26 @@ export async function getNotes(options?: {
 ```
 
 3. **getNoteById action:**
+
 ```typescript
 export async function getNoteById(id: string) {
   const session = await getSession();
-  const result = await db.select().from(notes).where(
-    and(eq(notes.id, id), eq(notes.userId, session.user.id))
-  ).limit(1);
-  
+  const result = await db
+    .select()
+    .from(notes)
+    .where(and(eq(notes.id, id), eq(notes.userId, session.user.id)))
+    .limit(1);
+
   if (result.length === 0) return null;
   const note = result[0];
-  
-  const tagRows = await db.select({
-    id: tags.id,
-    name: tags.name,
-    color: tags.color,
-  }).from(noteTags)
+
+  const tagRows = await db
+    .select({
+      id: tags.id,
+      name: tags.name,
+      color: tags.color,
+    })
+    .from(noteTags)
     .innerJoin(tags, eq(noteTags.tagId, tags.id))
     .where(eq(noteTags.noteId, id));
 
@@ -165,7 +181,7 @@ export async function getNoteById(id: string) {
     title: note.title,
     content: note.content,
     excerpt: note.excerpt,
-    tags: tagRows.map(t => ({ id: t.id, name: t.name, color: t.color as NoteTag["color"] })),
+    tags: tagRows.map((t) => ({ id: t.id, name: t.name, color: t.color as NoteTag["color"] })),
     updatedAt: note.updatedAt.toISOString(),
     connections: 0,
     importance: note.importance,
@@ -174,6 +190,7 @@ export async function getNoteById(id: string) {
 ```
 
 4. **createNote action:**
+
 ```typescript
 export async function createNote(input: {
   title: string;
@@ -185,32 +202,40 @@ export async function createNote(input: {
   const validated = createNoteSchema.parse(input);
   const excerpt = generateExcerpt(validated.content);
 
-  const [note] = await db.insert(notes).values({
-    userId: session.user.id,
-    title: validated.title,
-    content: validated.content,
-    excerpt,
-    importance: validated.importance ?? 3,
-  }).returning();
+  const [note] = await db
+    .insert(notes)
+    .values({
+      userId: session.user.id,
+      title: validated.title,
+      content: validated.content,
+      excerpt,
+      importance: validated.importance ?? 3,
+    })
+    .returning();
 
   if (validated.tags && validated.tags.length > 0) {
     for (const tagName of validated.tags) {
-      const existingTag = await db.select().from(tags).where(
-        and(eq(tags.userId, session.user.id), eq(tags.name, tagName))
-      ).limit(1);
-      
+      const existingTag = await db
+        .select()
+        .from(tags)
+        .where(and(eq(tags.userId, session.user.id), eq(tags.name, tagName)))
+        .limit(1);
+
       let tagId: string;
       if (existingTag.length > 0) {
         tagId = existingTag[0].id;
       } else {
-        const [newTag] = await db.insert(tags).values({
-          userId: session.user.id,
-          name: tagName,
-          color: "cyan",
-        }).returning();
+        const [newTag] = await db
+          .insert(tags)
+          .values({
+            userId: session.user.id,
+            name: tagName,
+            color: "cyan",
+          })
+          .returning();
         tagId = newTag.id;
       }
-      
+
       await db.insert(noteTags).values({ noteId: note.id, tagId });
     }
   }
@@ -220,6 +245,7 @@ export async function createNote(input: {
 ```
 
 5. **updateNote action:**
+
 ```typescript
 export async function updateNote(input: {
   id: string;
@@ -230,7 +256,7 @@ export async function updateNote(input: {
 }) {
   const session = await getSession();
   const validated = updateNoteSchema.parse(input);
-  
+
   const updates: Record<string, unknown> = {};
   if (validated.title !== undefined) updates.title = validated.title;
   if (validated.content !== undefined) {
@@ -240,27 +266,33 @@ export async function updateNote(input: {
   if (validated.importance !== undefined) updates.importance = validated.importance;
 
   if (Object.keys(updates).length > 0) {
-    await db.update(notes).set(updates).where(
-      and(eq(notes.id, validated.id), eq(notes.userId, session.user.id))
-    );
+    await db
+      .update(notes)
+      .set(updates)
+      .where(and(eq(notes.id, validated.id), eq(notes.userId, session.user.id)));
   }
 
   if (validated.tags !== undefined) {
     await db.delete(noteTags).where(eq(noteTags.noteId, validated.id));
     for (const tagName of validated.tags) {
-      const existingTag = await db.select().from(tags).where(
-        and(eq(tags.userId, session.user.id), eq(tags.name, tagName))
-      ).limit(1);
-      
+      const existingTag = await db
+        .select()
+        .from(tags)
+        .where(and(eq(tags.userId, session.user.id), eq(tags.name, tagName)))
+        .limit(1);
+
       let tagId: string;
       if (existingTag.length > 0) {
         tagId = existingTag[0].id;
       } else {
-        const [newTag] = await db.insert(tags).values({
-          userId: session.user.id,
-          name: tagName,
-          color: "cyan",
-        }).returning();
+        const [newTag] = await db
+          .insert(tags)
+          .values({
+            userId: session.user.id,
+            name: tagName,
+            color: "cyan",
+          })
+          .returning();
         tagId = newTag.id;
       }
       await db.insert(noteTags).values({ noteId: validated.id, tagId });
@@ -272,24 +304,26 @@ export async function updateNote(input: {
 ```
 
 6. **deleteNote action:**
+
 ```typescript
 export async function deleteNote(id: string) {
   const session = await getSession();
   const validated = deleteNoteSchema.parse({ id });
-  
-  await db.delete(notes).where(
-    and(eq(notes.id, validated.id), eq(notes.userId, session.user.id))
-  );
+
+  await db.delete(notes).where(and(eq(notes.id, validated.id), eq(notes.userId, session.user.id)));
   return { success: true };
 }
 ```
 
 7. **getNoteCount action (for dashboard stats):**
+
 ```typescript
 export async function getNoteCount() {
   const session = await getSession();
-  const result = await db.select({ count: sql<number>`count(*)` })
-    .from(notes).where(eq(notes.userId, session.user.id));
+  const result = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(notes)
+    .where(eq(notes.userId, session.user.id));
   return result[0].count;
 }
 ```

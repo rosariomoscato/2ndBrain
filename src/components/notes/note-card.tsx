@@ -1,4 +1,4 @@
-import { Clock, Link2, ArrowRight } from "lucide-react";
+import { Clock, Link2, ArrowRight, FileText } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/cyber-card";
 import { NeonBadge } from "@/components/ui/neon-badge";
 import type { Note } from "@/lib/types";
@@ -12,19 +12,27 @@ export function NoteCard({ note, onClick }: NoteCardProps) {
   return (
     <Card
       onClick={onClick}
-      className="glass-panel border-2 rounded-xl cursor-pointer group note-card transition-all duration-300"
+      className="glass-panel group note-card cursor-pointer rounded-xl border-2 transition-all duration-300"
     >
       <CardContent className="p-4">
         {/* Title Section with Importance */}
-        <div className="flex items-start justify-between gap-2 mb-3">
-          <h3 className="text-base font-bold font-display text-text-primary group-hover:text-neon-cyan transition-colors line-clamp-2 flex-1">
-            {note.title}
-          </h3>
-          <div className="flex gap-0.5 flex-shrink-0">
+        <div className="mb-3 flex items-start justify-between gap-2">
+          <div className="flex min-w-0 flex-1 items-start gap-2">
+            <h3 className="font-display text-text-primary group-hover:text-neon-cyan line-clamp-2 text-base font-bold transition-colors">
+              {note.title}
+            </h3>
+            {note.hasPdf && (
+              <NeonBadge variant="cyan" className="flex-shrink-0 gap-1">
+                <FileText className="h-3 w-3" />
+                PDF
+              </NeonBadge>
+            )}
+          </div>
+          <div className="flex flex-shrink-0 gap-0.5">
             {[...Array(5)].map((_, i) => (
               <div
                 key={i}
-                className={`importance-bar w-1 h-4 rounded-full transition-all duration-200 ${
+                className={`importance-bar h-4 w-1 rounded-full transition-all duration-200 ${
                   i < note.importance ? "bg-neon-purple" : "bg-glass-border"
                 }`}
               />
@@ -33,27 +41,27 @@ export function NoteCard({ note, onClick }: NoteCardProps) {
         </div>
 
         {/* Excerpt */}
-        <p className="text-sm text-text-secondary line-clamp-3 mb-3 leading-relaxed">
+        <p className="text-text-secondary mb-3 line-clamp-3 text-sm leading-relaxed">
           {note.excerpt}
         </p>
 
         {/* Tags */}
         {note.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1 mb-3">
+          <div className="mb-3 flex flex-wrap gap-1">
             {note.tags.slice(0, 3).map((tag) => (
               <NeonBadge key={tag.id} variant={tag.color} className="text-[10px]">
                 {tag.name}
               </NeonBadge>
             ))}
             {note.tags.length > 3 && (
-              <span className="text-[10px] text-text-dim">+{note.tags.length - 3}</span>
+              <span className="text-text-dim text-[10px]">+{note.tags.length - 3}</span>
             )}
           </div>
         )}
 
         {/* Footer */}
-        <div className="flex items-center justify-between pt-3 border-t border-glass-border">
-          <div className="flex items-center gap-3 text-xs text-text-dim">
+        <div className="border-glass-border flex items-center justify-between border-t pt-3">
+          <div className="text-text-dim flex items-center gap-3 text-xs">
             <div className="flex items-center gap-1">
               <Link2 className="h-3 w-3" />
               {note.connections}
@@ -63,7 +71,7 @@ export function NoteCard({ note, onClick }: NoteCardProps) {
               {new Date(note.updatedAt).toLocaleDateString()}
             </div>
           </div>
-          <ArrowRight className="h-4 w-4 text-neon-cyan arrow-icon opacity-0 group-hover:opacity-100 transition-opacity duration-200 -translate-x-2 group-hover:translate-x-0" />
+          <ArrowRight className="text-neon-cyan arrow-icon h-4 w-4 -translate-x-2 opacity-0 transition-opacity duration-200 group-hover:translate-x-0 group-hover:opacity-100" />
         </div>
       </CardContent>
     </Card>

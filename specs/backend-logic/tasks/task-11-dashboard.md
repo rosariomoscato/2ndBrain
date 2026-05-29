@@ -29,6 +29,7 @@ Replace all mock data in the dashboard page (src/app/page.tsx) and sidebar (src/
 ### Implementation Steps
 
 1. In `src/app/page.tsx`:
+
 - Make the component async (server component)
 - Import server actions: `getNoteCount`, `getNodeCount`, `getEdgeCount` from their respective files
 - Import `getNotes` to get recent notes for activity
@@ -38,16 +39,24 @@ Replace all mock data in the dashboard page (src/app/page.tsx) and sidebar (src/
 - The page already has `"use client"` — either remove it and make it a server component, or create a separate async data component
 
 **Important:** The page.tsx currently has `"use client"`. To use server actions directly in the render, convert it to a server component. Alternatively, create a wrapper:
+
 - Create a client component for interactive parts
 - Use a parent server component that fetches data and passes as props
 
 **Recommended approach:** Keep page.tsx as `"use client"` but use `useEffect` + `useState` to call server actions on mount. This is simpler and matches the existing pattern.
 
 Add at the top of the component:
+
 ```typescript
 const [stats, setStats] = useState([
   { label: "Total Notes", value: "...", change: "Loading...", icon: FileText, color: "neon-cyan" },
-  { label: "Knowledge Nodes", value: "...", change: "Loading...", icon: Network, color: "neon-purple" },
+  {
+    label: "Knowledge Nodes",
+    value: "...",
+    change: "Loading...",
+    icon: Network,
+    color: "neon-purple",
+  },
   { label: "Connections", value: "...", change: "Loading...", icon: Activity, color: "neon-blue" },
 ]);
 const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
@@ -62,20 +71,40 @@ useEffect(() => {
         getEdgeCount(),
         getNotes({ limit: 4 }),
       ]);
-      
+
       setStats([
-        { label: "Total Notes", value: String(noteCount), change: `${noteCount} total`, icon: FileText, color: "neon-cyan" },
-        { label: "Knowledge Nodes", value: String(nodeCount), change: `${nodeCount} total`, icon: Network, color: "neon-purple" },
-        { label: "Connections", value: String(edgeCount), change: `${edgeCount} total`, icon: Activity, color: "neon-blue" },
+        {
+          label: "Total Notes",
+          value: String(noteCount),
+          change: `${noteCount} total`,
+          icon: FileText,
+          color: "neon-cyan",
+        },
+        {
+          label: "Knowledge Nodes",
+          value: String(nodeCount),
+          change: `${nodeCount} total`,
+          icon: Network,
+          color: "neon-purple",
+        },
+        {
+          label: "Connections",
+          value: String(edgeCount),
+          change: `${edgeCount} total`,
+          icon: Activity,
+          color: "neon-blue",
+        },
       ]);
-      
-      setRecentActivity(recentNotes.map((note, i) => ({
-        id: note.id,
-        action: i === 0 ? "Created new note" : "Updated note",
-        target: note.title,
-        time: note.updatedAt,
-        type: i === 0 ? "create" as const : "update" as const,
-      })));
+
+      setRecentActivity(
+        recentNotes.map((note, i) => ({
+          id: note.id,
+          action: i === 0 ? "Created new note" : "Updated note",
+          target: note.title,
+          time: note.updatedAt,
+          type: i === 0 ? ("create" as const) : ("update" as const),
+        }))
+      );
     } catch (error) {
       console.error("Failed to load dashboard data:", error);
     } finally {
@@ -85,9 +114,11 @@ useEffect(() => {
   loadData();
 }, []);
 ```
+
 Add the `// eslint-disable-next-line react-hooks/set-state-in-effect` before the useEffect.
 
 2. In `src/components/layout/cyber-sidebar.tsx`:
+
 - Add `useEffect` and `useState` imports
 - Add state for `quickStats` and `recentNotes`
 - Fetch real data on mount via server actions
@@ -108,7 +139,9 @@ import { getNotes } from "@/lib/actions/notes";
 const [noteCount, setNoteCount] = useState("...");
 const [nodeCount, setNodeCount] = useState("...");
 const [connectionCount, setConnectionCount] = useState("...");
-const [recentNotesData, setRecentNotesData] = useState<{id: number; title: string; time: string}[]>([]);
+const [recentNotesData, setRecentNotesData] = useState<
+  { id: number; title: string; time: string }[]
+>([]);
 
 useEffect(() => {
   async function load() {
@@ -121,11 +154,13 @@ useEffect(() => {
     setNoteCount(String(n));
     setNodeCount(String(nd));
     setConnectionCount(String(e));
-    setRecentNotesData(recent.map(note => ({
-      id: Number(note.id.charAt(0)),
-      title: note.title,
-      time: note.updatedAt,
-    })));
+    setRecentNotesData(
+      recent.map((note) => ({
+        id: Number(note.id.charAt(0)),
+        title: note.title,
+        time: note.updatedAt,
+      }))
+    );
   }
   load().catch(console.error);
 }, []);

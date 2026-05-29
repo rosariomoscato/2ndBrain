@@ -39,82 +39,82 @@ All semantic tokens live in `app/globals.css` using OKLCH color space for percep
 
 ### Primary Neon Colors
 
-| Token | Value | Usage |
-| --- | --- | --- |
+| Token         | Value                  | Usage                    |
+| ------------- | ---------------------- | ------------------------ |
 | `neon-purple` | `oklch(0.65 0.25 320)` | Command actions, accents |
-| `neon-cyan` | `oklch(0.75 0.18 190)` | Highlights, focus states |
-| `neon-blue` | `oklch(0.60 0.22 250)` | Secondary accents |
-| `neon-pink` | `oklch(0.70 0.20 350)` | Emphasis, warnings |
-| `neon-green` | `oklch(0.70 0.20 140)` | Success, online status |
+| `neon-cyan`   | `oklch(0.75 0.18 190)` | Highlights, focus states |
+| `neon-blue`   | `oklch(0.60 0.22 250)` | Secondary accents        |
+| `neon-pink`   | `oklch(0.70 0.20 350)` | Emphasis, warnings       |
+| `neon-green`  | `oklch(0.70 0.20 140)` | Success, online status   |
 
 ### Space Backgrounds
 
-| Token | Value | Usage |
-| --- | --- | --- |
-| `space-black` | `oklch(0.08 0.01 270)` | Main background |
-| `starfield` | `oklch(0.12 0.02 270)` | Backgrounds with stars |
-| `nebula-dark` | `oklch(0.15 0.04 260)` | Dark nebula overlays |
-| `nebula-purple` | `oklch(0.20 0.06 290)` | Purple nebula glows |
+| Token           | Value                  | Usage                  |
+| --------------- | ---------------------- | ---------------------- |
+| `space-black`   | `oklch(0.08 0.01 270)` | Main background        |
+| `starfield`     | `oklch(0.12 0.02 270)` | Backgrounds with stars |
+| `nebula-dark`   | `oklch(0.15 0.04 260)` | Dark nebula overlays   |
+| `nebula-purple` | `oklch(0.20 0.06 290)` | Purple nebula glows    |
 
 ### Glass/Surfaces
 
-| Token | Value | Usage |
-| --- | --- | --- |
-| `glass-surface` | `oklch(0.10 0.03 270 / 0.6)` | Glassmorphism panels |
-| `glass-border` | `oklch(0.50 0.15 190 / 0.4)` | Panel borders |
-| `glass-highlight` | `oklch(0.60 0.15 190 / 0.2)` | Hover highlights |
+| Token             | Value                        | Usage                |
+| ----------------- | ---------------------------- | -------------------- |
+| `glass-surface`   | `oklch(0.10 0.03 270 / 0.6)` | Glassmorphism panels |
+| `glass-border`    | `oklch(0.50 0.15 190 / 0.4)` | Panel borders        |
+| `glass-highlight` | `oklch(0.60 0.15 190 / 0.2)` | Hover highlights     |
 
 ### Text
 
-| Token | Value | Usage |
-| --- | --- | --- |
-| `text-primary` | `oklch(0.95 0.02 270)` | Primary text |
-| `text-secondary` | `oklch(0.70 0.02 270)` | Secondary text |
-| `text-dim` | `oklch(0.50 0.02 270)` | Supporting copy |
+| Token            | Value                  | Usage           |
+| ---------------- | ---------------------- | --------------- |
+| `text-primary`   | `oklch(0.95 0.02 270)` | Primary text    |
+| `text-secondary` | `oklch(0.70 0.02 270)` | Secondary text  |
+| `text-dim`       | `oklch(0.50 0.02 270)` | Supporting copy |
 
 ### Status Colors
 
-| Token | Value | Usage |
-| --- | --- | --- |
-| `status-online` | `oklch(0.70 0.20 140)` | Online/active |
+| Token               | Value                  | Usage              |
+| ------------------- | ---------------------- | ------------------ |
+| `status-online`     | `oklch(0.70 0.20 140)` | Online/active      |
 | `status-processing` | `oklch(0.75 0.18 190)` | Processing/loading |
-| `status-error` | `oklch(0.65 0.25 320)` | Error/destructive |
+| `status-error`      | `oklch(0.65 0.25 320)` | Error/destructive  |
 
 ### Semantic Tokens
 
-| Token | Value | Usage |
-| --- | --- | --- |
-| `background` | `oklch(0.08 0.01 270)` | Page canvas |
-| `foreground` | `oklch(0.95 0.02 270)` | Primary text |
-| `card` | `oklch(0.10 0.03 270 / 0.6)` | Glass panels |
-| `primary` | `oklch(0.65 0.25 320)` | Command actions |
-| `accent` | `oklch(0.75 0.18 190)` | Highlights |
-| `secondary` | `oklch(0.20 0.06 290 / 0.8)` | Secondary surfaces |
-| `muted` | `oklch(0.15 0.04 260 / 0.64)` | Subtle surfaces |
-| `muted-foreground` | `oklch(0.70 0.02 270)` | Supporting copy |
-| `border` | `oklch(0.50 0.15 190 / 0.4)` | Panel borders |
-| `ring` | `oklch(0.80 0.15 178)` | Focus rings |
-| `destructive` | `oklch(0.65 0.25 320)` | Delete/error |
+| Token              | Value                         | Usage              |
+| ------------------ | ----------------------------- | ------------------ |
+| `background`       | `oklch(0.08 0.01 270)`        | Page canvas        |
+| `foreground`       | `oklch(0.95 0.02 270)`        | Primary text       |
+| `card`             | `oklch(0.10 0.03 270 / 0.6)`  | Glass panels       |
+| `primary`          | `oklch(0.65 0.25 320)`        | Command actions    |
+| `accent`           | `oklch(0.75 0.18 190)`        | Highlights         |
+| `secondary`        | `oklch(0.20 0.06 290 / 0.8)`  | Secondary surfaces |
+| `muted`            | `oklch(0.15 0.04 260 / 0.64)` | Subtle surfaces    |
+| `muted-foreground` | `oklch(0.70 0.02 270)`        | Supporting copy    |
+| `border`           | `oklch(0.50 0.15 190 / 0.4)`  | Panel borders      |
+| `ring`             | `oklch(0.80 0.15 178)`        | Focus rings        |
+| `destructive`      | `oklch(0.65 0.25 320)`        | Delete/error       |
 
 ### Chart Colors
 
-| Token | Value | Usage |
-| --- | --- | --- |
+| Token     | Value                  | Usage       |
+| --------- | ---------------------- | ----------- |
 | `chart-1` | `oklch(0.65 0.25 320)` | Neon purple |
-| `chart-2` | `oklch(0.75 0.18 190)` | Neon cyan |
-| `chart-3` | `oklch(0.60 0.22 250)` | Neon blue |
-| `chart-4` | `oklch(0.70 0.20 350)` | Neon pink |
-| `chart-5` | `oklch(0.70 0.20 140)` | Neon green |
+| `chart-2` | `oklch(0.75 0.18 190)` | Neon cyan   |
+| `chart-3` | `oklch(0.60 0.22 250)` | Neon blue   |
+| `chart-4` | `oklch(0.70 0.20 350)` | Neon pink   |
+| `chart-5` | `oklch(0.70 0.20 140)` | Neon green  |
 
 ---
 
 ## Typography
 
-| Font | Usage |
-| --- | --- |
-| `Orbitron` | Hero headings, card titles, display text |
+| Font             | Usage                                          |
+| ---------------- | ---------------------------------------------- |
+| `Orbitron`       | Hero headings, card titles, display text       |
 | `JetBrains Mono` | Technical labels, code, metadata, micro labels |
-| `Space Grotesk` | Body text, controls, forms |
+| `Space Grotesk`  | Body text, controls, forms                     |
 
 Guidelines:
 
@@ -160,6 +160,7 @@ Cyberpunk buttons with neon glow effects:
 ```
 
 Variants:
+
 - `primary`: Gradient background (command-strip)
 - `secondary`: Glass surface with border
 - `outline`: Transparent with neon border
@@ -240,7 +241,7 @@ Animated neon orb for loading:
 ### Command Center Layout
 
 ```tsx
-<div className="flex flex-col h-screen overflow-hidden bg-space-black">
+<div className="bg-space-black flex h-screen flex-col overflow-hidden">
   {/* Header */}
   <CyberHeader />
 
@@ -250,14 +251,13 @@ Animated neon orb for loading:
     <CyberSidebar />
 
     {/* Viewport */}
-    <MainViewport>
-      {/* Page content */}
-    </MainViewport>
+    <MainViewport>{/* Page content */}</MainViewport>
   </div>
 </div>
 ```
 
 Dimensions:
+
 - Header: `h-16` (4rem)
 - Sidebar: `w-72` (18rem)
 - Bottom Panel: `h-80` (20rem)
@@ -317,14 +317,27 @@ transition-all duration-200
 
 ```css
 @keyframes grid-pulse {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 0.6; }
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
 }
 
 @keyframes scan {
-  0% { top: 0; opacity: 0; }
-  50% { opacity: 1; }
-  100% { top: 100%; opacity: 0; }
+  0% {
+    top: 0;
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
 }
 ```
 
@@ -402,7 +415,7 @@ transition-all duration-200
   ```css
   @supports not (backdrop-filter: blur(20px)) {
     .glass-panel {
-      background: oklch(0.10 0.03 270);
+      background: oklch(0.1 0.03 270);
       backdrop-filter: none;
     }
   }
@@ -473,9 +486,7 @@ Override in `app/globals.css`:
 Extend components:
 
 ```tsx
-<CyberButton className="custom-neon-style">
-  Custom Button
-</CyberButton>
+<CyberButton className="custom-neon-style">Custom Button</CyberButton>
 ```
 
 ### Animations
@@ -484,8 +495,13 @@ Adjust timing:
 
 ```css
 @keyframes grid-pulse {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 0.6; }
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
 }
 ```
 

@@ -20,6 +20,7 @@ Cryptographic Failures is #4 in OWASP Top 10:2025 (down from #2). It covers fail
 ## What to Look For
 
 ### General Patterns
+
 - Weak hashing algorithms used for passwords (MD5, SHA1, SHA256 without key stretching)
 - Missing salt in password hashing
 - Hardcoded cryptographic keys, secrets, or API keys in source code
@@ -62,6 +63,7 @@ http:\/\/(?!localhost)|ftp:\/\/|smtp:\/\/
 ```
 
 ### JavaScript / TypeScript / Node.js
+
 - `crypto.createHash('md5')` or `crypto.createHash('sha1')` for password hashing
 - `Math.random()` used for tokens, session IDs, or reset codes
 - `Buffer.from(data).toString('base64')` used as a "token" (trivially decodable)
@@ -70,11 +72,13 @@ http:\/\/(?!localhost)|ftp:\/\/|smtp:\/\/
 - Missing `bcrypt`, `argon2`, or `scrypt` for password hashing
 
 ### Python
+
 - `hashlib.md5()` or `hashlib.sha1()` for passwords
 - `random.random()` or `random.randint()` for security tokens (should use `secrets` module)
 - `base64.b64encode()` used as encryption
 
 ### Java
+
 - `MessageDigest.getInstance("MD5")` or `MessageDigest.getInstance("SHA-1")`
 - `java.util.Random` instead of `java.security.SecureRandom`
 - Hardcoded keys in `KeySpec` constructors
@@ -104,16 +108,18 @@ Password reset tokens generated with `Math.random()`. Attacker predicts tokens a
 ## Fix Examples
 
 **Before (MD5 password hashing):**
+
 ```typescript
-import crypto from 'crypto';
+import crypto from "crypto";
 function hashPassword(password: string) {
-  return crypto.createHash('md5').update(password).digest('hex');
+  return crypto.createHash("md5").update(password).digest("hex");
 }
 ```
 
 **After (bcrypt with salt):**
+
 ```typescript
-import bcrypt from 'bcrypt';
+import bcrypt from "bcrypt";
 async function hashPassword(password: string) {
   return bcrypt.hash(password, 12);
 }
@@ -123,14 +129,16 @@ async function verifyPassword(password: string, hash: string) {
 ```
 
 **Before (predictable token):**
+
 ```typescript
 const resetToken = Math.random().toString(36).substring(2);
 ```
 
 **After (cryptographically secure token):**
+
 ```typescript
-import crypto from 'crypto';
-const resetToken = crypto.randomBytes(32).toString('hex');
+import crypto from "crypto";
+const resetToken = crypto.randomBytes(32).toString("hex");
 ```
 
 ## References

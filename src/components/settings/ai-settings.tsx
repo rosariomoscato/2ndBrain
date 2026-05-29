@@ -14,10 +14,8 @@ export function AISettings() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <Sparkles className="h-5 w-5 text-neon-purple" />
-        <h3 className="text-lg font-display font-bold text-text-primary">
-          AI Configuration
-        </h3>
+        <Sparkles className="text-neon-purple h-5 w-5" />
+        <h3 className="font-display text-text-primary text-lg font-bold">AI Configuration</h3>
       </div>
 
       {/* API Key */}
@@ -27,20 +25,18 @@ export function AISettings() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <label className="micro-label block mb-2">OPENROUTER API KEY</label>
+            <label className="micro-label mb-2 block">OPENROUTER API KEY</label>
             <div className="flex gap-2">
               <input
                 type="password"
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
                 placeholder="sk-or-v1-..."
-                className="flex-1 px-4 py-2 bg-glass-surface border-2 border-glass-border rounded-xl text-text-primary placeholder:text-text-dim focus:outline-none focus:border-neon-cyan transition-colors"
+                className="bg-glass-surface border-glass-border text-text-primary placeholder:text-text-dim focus:border-neon-cyan flex-1 rounded-xl border-2 px-4 py-2 transition-colors focus:outline-none"
               />
-              <CyberButton variant="primary">
-                Save
-              </CyberButton>
+              <CyberButton variant="primary">Save</CyberButton>
             </div>
-            <p className="text-xs text-text-dim mt-2">
+            <p className="text-text-dim mt-2 text-xs">
               Get your API key from{" "}
               <a
                 href="https://openrouter.ai/keys"
@@ -62,11 +58,11 @@ export function AISettings() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <label className="micro-label block mb-2">SELECT MODEL</label>
+            <label className="micro-label mb-2 block">SELECT MODEL</label>
             <select
               value={model}
               onChange={(e) => setModel(e.target.value)}
-              className="w-full px-4 py-2 bg-glass-surface border-2 border-glass-border rounded-xl text-text-primary focus:outline-none focus:border-neon-cyan transition-colors"
+              className="bg-glass-surface border-glass-border text-text-primary focus:border-neon-cyan w-full rounded-xl border-2 px-4 py-2 transition-colors focus:outline-none"
             >
               <option value="openai/gpt-4">OpenAI GPT-4</option>
               <option value="openai/gpt-4-turbo">OpenAI GPT-4 Turbo</option>
@@ -85,7 +81,7 @@ export function AISettings() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <div className="flex items-center justify-between mb-2">
+            <div className="mb-2 flex items-center justify-between">
               <label className="micro-label">TEMPERATURE</label>
               <NeonBadge variant="cyan">{temperature}</NeonBadge>
             </div>
@@ -96,17 +92,17 @@ export function AISettings() {
               step="0.1"
               value={temperature}
               onChange={(e) => setTemperature(Number(e.target.value))}
-              className="w-full h-2 bg-glass-surface rounded-lg appearance-none cursor-pointer accent-neon-cyan"
+              className="bg-glass-surface accent-neon-cyan h-2 w-full cursor-pointer appearance-none rounded-lg"
             />
-            <p className="text-xs text-text-dim mt-2">
+            <p className="text-text-dim mt-2 text-xs">
               Lower values are more focused, higher values more creative
             </p>
           </div>
 
           <div className="flex items-center justify-between pt-2">
             <div>
-              <p className="font-medium text-text-primary">Stream Responses</p>
-              <p className="text-sm text-text-dim">Show responses as they're generated</p>
+              <p className="text-text-primary font-medium">Stream Responses</p>
+              <p className="text-text-dim text-sm">Show responses as they're generated</p>
             </div>
             <CyberButton variant="secondary" size="sm">
               Enabled
@@ -115,8 +111,8 @@ export function AISettings() {
 
           <div className="flex items-center justify-between pt-2">
             <div>
-              <p className="font-medium text-text-primary">Include Citations</p>
-              <p className="text-sm text-text-dim">Show source references in responses</p>
+              <p className="text-text-primary font-medium">Include Citations</p>
+              <p className="text-text-dim text-sm">Show source references in responses</p>
             </div>
             <CyberButton variant="secondary" size="sm">
               Enabled
@@ -129,12 +125,12 @@ export function AISettings() {
       <CyberCard>
         <CardContent className="p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-neon-green/20 border border-neon-green/50 flex items-center justify-center">
-              <Database className="h-5 w-5 text-neon-green" />
+            <div className="bg-neon-green/20 border-neon-green/50 flex h-10 w-10 items-center justify-center rounded-lg border">
+              <Database className="text-neon-green h-5 w-5" />
             </div>
             <div className="flex-1">
-              <p className="font-medium text-text-primary">AI Status</p>
-              <p className="text-sm text-neon-green">Connected and Ready</p>
+              <p className="text-text-primary font-medium">AI Status</p>
+              <p className="text-neon-green text-sm">Connected and Ready</p>
             </div>
             <NeonBadge variant="green">Online</NeonBadge>
           </div>

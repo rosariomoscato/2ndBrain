@@ -1,7 +1,7 @@
-import { betterAuth } from "better-auth"
-import { drizzleAdapter } from "better-auth/adapters/drizzle"
-import { db } from "./db"
-import { sendVerificationEmail, sendPasswordResetEmail } from "./email"
+import { betterAuth } from "better-auth";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { db } from "./db";
+import { sendVerificationEmail, sendPasswordResetEmail } from "./email";
 
 export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
@@ -30,4 +30,4 @@ export const auth = betterAuth({
   advanced: {
     useSecureCookies: process.env.NODE_ENV === "production",
   },
-})
+});

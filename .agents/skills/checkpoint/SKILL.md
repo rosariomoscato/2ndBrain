@@ -62,6 +62,7 @@ EOF
 ### Step 5: Report
 
 Display:
+
 - The commit hash and message summary
 - Files changed count
 - Insertions/deletions summary

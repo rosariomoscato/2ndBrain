@@ -36,15 +36,10 @@ export function AIQueryInput({ onQuery, isLoading }: AIQueryInputProps) {
   };
 
   return (
-    <div className="glass-panel rounded-xl p-4 border-2 border-neon-cyan/50 hover:border-neon-cyan transition-all duration-200">
+    <div className="glass-panel border-neon-cyan/50 hover:border-neon-cyan rounded-xl border-2 p-4 transition-all duration-200">
       <div className="flex gap-3">
         {/* Attachment Button (Placeholder) */}
-        <CyberButton
-          variant="ghost"
-          size="icon"
-          disabled
-          className="mt-1"
-        >
+        <CyberButton variant="ghost" size="icon" disabled className="mt-1">
           <Paperclip className="h-5 w-5" />
         </CyberButton>
 
@@ -56,7 +51,7 @@ export function AIQueryInput({ onQuery, isLoading }: AIQueryInputProps) {
           onKeyDown={handleKeyPress}
           placeholder="What do you want to explore in your second brain?"
           disabled={isLoading}
-          className="flex-1 min-h-12 max-h-48 bg-transparent text-text-primary placeholder:text-text-dim resize-none focus:outline-none text-sm leading-relaxed"
+          className="text-text-primary placeholder:text-text-dim max-h-48 min-h-12 flex-1 resize-none bg-transparent text-sm leading-relaxed focus:outline-none"
           style={{ height: "48px" }}
         />
 
@@ -70,7 +65,7 @@ export function AIQueryInput({ onQuery, isLoading }: AIQueryInputProps) {
         >
           {isLoading ? (
             <>
-              <div className="w-4 h-4 border-2 border-space-black border-t-transparent rounded-full animate-spin mr-2" />
+              <div className="border-space-black mr-2 h-4 w-4 animate-spin rounded-full border-2 border-t-transparent" />
               Thinking...
             </>
           ) : (
@@ -80,11 +75,18 @@ export function AIQueryInput({ onQuery, isLoading }: AIQueryInputProps) {
       </div>
 
       {/* Hint Text */}
-      <div className="flex items-center gap-2 mt-2">
-        <Sparkles className="h-3 w-3 text-neon-cyan" />
-        <span className="text-xs text-text-dim font-tech">
-          Press <kbd className="px-1.5 py-0.5 rounded bg-glass-surface border border-glass-border">Enter</kbd> to send,{" "}
-          <kbd className="px-1.5 py-0.5 rounded bg-glass-surface border border-glass-border">Shift + Enter</kbd> for new line
+      <div className="mt-2 flex items-center gap-2">
+        <Sparkles className="text-neon-cyan h-3 w-3" />
+        <span className="text-text-dim font-tech text-xs">
+          Press{" "}
+          <kbd className="bg-glass-surface border-glass-border rounded border px-1.5 py-0.5">
+            Enter
+          </kbd>{" "}
+          to send,{" "}
+          <kbd className="bg-glass-surface border-glass-border rounded border px-1.5 py-0.5">
+            Shift + Enter
+          </kbd>{" "}
+          for new line
         </span>
       </div>
     </div>

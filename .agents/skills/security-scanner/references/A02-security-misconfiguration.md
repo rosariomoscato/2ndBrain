@@ -19,12 +19,13 @@ Security Misconfiguration is #2 in OWASP Top 10:2025. 100% of applications teste
 ## What to Look For
 
 ### General Patterns
+
 - Debug/development mode enabled in production configs
 - Default credentials left in code or config (admin/admin, root/root, test/test)
 - Verbose error messages exposing stack traces, SQL queries, or internal paths to users
 - Unnecessary features/services enabled (directory listing, debug endpoints, sample apps)
 - Missing security headers (CSP, HSTS, X-Frame-Options, X-Content-Type-Options)
-- Overly permissive CORS (Access-Control-Allow-Origin: *)
+- Overly permissive CORS (Access-Control-Allow-Origin: \*)
 - Server/framework version headers enabled (X-Powered-By, Server)
 - Hardcoded secrets in source code (API keys, passwords, tokens)
 - Environment variables exposed via debug endpoints or error pages
@@ -59,6 +60,7 @@ private_key|secret_key|access_token
 ```
 
 ### JavaScript / TypeScript / Node.js
+
 - `next.config.js` with `poweredByHeader: true` or missing security headers
 - Express without `helmet` middleware
 - `.env` or `.env.local` files with secrets not in `.gitignore`
@@ -67,12 +69,14 @@ private_key|secret_key|access_token
 - Error handlers returning `err.stack` or `err.message` to client
 
 ### Python (Django/Flask)
+
 - `DEBUG = True` in production settings
 - `ALLOWED_HOSTS = ['*']`
 - `SECRET_KEY` hardcoded in settings.py
 - Flask debug mode: `app.run(debug=True)`
 
 ### Java (Spring)
+
 - `spring.jpa.show-sql=true` in production
 - Actuator endpoints exposed without authentication (`/actuator/env`, `/actuator/beans`)
 - `server.error.include-stacktrace=always`
@@ -101,23 +105,25 @@ private_key|secret_key|access_token
 ## Fix Examples
 
 **Before (debug endpoint exposing environment):**
+
 ```typescript
 export async function GET() {
   return Response.json({
     env: process.env,
     nodeVersion: process.version,
-    uptime: process.uptime()
+    uptime: process.uptime(),
   });
 }
 ```
 
 **After (remove debug endpoint entirely, or protect it):**
+
 ```typescript
 // Delete the debug endpoint entirely in production.
 // If needed for ops, protect with admin auth and filter sensitive values:
 export async function GET(req) {
   const session = await getAdminSession(req);
-  if (!session?.isAdmin) return Response.json({ error: 'Forbidden' }, { status: 403 });
+  if (!session?.isAdmin) return Response.json({ error: "Forbidden" }, { status: 403 });
   return Response.json({ uptime: process.uptime(), nodeEnv: process.env.NODE_ENV });
 }
 ```

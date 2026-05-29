@@ -433,6 +433,7 @@ export default function AIQueryPage() {
 ### Code Snippets
 
 Mock AI response structure:
+
 ```typescript
 interface AIResponse {
   query: string;
@@ -450,6 +451,7 @@ interface Citation {
 ```
 
 Query history management:
+
 ```typescript
 const [queryHistory, setQueryHistory] = useState<QueryHistoryItem[]>([]);
 
@@ -545,7 +547,7 @@ No environment variables required for this task.
 - Query string cleared after submission
 - Input disabled during loading
 - Send button disabled during loading
-- Citation links open in new tab (target="_blank")
+- Citation links open in new tab (target="\_blank")
 - All timestamps use localeTimeString()
 - History persists in session (no localStorage yet)
 - Components modular and reusable

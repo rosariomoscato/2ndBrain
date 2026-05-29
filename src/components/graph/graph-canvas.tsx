@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   ReactFlow,
   Background,
@@ -16,7 +17,6 @@ import {
   ReactFlowProvider,
   useReactFlow,
 } from "@xyflow/react";
-import { useRouter } from "next/navigation";
 import "@xyflow/react/dist/style.css";
 import { LoadingOrb } from "@/components/ui/loading-orb";
 import { getGraphData, createEdge, updateNodePosition } from "@/lib/actions/graph";
@@ -28,7 +28,10 @@ import { GraphSearch } from "./graph-search";
 import { NodeDetailsPanel } from "./node-details-panel";
 
 // GraphCanvas component with panels
-function GraphCanvasContent({ filtersOpen, onFiltersToggle }: {
+function GraphCanvasContent({
+  filtersOpen,
+  onFiltersToggle,
+}: {
   filtersOpen?: boolean | undefined;
   onFiltersToggle?: (() => void) | undefined;
 }) {
@@ -46,7 +49,9 @@ function GraphCanvasContent({ filtersOpen, onFiltersToggle }: {
   const { setCenter } = useReactFlow();
 
   // Track initial node position for drag optimization
-  const [dragStartPositions, setDragStartPositions] = useState<Record<string, { x: number; y: number }>>({});
+  const [dragStartPositions, setDragStartPositions] = useState<
+    Record<string, { x: number; y: number }>
+  >({});
 
   // Load graph data on mount
   useEffect(() => {
@@ -54,7 +59,7 @@ function GraphCanvasContent({ filtersOpen, onFiltersToggle }: {
       try {
         setLoading(true);
         const data = await getGraphData();
-        
+
         // Extract all unique tags from nodes
         const tagSet = new Set<string>();
         data.nodes.forEach((node) => {
@@ -62,7 +67,7 @@ function GraphCanvasContent({ filtersOpen, onFiltersToggle }: {
           nodeData.tags.forEach((tag) => tagSet.add(tag));
         });
         setAvailableTags(Array.from(tagSet));
-        
+
         setNodes(data.nodes);
         setEdges(data.edges);
       } catch (error) {
@@ -96,26 +101,29 @@ function GraphCanvasContent({ filtersOpen, onFiltersToggle }: {
         .map((n) => n.id)
     );
 
-    setNodes((prev) =>
-      prev.map((node) => ({ ...node, hidden: !filteredIds.has(node.id) }))
-    );
+    setNodes((prev) => prev.map((node) => ({ ...node, hidden: !filteredIds.has(node.id) })));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters.type, filters.tags]);
 
   const onConnect = useCallback(
     async (params: Connection) => {
       if (!params.source || !params.target) return;
-      
+
       try {
         const edge = await createEdge(params.source, params.target);
         if (edge) {
-          setEdges((eds) => addEdge({
-            id: edge.id,
-            source: params.source!,
-            target: params.target!,
-            type: "cyberEdge",
-            animated: true,
-          }, eds));
+          setEdges((eds) =>
+            addEdge(
+              {
+                id: edge.id,
+                source: params.source!,
+                target: params.target!,
+                type: "cyberEdge",
+                animated: true,
+              },
+              eds
+            )
+          );
         }
       } catch (error) {
         console.error("Failed to create edge:", error);
@@ -125,47 +133,53 @@ function GraphCanvasContent({ filtersOpen, onFiltersToggle }: {
   );
 
   const onNodeDragStart = useCallback((_event: React.MouseEvent, node: Node) => {
-    setDragStartPositions(prev => ({
+    setDragStartPositions((prev) => ({
       ...prev,
-      [node.id]: { x: node.position.x, y: node.position.y }
+      [node.id]: { x: node.position.x, y: node.position.y },
     }));
   }, []);
 
-  const onNodeDragStop = useCallback(async (_event: React.MouseEvent, node: Node) => {
-    const startPos = dragStartPositions[node.id];
-    if (!startPos) return;
+  const onNodeDragStop = useCallback(
+    async (_event: React.MouseEvent, node: Node) => {
+      const startPos = dragStartPositions[node.id];
+      if (!startPos) return;
 
-    // Calculate distance moved
-    const dx = node.position.x - startPos.x;
-    const dy = node.position.y - startPos.y;
-    const distance = Math.sqrt(dx * dx + dy * dy);
+      // Calculate distance moved
+      const dx = node.position.x - startPos.x;
+      const dy = node.position.y - startPos.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
 
-    // Only update if position changed significantly (> 10px)
-    if (distance > 10) {
-      await updateNodePosition(node.id, node.position.x, node.position.y);
-    }
+      // Only update if position changed significantly (> 10px)
+      if (distance > 10) {
+        await updateNodePosition(node.id, node.position.x, node.position.y);
+      }
 
-    // Clear the drag start position
-    setDragStartPositions(prev => {
-      const updated = { ...prev };
-      delete updated[node.id];
-      return updated;
-    });
-  }, [dragStartPositions]);
+      // Clear the drag start position
+      setDragStartPositions((prev) => {
+        const updated = { ...prev };
+        delete updated[node.id];
+        return updated;
+      });
+    },
+    [dragStartPositions]
+  );
 
   const handleNodeClick = useCallback((_event: React.MouseEvent, node: Node) => {
     setSelectedNode(node.data as unknown as NodeData);
     setSelectedNodeId(node.id);
   }, []);
 
-  const handleNodeSelect = useCallback((nodeId: string) => {
-    const node = nodes.find((n) => n.id === nodeId);
-    if (node) {
-      setSelectedNode(node.data as unknown as NodeData);
-      setSelectedNodeId(node.id);
-      setCenter(node.position.x, node.position.y, { zoom: 1.2, duration: 500 });
-    }
-  }, [nodes, setCenter]);
+  const handleNodeSelect = useCallback(
+    (nodeId: string) => {
+      const node = nodes.find((n) => n.id === nodeId);
+      if (node) {
+        setSelectedNode(node.data as unknown as NodeData);
+        setSelectedNodeId(node.id);
+        setCenter(node.position.x, node.position.y, { zoom: 1.2, duration: 500 });
+      }
+    },
+    [nodes, setCenter]
+  );
 
   const handleFilterChange = useCallback((newFilters: { type: NodeType; tags: string[] }) => {
     setFilters(newFilters);
@@ -214,19 +228,19 @@ function GraphCanvasContent({ filtersOpen, onFiltersToggle }: {
   // Show loading state while data loads
   if (loading) {
     return (
-      <div className="w-full h-full flex items-center justify-center blueprint-surface">
+      <div className="blueprint-surface flex h-full w-full items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <LoadingOrb size="lg" />
-          <p className="text-text-secondary text-sm font-tech">Loading graph data...</p>
+          <p className="text-text-secondary font-tech text-sm">Loading graph data...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="w-full h-full relative blueprint-surface">
+    <div className="blueprint-surface relative h-full w-full">
       {/* Background grid */}
-      <div className="neon-grid absolute inset-0 pointer-events-none opacity-20" />
+      <div className="neon-grid pointer-events-none absolute inset-0 opacity-20" />
 
       <ReactFlow
         nodes={nodes}
@@ -260,7 +274,12 @@ function GraphCanvasContent({ filtersOpen, onFiltersToggle }: {
         />
 
         {/* Cyberpunk Controls (hidden, replaced by CameraControls) */}
-        <Controls className="react-flow__controls" showZoom={false} showFitView={false} showInteractive={false} />
+        <Controls
+          className="react-flow__controls"
+          showZoom={false}
+          showFitView={false}
+          showInteractive={false}
+        />
 
         {/* Custom Camera Controls */}
         <CameraControls />
@@ -271,7 +290,7 @@ function GraphCanvasContent({ filtersOpen, onFiltersToggle }: {
           nodeStrokeWidth={3}
           nodeStrokeColor="var(--color-neon-cyan)"
           maskColor="var(--color-space-black)"
-          className="glass-panel border border-neon-purple/30"
+          className="glass-panel border-neon-purple/30 border"
         />
 
         {/* Graph Filters Panel */}
@@ -283,10 +302,7 @@ function GraphCanvasContent({ filtersOpen, onFiltersToggle }: {
         />
 
         {/* Graph Search */}
-        <GraphSearch
-          nodes={nodes}
-          onNodeSelect={handleNodeSelect}
-        />
+        <GraphSearch nodes={nodes} onNodeSelect={handleNodeSelect} />
 
         {/* Node Details Panel */}
         <NodeDetailsPanel
@@ -301,7 +317,10 @@ function GraphCanvasContent({ filtersOpen, onFiltersToggle }: {
 }
 
 // Export with provider wrapper
-export function GraphCanvas({ filtersOpen, onFiltersToggle }: {
+export function GraphCanvas({
+  filtersOpen,
+  onFiltersToggle,
+}: {
   filtersOpen?: boolean | undefined;
   onFiltersToggle?: (() => void) | undefined;
 }) {

@@ -15,7 +15,13 @@ export const createNoteSchema = z.object({
   title: z.string().min(1, "Title is required").max(500, "Title too long (max 500 characters)"),
   content: z.string().max(100000, "Content too long (max 100,000 characters)").optional(),
   tags: z.array(z.string()).max(20, "Too many tags (max 20)").default([]),
-  importance: z.number().int().min(1, "Importance must be at least 1").max(5, "Importance must be at most 5").optional().default(1),
+  importance: z
+    .number()
+    .int()
+    .min(1, "Importance must be at least 1")
+    .max(5, "Importance must be at most 5")
+    .optional()
+    .default(1),
 });
 
 /**
@@ -41,7 +47,8 @@ export const deleteNoteSchema = z.object({
  * Schema for creating a new tag.
  */
 export const createTagSchema = z.object({
-  name: z.string()
+  name: z
+    .string()
     .min(1, "Tag name is required")
     .max(50, "Tag name too long (max 50 characters)")
     .trim()
@@ -55,7 +62,8 @@ export const createTagSchema = z.object({
  */
 export const updateTagSchema = z.object({
   id: z.string().uuid("Invalid tag ID format"),
-  name: z.string()
+  name: z
+    .string()
     .min(1, "Tag name is required")
     .max(50, "Tag name too long (max 50 characters)")
     .trim()
@@ -75,7 +83,8 @@ export const deleteTagSchema = z.object({
  * Schema for AI query input.
  */
 export const aiQuerySchema = z.object({
-  query: z.string()
+  query: z
+    .string()
     .min(1, "Query cannot be empty")
     .max(2000, "Query too long (max 2000 characters)")
     .trim()
@@ -87,27 +96,53 @@ export const aiQuerySchema = z.object({
  * All sections are optional - only provided sections are updated.
  */
 export const updateSettingsSchema = z.object({
-  theme: z.object({
-    neonIntensity: z.number().int().min(0).max(100, "Neon intensity must be between 0 and 100").optional(),
-    gridVisibility: z.number().int().min(0).max(100, "Grid visibility must be between 0 and 100").optional(),
-    particleDensity: z.number().int().min(0).max(100, "Particle density must be between 0 and 100").optional(),
-    scanLineSpeed: z.number().int().min(0).max(100, "Scan line speed must be between 0 and 100").optional(),
-    preset: z.enum(["minimal", "balanced", "cyberpunk"]).optional(),
-  }).optional(),
-  system: z.object({
-    glassmorphism: z.boolean().optional(),
-    animations: z.boolean().optional(),
-    notifications: z.boolean().optional(),
-    soundEffects: z.boolean().optional(),
-  }).optional(),
-  ai: z.object({
-    model: z.string().min(1, "AI model cannot be empty").optional(),
-    embeddingModel: z.string().min(1, "Embedding model cannot be empty").optional(),
-    openrouterApiKey: z.string().optional(),
-    streamResponses: z.boolean().optional(),
-    includeCitations: z.boolean().optional(),
-    desktopNotifications: z.boolean().optional(),
-  }).optional(),
+  theme: z
+    .object({
+      neonIntensity: z
+        .number()
+        .int()
+        .min(0)
+        .max(100, "Neon intensity must be between 0 and 100")
+        .optional(),
+      gridVisibility: z
+        .number()
+        .int()
+        .min(0)
+        .max(100, "Grid visibility must be between 0 and 100")
+        .optional(),
+      particleDensity: z
+        .number()
+        .int()
+        .min(0)
+        .max(100, "Particle density must be between 0 and 100")
+        .optional(),
+      scanLineSpeed: z
+        .number()
+        .int()
+        .min(0)
+        .max(100, "Scan line speed must be between 0 and 100")
+        .optional(),
+      preset: z.enum(["minimal", "balanced", "cyberpunk"]).optional(),
+    })
+    .optional(),
+  system: z
+    .object({
+      glassmorphism: z.boolean().optional(),
+      animations: z.boolean().optional(),
+      notifications: z.boolean().optional(),
+      soundEffects: z.boolean().optional(),
+    })
+    .optional(),
+  ai: z
+    .object({
+      model: z.string().min(1, "AI model cannot be empty").optional(),
+      embeddingModel: z.string().min(1, "Embedding model cannot be empty").optional(),
+      openrouterApiKey: z.string().optional(),
+      streamResponses: z.boolean().optional(),
+      includeCitations: z.boolean().optional(),
+      desktopNotifications: z.boolean().optional(),
+    })
+    .optional(),
 });
 
 // Export inferred types for use in server actions

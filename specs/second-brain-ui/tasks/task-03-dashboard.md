@@ -280,6 +280,7 @@ export default function DashboardPage() {
 ### Code Snippets
 
 Stats data structure:
+
 ```typescript
 interface StatCard {
   label: string;
@@ -291,6 +292,7 @@ interface StatCard {
 ```
 
 Activity item structure:
+
 ```typescript
 interface ActivityItem {
   id: number;
@@ -302,16 +304,13 @@ interface ActivityItem {
 ```
 
 Grid layout for dashboard:
+
 ```tsx
-<div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-full">
+<div className="grid h-full grid-cols-1 gap-6 lg:grid-cols-4">
   {/* Left: Graph (75%) */}
-  <div className="lg:col-span-3">
-    {/* Graph and stats */}
-  </div>
+  <div className="lg:col-span-3">{/* Graph and stats */}</div>
   {/* Right: Widgets (25%) */}
-  <div className="lg:col-span-1">
-    {/* Actions, activity, status */}
-  </div>
+  <div className="lg:col-span-1">{/* Actions, activity, status */}</div>
 </div>
 ```
 

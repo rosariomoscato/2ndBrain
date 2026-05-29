@@ -19,6 +19,7 @@ Mishandling of Exceptional Conditions is #10 in OWASP Top 10:2025 — a newly in
 ## What to Look For
 
 ### General Patterns
+
 - Empty catch blocks that swallow errors silently
 - Generic error handling that hides root causes
 - Missing error handling on async operations (unhandled promise rejections)
@@ -60,6 +61,7 @@ try.*open|try.*connect|try.*acquire
 ```
 
 ### JavaScript / TypeScript / Node.js
+
 - `catch (e) {}` — empty catch block, error silently swallowed
 - `catch (e) { return res.json({ error: e.message, stack: e.stack }) }` — info disclosure
 - Missing `.catch()` on Promises or missing try/catch around `await`
@@ -68,12 +70,14 @@ try.*open|try.*connect|try.*acquire
 - Database/file operations without try/catch in async handlers
 
 ### Python (Django/Flask)
+
 - `except: pass` or `except Exception: pass` — swallowing all errors
 - `traceback.format_exc()` returned in HTTP response
 - Missing `finally` blocks for resource cleanup
 - Django `DEBUG = True` in production exposing full tracebacks
 
 ### Java (Spring)
+
 - Empty catch blocks: `catch (Exception e) {}`
 - `e.printStackTrace()` in production code
 - Missing `@ControllerAdvice` global exception handler
@@ -103,6 +107,7 @@ try.*open|try.*connect|try.*acquire
 ## Fix Examples
 
 **Before (empty catch + info disclosure):**
+
 ```typescript
 try {
   const results = db.all(query);
@@ -113,17 +118,19 @@ try {
 ```
 
 **After (proper error handling):**
+
 ```typescript
 try {
   const results = db.all(query);
   return Response.json(results);
 } catch (e) {
-  logger.error('Database query failed', { error: e.message, query, stack: e.stack });
-  return Response.json({ error: 'An internal error occurred' }, { status: 500 });
+  logger.error("Database query failed", { error: e.message, query, stack: e.stack });
+  return Response.json({ error: "An internal error occurred" }, { status: 500 });
 }
 ```
 
 **Before (fail-open):**
+
 ```typescript
 try {
   const isAuthorized = await checkPermission(user, resource);
@@ -135,13 +142,14 @@ return allow();
 ```
 
 **After (fail-closed):**
+
 ```typescript
 try {
   const isAuthorized = await checkPermission(user, resource);
   if (!isAuthorized) return deny();
   return allow();
 } catch (e) {
-  logger.error('Authorization check failed', { user: user.id, resource, error: e.message });
+  logger.error("Authorization check failed", { user: user.id, resource, error: e.message });
   return deny(); // Default to deny on error
 }
 ```

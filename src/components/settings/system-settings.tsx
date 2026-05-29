@@ -7,10 +7,8 @@ export function SystemSettings() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <Monitor className="h-5 w-5 text-neon-cyan" />
-        <h3 className="text-lg font-display font-bold text-text-primary">
-          System Configuration
-        </h3>
+        <Monitor className="text-neon-cyan h-5 w-5" />
+        <h3 className="font-display text-text-primary text-lg font-bold">System Configuration</h3>
       </div>
 
       {/* Display Settings */}
@@ -21,15 +19,15 @@ export function SystemSettings() {
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-medium text-text-primary">Dark Mode</p>
-              <p className="text-sm text-text-dim">Always on for cyberpunk theme</p>
+              <p className="text-text-primary font-medium">Dark Mode</p>
+              <p className="text-text-dim text-sm">Always on for cyberpunk theme</p>
             </div>
             <NeonBadge variant="cyan">Always On</NeonBadge>
           </div>
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-medium text-text-primary">Glassmorphism</p>
-              <p className="text-sm text-text-dim">Enable blur effects on panels</p>
+              <p className="text-text-primary font-medium">Glassmorphism</p>
+              <p className="text-text-dim text-sm">Enable blur effects on panels</p>
             </div>
             <CyberButton variant="secondary" size="sm">
               Enabled
@@ -37,8 +35,8 @@ export function SystemSettings() {
           </div>
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-medium text-text-primary">Animations</p>
-              <p className="text-sm text-text-dim">Enable UI animations and transitions</p>
+              <p className="text-text-primary font-medium">Animations</p>
+              <p className="text-text-dim text-sm">Enable UI animations and transitions</p>
             </div>
             <CyberButton variant="secondary" size="sm">
               Enabled
@@ -80,8 +78,8 @@ export function SystemSettings() {
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-medium text-text-primary">Desktop Notifications</p>
-              <p className="text-sm text-text-dim">Show system notifications</p>
+              <p className="text-text-primary font-medium">Desktop Notifications</p>
+              <p className="text-text-dim text-sm">Show system notifications</p>
             </div>
             <CyberButton variant="secondary" size="sm">
               Disabled
@@ -89,8 +87,8 @@ export function SystemSettings() {
           </div>
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-medium text-text-primary">Sound Effects</p>
-              <p className="text-sm text-text-dim">Play sounds on actions</p>
+              <p className="text-text-primary font-medium">Sound Effects</p>
+              <p className="text-text-dim text-sm">Play sounds on actions</p>
             </div>
             <CyberButton variant="secondary" size="sm">
               Disabled
@@ -107,15 +105,15 @@ export function SystemSettings() {
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-medium text-text-primary">Local Storage Only</p>
-              <p className="text-sm text-text-dim">Data never leaves your device</p>
+              <p className="text-text-primary font-medium">Local Storage Only</p>
+              <p className="text-text-dim text-sm">Data never leaves your device</p>
             </div>
             <NeonBadge variant="green">Secure</NeonBadge>
           </div>
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-medium text-text-primary">Anonymous Telemetry</p>
-              <p className="text-sm text-text-dim">No data collected</p>
+              <p className="text-text-primary font-medium">Anonymous Telemetry</p>
+              <p className="text-text-dim text-sm">No data collected</p>
             </div>
             <NeonBadge variant="green">Off</NeonBadge>
           </div>

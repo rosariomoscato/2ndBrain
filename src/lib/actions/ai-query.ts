@@ -3,14 +3,14 @@
 import { headers } from "next/headers";
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { streamText } from "ai";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and, or, ilike, sql } from "drizzle-orm";
+import { resolveOpenRouterConfig } from "@/lib/actions/ai-settings";
 import { getNoteById } from "@/lib/actions/notes";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getQueryEmbedding, searchSimilarNotes } from "@/lib/embeddings";
-import { aiQueries } from "@/lib/schema";
+import { aiQueries, tags, noteTags, notes } from "@/lib/schema";
 import type { Citation, QueryHistoryItem, AIResponse } from "@/lib/types";
-import { resolveOpenRouterConfig } from "@/lib/actions/ai-settings";
 
 /**
  * Helper function to get authenticated session.
@@ -39,6 +39,39 @@ async function getSession() {
  */
 export async function queryWithRAG(query: string): Promise<AIResponse> {
   const session = await getSession();
+  console.log("Session user ID:", session.user.id);
+  console.log("Query:", query);
+
+  // Extract keywords from query (simple approach: words with first letter capitalized or length > 4)
+  const keywords = query
+    .split(/[\s,.;!?]+/)
+    .filter(w => w.length > 0)
+    .filter(w => /^[A-Z]/.test(w) || w.length > 4); // Keep capitalized words or long words
+  
+  console.log("Extracted keywords:", keywords);
+
+  // Search for notes with matching tags (case-insensitive, matching any keyword)
+  const matchingTagNotes = await db
+    .select({
+      noteId: notes.id,
+      noteTitle: notes.title,
+      noteUserId: notes.userId,
+      tagName: tags.name,
+      tagUserId: tags.userId,
+    })
+    .from(notes)
+    .innerJoin(noteTags, eq(notes.id, noteTags.noteId))
+    .innerJoin(tags, eq(noteTags.tagId, tags.id))
+    .where(
+      and(
+        eq(notes.userId, session.user.id),
+        keywords.length > 0
+          ? or(...keywords.map(kw => ilike(tags.name, `%${kw}%`)))
+          : sql`1=0` // No keywords, no tag matches
+      )
+    );
+
+  console.log("Found", matchingTagNotes.length, "notes with matching tags:", matchingTagNotes.map(n => ({ title: n.noteTitle, tag: n.tagName })));
 
   // Generate embedding for the query (uses OpenAI API)
   const queryEmbedding = await getQueryEmbedding(query, session.user.id);
@@ -46,36 +79,68 @@ export async function queryWithRAG(query: string): Promise<AIResponse> {
   let context = "";
   const citations: Citation[] = [];
 
+  // Collect all relevant note IDs from both tag search and embedding search
+  const relevantNoteIds = new Set<string>();
+  const tagMatchNoteIds = new Map<string, string>(); // noteId -> matched tag name
+
+  // Add notes with matching tags
+  for (const match of matchingTagNotes) {
+    relevantNoteIds.add(match.noteId);
+    tagMatchNoteIds.set(match.noteId, match.tagName);
+  }
+
   // If we successfully generated an embedding, search for similar notes
-  if (queryEmbedding) {
-    const results = await searchSimilarNotes(queryEmbedding, 5, session.user.id);
-    console.log("RAG search results:", results.length, results.map((r: { similarity: number; chunkText: string }) => ({ sim: r.similarity.toFixed(3), text: r.chunkText.substring(0, 40) })));
+  const embeddingResults = queryEmbedding ? await searchSimilarNotes(queryEmbedding, 5, session.user.id) : [];
+  console.log("RAG search results:", embeddingResults.length, embeddingResults.map((r: { similarity: number; chunkText: string }) => ({ sim: r.similarity.toFixed(3), text: r.chunkText.substring(0, 40) })));
 
-    const seenNoteIds = new Set<string>();
-    const contextParts: string[] = [];
+  const seenNoteIds = new Set<string>();
+  const contextParts: string[] = [];
 
-    for (const result of results) {
-      // Filter out low-quality matches using similarity threshold
-      if (result.similarity < 0.3) continue;
+  for (const result of embeddingResults) {
+    // Filter out low-quality matches using similarity threshold
+    if (result.similarity < 0.3) continue;
 
-      // Deduplicate by note ID (avoid multiple chunks from same note)
-      if (!seenNoteIds.has(result.noteId)) {
-        seenNoteIds.add(result.noteId);
-        const note = await getNoteById(result.noteId);
+    // Deduplicate by note ID (avoid multiple chunks from same note)
+    if (!seenNoteIds.has(result.noteId)) {
+      seenNoteIds.add(result.noteId);
+      relevantNoteIds.add(result.noteId);
+      
+      const note = await getNoteById(result.noteId);
 
-        if (note) {
-          contextParts.push(`--- Note: "${note.title}" ---\n${result.chunkText}`);
-          citations.push({
-            noteId: note.id,
-            noteTitle: note.title,
-            excerpt: result.chunkText.slice(0, 150) + "...",
-            relevance: Math.round(result.similarity * 100) / 100,
-          });
-        }
+      if (note) {
+        const matchedTag = tagMatchNoteIds.get(note.id);
+        const matchReason = matchedTag ? `(matches tag "${matchedTag}")` : `(similarity: ${(result.similarity * 100).toFixed(0)}%)`;
+        contextParts.push(`--- Note: "${note.title}" ${matchReason} ---\n${result.chunkText}`);
+        citations.push({
+          noteId: note.id,
+          noteTitle: note.title,
+          excerpt: result.chunkText.slice(0, 150) + "...",
+          relevance: Math.max(result.similarity, matchedTag ? 0.8 : 0), // Tag matches get higher relevance
+        });
       }
     }
-    context = contextParts.join("\n\n");
   }
+
+  // Add notes with matching tags that weren't found via embeddings
+  for (const match of matchingTagNotes) {
+    if (!seenNoteIds.has(match.noteId)) {
+      const note = await getNoteById(match.noteId);
+      
+      if (note) {
+        console.log(`Adding note from tag match: ${note.title}, content length: ${note.content?.length || 0}`);
+        contextParts.push(`--- Note: "${note.title}" (matches tag "${match.tagName}") ---\n${note.content || note.excerpt || ""}`);
+        citations.push({
+          noteId: note.id,
+          noteTitle: note.title,
+          excerpt: note.excerpt || "No excerpt available",
+          relevance: 0.8, // Tag matches get high relevance
+        });
+      }
+    }
+  }
+
+  context = contextParts.join("\n\n");
+  console.log(`Final context length: ${context.length} chars, citations: ${citations.length}`);
 
   // Resolve OpenRouter config (user key or env var fallback)
   const config = await resolveOpenRouterConfig();

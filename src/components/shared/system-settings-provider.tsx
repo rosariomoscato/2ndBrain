@@ -43,9 +43,7 @@ export function SystemSettingsProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <SystemSettingsContext.Provider value={settings}>
-      {children}
-    </SystemSettingsContext.Provider>
+    <SystemSettingsContext.Provider value={settings}>{children}</SystemSettingsContext.Provider>
   );
 }
 

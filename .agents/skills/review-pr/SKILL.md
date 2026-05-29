@@ -29,18 +29,22 @@ gh pr diff {pr_number}
 ### Step 2: Assess Complexity
 
 Score the PR based on:
+
 - Number of files changed
 - Lines added/removed
 - Number of commits
 - Whether changes touch core/architectural files
 
 **Simple** (direct review, no agents):
+
 - 5 or fewer files AND 100 or fewer lines AND single author
 
 **Medium** (1-2 deep-dive agents):
+
 - 6-15 files, OR 100-500 lines, OR 2 contributors
 
 **Complex** (up to 3 deep-dive agents):
+
 - More than 15 files, OR more than 500 lines, OR more than 2 contributors, OR touches core architecture
 
 ### Step 3: Analyze
@@ -62,6 +66,7 @@ Read the project's `README.md` and `CLAUDE.md` to understand the application's p
 ### Step 5: Safety Assessment
 
 Provide an overall assessment:
+
 - **Safe to merge**: no significant issues found
 - **Merge with caution**: minor issues that should be noted but aren't blocking
 - **Needs changes**: issues that should be fixed before merging

@@ -34,12 +34,14 @@ None
 1. Create `src/lib/openrouter.ts` with these exported functions:
 
 #### `validateOpenRouterKey(apiKey: string): Promise<{ valid: boolean; error?: string }>`
+
 - Makes a GET request to `https://openrouter.ai/api/v1/models` with `Authorization: Bearer ${apiKey}`
 - If response is 200, key is valid; return `{ valid: true }`
 - If response is 401/403, return `{ valid: false, error: "Invalid API key" }`
 - If network error, return `{ valid: false, error: "Could not reach OpenRouter" }`
 
 #### `fetchAvailableModels(apiKey: string): Promise<{ chat: ModelInfo[]; embeddings: ModelInfo[] }>`
+
 - Fetches `https://openrouter.ai/api/v1/models` with the user's key
 - Parses the response JSON `data` array
 - Separates models into two lists:
@@ -54,6 +56,7 @@ None
 - Return both arrays
 
 #### `ModelInfo` type:
+
 ```ts
 export type ModelInfo = {
   id: string;
@@ -64,6 +67,7 @@ export type ModelInfo = {
 ```
 
 2. Export a `SUPPORTED_EMBEDDING_MODELS` constant:
+
 ```ts
 export const SUPPORTED_EMBEDDING_MODELS = [
   { id: "openai/text-embedding-3-small", name: "Text Embedding 3 Small", dimension: 1536 },
@@ -72,6 +76,7 @@ export const SUPPORTED_EMBEDDING_MODELS = [
 ```
 
 3. Export a `DEFAULT_CHAT_MODELS` constant as fallback (used when API is unreachable):
+
 ```ts
 export const DEFAULT_CHAT_MODELS = [
   { id: "openai/gpt-4o-mini", name: "GPT-4o Mini" },

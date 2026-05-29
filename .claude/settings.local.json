@@ -22,9 +22,5 @@
     ]
   },
   "enableAllProjectMcpServers": true,
-  "enabledMcpjsonServers": [
-    "shadcn",
-    "playwright",
-    "next-devtools"
-  ]
+  "enabledMcpjsonServers": ["shadcn", "playwright", "next-devtools"]
 }

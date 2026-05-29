@@ -15,15 +15,15 @@ Un'applicazione per la gestione della conoscenza personale (PKM) con knowledge g
 
 ## Stack Tecnico
 
-| Layer | Tecnologia |
-|-------|-----------|
-| Framework | Next.js 16 (App Router, React 19) |
-| Database | PostgreSQL + pgvector |
-| ORM | Drizzle ORM |
-| Auth | Better Auth |
-| AI | OpenRouter (GPT-5-mini, text-embedding-3-small) |
-| Email | Resend |
-| UI | Tailwind CSS, ReactFlow |
+| Layer     | Tecnologia                                      |
+| --------- | ----------------------------------------------- |
+| Framework | Next.js 16 (App Router, React 19)               |
+| Database  | PostgreSQL + pgvector                           |
+| ORM       | Drizzle ORM                                     |
+| Auth      | Better Auth                                     |
+| AI        | OpenRouter (GPT-5-mini, text-embedding-3-small) |
+| Email     | Resend                                          |
+| UI        | Tailwind CSS, ReactFlow                         |
 
 ## Installazione
 

@@ -13,32 +13,30 @@ export default function NotesError({
   reset: () => void;
 }) {
   useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development") {
       console.error("Notes error:", error);
     }
   }, [error]);
 
   return (
-    <div className="flex items-center justify-center min-h-[50vh]">
-      <div className="glass-panel rounded-2xl p-8 text-center max-w-lg border-2 border-neon-pink/30">
-        <div className="flex justify-center mb-6">
+    <div className="flex min-h-[50vh] items-center justify-center">
+      <div className="glass-panel border-neon-pink/30 max-w-lg rounded-2xl border-2 p-8 text-center">
+        <div className="mb-6 flex justify-center">
           <div className="relative">
-            <FileText className="h-16 w-16 text-neon-pink glow-text" />
-            <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-neon-pink animate-ping" />
+            <FileText className="text-neon-pink glow-text h-16 w-16" />
+            <div className="bg-neon-pink absolute -top-1 -right-1 h-4 w-4 animate-ping rounded-full" />
           </div>
         </div>
-        <h1 className="text-5xl font-display font-bold text-neon-pink mb-4 glow-text">
+        <h1 className="font-display text-neon-pink glow-text mb-4 text-5xl font-bold">
           NOTES ERROR
         </h1>
         <p className="text-text-secondary mb-6">
           {error.message || "Failed to load notes from the database"}
         </p>
         {error.digest && (
-          <p className="text-xs text-text-dim mb-6 font-mono">
-            Error ID: {error.digest}
-          </p>
+          <p className="text-text-dim mb-6 font-mono text-xs">Error ID: {error.digest}</p>
         )}
-        <div className="flex gap-4 justify-center">
+        <div className="flex justify-center gap-4">
           <CyberButton variant="primary" onClick={reset} className="gap-2">
             <RefreshCw className="h-4 w-4" />
             Retry

@@ -2,13 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useReactFlow } from "@xyflow/react";
-import {
-  ZoomIn,
-  ZoomOut,
-  Maximize2,
-  RotateCw,
-  Move,
-} from "lucide-react";
+import { ZoomIn, ZoomOut, Maximize2, RotateCw, Move } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 // Camera state interface for localStorage
@@ -104,22 +98,20 @@ export function CameraControls() {
   return (
     <div className="absolute bottom-6 left-6 z-10 flex flex-col gap-2">
       {/* Main Controls Panel */}
-      <div className="glass-panel rounded-xl p-2 flex flex-col gap-2">
+      <div className="glass-panel flex flex-col gap-2 rounded-xl p-2">
         {/* Zoom Level Display */}
-        <div className="text-center mb-1">
-          <span className="font-tech text-neon-cyan text-xs">
-            {Math.round(zoomLevel * 100)}%
-          </span>
+        <div className="mb-1 text-center">
+          <span className="font-tech text-neon-cyan text-xs">{Math.round(zoomLevel * 100)}%</span>
         </div>
 
         {/* Divider */}
-        <div className="w-full h-px bg-glass-border mb-1" />
+        <div className="bg-glass-border mb-1 h-px w-full" />
 
         {/* Zoom Controls */}
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 hover:scale-110 focus-ring"
+          className="focus-ring h-8 w-8 hover:scale-110"
           onClick={handleZoomIn}
           title="Zoom In"
         >
@@ -129,7 +121,7 @@ export function CameraControls() {
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 hover:scale-110 focus-ring"
+          className="focus-ring h-8 w-8 hover:scale-110"
           onClick={handleZoomOut}
           title="Zoom Out"
         >
@@ -137,13 +129,13 @@ export function CameraControls() {
         </Button>
 
         {/* Divider */}
-        <div className="w-full h-px bg-glass-border my-1" />
+        <div className="bg-glass-border my-1 h-px w-full" />
 
         {/* Action Buttons */}
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 hover:scale-110 focus-ring"
+          className="focus-ring h-8 w-8 hover:scale-110"
           onClick={handleFitView}
           title="Fit View"
         >
@@ -153,7 +145,7 @@ export function CameraControls() {
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 hover:scale-110 focus-ring"
+          className="focus-ring h-8 w-8 hover:scale-110"
           onClick={handleResetCamera}
           title="Reset Camera"
         >
@@ -166,7 +158,7 @@ export function CameraControls() {
         <Button
           variant={isPanning ? "neon" : "ghost"}
           size="icon"
-          className="h-8 w-8 hover:scale-110 focus-ring"
+          className="focus-ring h-8 w-8 hover:scale-110"
           onClick={togglePanMode}
           title={isPanning ? "Pan Mode: On" : "Pan Mode: Off"}
         >

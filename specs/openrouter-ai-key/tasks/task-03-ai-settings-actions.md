@@ -18,6 +18,7 @@ Create server actions to save and load per-user AI settings (encrypted API key, 
 **Blocks:** task-04-settings-ai-tab-ui.md, task-05-wire-backend.md
 
 **Context from dependencies:**
+
 - task-01 creates `src/lib/crypto.ts` with `encrypt(plaintext)` and `decrypt(encrypted)` functions for AES-256-GCM encryption. The encrypted key is stored as a JSON string `{ iv, ciphertext, tag }`.
 - task-02 creates `src/lib/openrouter.ts` with `validateOpenRouterKey(apiKey)`, `fetchAvailableModels(apiKey)`, `SUPPORTED_EMBEDDING_MODELS`, and `DEFAULT_CHAT_MODELS`.
 
@@ -38,7 +39,7 @@ Create server actions to save and load per-user AI settings (encrypted API key, 
 export type UserAISettings = {
   model?: string;
   embeddingModel?: string;
-  openrouterApiKey?: string;  // encrypted JSON string (never sent to client)
+  openrouterApiKey?: string; // encrypted JSON string (never sent to client)
   streamResponses?: boolean;
   includeCitations?: boolean;
   desktopNotifications?: boolean;
@@ -48,6 +49,7 @@ export type UserAISettings = {
 ### Server Actions (in `src/lib/actions/ai-settings.ts`):
 
 #### `saveOpenRouterApiKey(apiKey: string): Promise<{ success: boolean; error?: string }>`
+
 1. Get authenticated session (same pattern as other actions)
 2. Validate key using `validateOpenRouterKey(apiKey)` from task-02
 3. If invalid, return `{ success: false, error: "..." }`
@@ -56,15 +58,18 @@ export type UserAISettings = {
 6. Return `{ success: true }`
 
 #### `removeOpenRouterApiKey(): Promise<{ success: boolean }>`
+
 1. Get session
 2. Set `openrouterApiKey` to `null` in `user_settings.ai`
 3. Also clear `model` and `embeddingModel` since they depend on the key
 4. Return `{ success: true }`
 
 #### `getAISettings(): Promise<AISettingsResponse>`
+
 1. Get session
 2. Load from `user_settings` (same as existing `getSettings()`)
 3. Return:
+
 ```ts
 {
   hasKey: boolean,          // true if openrouterApiKey is set
@@ -76,17 +81,21 @@ export type UserAISettings = {
   desktopNotifications: boolean,
 }
 ```
+
 4. NEVER return the full decrypted key to the client
 
 #### `saveAIModel(modelId: string): Promise<{ success: boolean }>`
+
 1. Get session
 2. Update `model` in `user_settings.ai`
 
 #### `saveAIEmbeddingModel(modelId: string): Promise<{ success: boolean }>`
+
 1. Get session
 2. Update `embeddingModel` in `user_settings.ai`
 
 #### `getUserOpenRouterKey(): Promise<string | null>`
+
 1. Get session
 2. Load `openrouterApiKey` from settings
 3. If set, decrypt and return plaintext
@@ -94,6 +103,7 @@ export type UserAISettings = {
 5. This is a SERVER-ONLY function, never exposed to client
 
 #### `fetchModels(): Promise<{ chat: ModelInfo[]; embeddings: ModelInfo[] }>`
+
 1. Get session
 2. Decrypt user's API key
 3. If no key, throw error
@@ -103,6 +113,7 @@ export type UserAISettings = {
 ### Validation (in `src/lib/validations.ts`):
 
 Add to `updateSettingsSchema.ai`:
+
 ```ts
 openrouterApiKey: z.string().optional(),
 embeddingModel: z.string().optional(),

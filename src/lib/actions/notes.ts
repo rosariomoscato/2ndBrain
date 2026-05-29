@@ -5,10 +5,10 @@ import { eq, and, desc, sql, or, ilike } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { generateEmbeddings } from "@/lib/embeddings";
-import { notes, noteTags, tags, graphNodes } from "@/lib/schema";
+import { notes, noteTags, tags, graphNodes, noteAttachments } from "@/lib/schema";
 import type { Note, NoteTag } from "@/lib/types";
 import { createNoteSchema, updateNoteSchema, deleteNoteSchema } from "@/lib/validations";
-import { createNodeForNote } from "./graph";
+import { createNodeForNote, autoConnectNotesByTags } from "./graph";
 
 async function getSession() {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -32,39 +32,48 @@ export async function getNotes(options?: {
   const limit = options?.limit ?? 50;
   const offset = options?.offset ?? 0;
 
-  const result = await db.select({
-    id: notes.id,
-    title: notes.title,
-    content: notes.content,
-    excerpt: notes.excerpt,
-    importance: notes.importance,
-    updatedAt: notes.updatedAt,
-  })
-  .from(notes)
-  .where(
-    and(
-      eq(notes.userId, userId),
-      options?.search ? or(
-        ilike(notes.title, `%${options.search}%`),
-        ilike(notes.content, `%${options.search}%`)
-      ) : undefined,
+  const result = await db
+    .select({
+      id: notes.id,
+      title: notes.title,
+      content: notes.content,
+      excerpt: notes.excerpt,
+      importance: notes.importance,
+      updatedAt: notes.updatedAt,
+      attachmentId: noteAttachments.id,
+    })
+    .from(notes)
+    .leftJoin(noteAttachments, eq(notes.id, noteAttachments.noteId))
+    .where(
+      and(
+        eq(notes.userId, userId),
+        options?.search
+          ? or(
+              ilike(notes.title, `%${options.search}%`),
+              ilike(notes.content, `%${options.search}%`)
+            )
+          : undefined
+      )
     )
-  )
-  .orderBy(desc(notes.updatedAt))
-  .limit(limit)
-  .offset(offset);
+    .orderBy(desc(notes.updatedAt))
+    .limit(limit)
+    .offset(offset);
 
   // Get tags for all notes
-  const noteIds = result.map(n => n.id);
-  const tagRows = noteIds.length > 0 ? await db.select({
-    noteId: noteTags.noteId,
-    tagId: tags.id,
-    tagName: tags.name,
-    tagColor: tags.color,
-  })
-  .from(noteTags)
-  .innerJoin(tags, eq(noteTags.tagId, tags.id))
-  .where(sql`${noteTags.noteId} IN ${noteIds}`) : [];
+  const noteIds = result.map((n) => n.id);
+  const tagRows =
+    noteIds.length > 0
+      ? await db
+          .select({
+            noteId: noteTags.noteId,
+            tagId: tags.id,
+            tagName: tags.name,
+            tagColor: tags.color,
+          })
+          .from(noteTags)
+          .innerJoin(tags, eq(noteTags.tagId, tags.id))
+          .where(sql`${noteTags.noteId} IN ${noteIds}`)
+      : [];
 
   const tagMap = new Map<string, NoteTag[]>();
   for (const t of tagRows) {
@@ -76,13 +85,13 @@ export async function getNotes(options?: {
   // If tag filter specified, filter results
   let filtered = result;
   if (options?.tag) {
-    filtered = result.filter(n => {
+    filtered = result.filter((n) => {
       const noteTagsList = tagMap.get(n.id) ?? [];
-      return noteTagsList.some(t => t.name === options.tag);
+      return noteTagsList.some((t) => t.name === options.tag);
     });
   }
 
-  return filtered.map(n => ({
+  return filtered.map((n) => ({
     id: n.id,
     title: n.title,
     excerpt: n.excerpt,
@@ -91,35 +100,67 @@ export async function getNotes(options?: {
     updatedAt: n.updatedAt.toISOString(),
     connections: 0,
     importance: n.importance,
+    hasPdf: !!n.attachmentId,
   })) satisfies Note[];
 }
 
 export async function getNoteById(id: string) {
   const session = await getSession();
-  const result = await db.select().from(notes).where(
-    and(eq(notes.id, id), eq(notes.userId, session.user.id))
-  ).limit(1);
-  
+  const result = await db
+    .select({
+      id: notes.id,
+      title: notes.title,
+      content: notes.content,
+      excerpt: notes.excerpt,
+      importance: notes.importance,
+      updatedAt: notes.updatedAt,
+      attachmentId: noteAttachments.id,
+      fileName: noteAttachments.fileName,
+      fileUrl: noteAttachments.fileUrl,
+      fileType: noteAttachments.fileType,
+      fileSize: noteAttachments.fileSize,
+      pageCount: noteAttachments.pageCount,
+      attachmentCreatedAt: noteAttachments.createdAt,
+    })
+    .from(notes)
+    .leftJoin(noteAttachments, eq(notes.id, noteAttachments.noteId))
+    .where(and(eq(notes.id, id), eq(notes.userId, session.user.id)))
+    .limit(1);
+
   if (result.length === 0 || !result[0]) return null;
   const note = result[0];
-  
-  const tagRows = await db.select({
-    id: tags.id,
-    name: tags.name,
-    color: tags.color,
-  }).from(noteTags)
+
+  const tagRows = await db
+    .select({
+      id: tags.id,
+      name: tags.name,
+      color: tags.color,
+    })
+    .from(noteTags)
     .innerJoin(tags, eq(noteTags.tagId, tags.id))
     .where(eq(noteTags.noteId, id));
+
+  const attachment: Note["attachment"] = note.attachmentId ? {
+    id: note.attachmentId,
+    fileName: note.fileName!,
+    fileUrl: note.fileUrl!,
+    fileType: note.fileType!,
+    fileSize: note.fileSize!,
+    createdAt: note.attachmentCreatedAt!.toISOString(),
+    ...(note.pageCount !== null && { pageCount: note.pageCount }),
+  } : undefined;
 
   return {
     id: note.id,
     title: note.title,
     content: note.content,
     excerpt: note.excerpt,
-    tags: tagRows.map(t => ({ id: t.id, name: t.name, color: t.color as NoteTag["color"] })),
+    tags: tagRows.map((t) => ({ id: t.id, name: t.name, color: t.color as NoteTag["color"] })),
     updatedAt: note.updatedAt.toISOString(),
     connections: 0,
     importance: note.importance ?? 3,
+    hasPdf: !!attachment,
+    ...(attachment && { attachment }),
   } satisfies Note;
 }
 
@@ -133,13 +174,16 @@ export async function createNote(input: {
   const validated = createNoteSchema.parse(input);
   const excerpt = generateExcerpt(validated.content ?? "");
 
-  const [note] = await db.insert(notes).values({
-    userId: session.user.id,
-    title: validated.title,
-    content: validated.content ?? "",
-    excerpt,
-    importance: validated.importance ?? 3,
-  }).returning();
+  const [note] = await db
+    .insert(notes)
+    .values({
+      userId: session.user.id,
+      title: validated.title,
+      content: validated.content ?? "",
+      excerpt,
+      importance: validated.importance ?? 3,
+    })
+    .returning();
 
   if (!note) {
     throw new Error("Failed to create note");
@@ -150,19 +194,24 @@ export async function createNote(input: {
 
   if (validated.tags && validated.tags.length > 0) {
     for (const tagName of validated.tags) {
-      const existingTag = await db.select().from(tags).where(
-        and(eq(tags.userId, session.user.id), eq(tags.name, tagName))
-      ).limit(1);
+      const existingTag = await db
+        .select()
+        .from(tags)
+        .where(and(eq(tags.userId, session.user.id), eq(tags.name, tagName)))
+        .limit(1);
 
       let tagId: string;
       if (existingTag.length > 0 && existingTag[0]) {
         tagId = existingTag[0].id;
       } else {
-        const [newTag] = await db.insert(tags).values({
-          userId: session.user.id,
-          name: tagName,
-          color: "cyan",
-        }).returning();
+        const [newTag] = await db
+          .insert(tags)
+          .values({
+            userId: session.user.id,
+            name: tagName,
+            color: "cyan",
+          })
+          .returning();
 
         if (!newTag) {
           throw new Error("Failed to create tag");
@@ -201,14 +250,17 @@ export async function updateNote(input: {
 
   // If title changed, update the corresponding graph node label
   if (validated.title !== undefined) {
-    await db.update(graphNodes).set({ label: validated.title })
+    await db
+      .update(graphNodes)
+      .set({ label: validated.title })
       .where(and(eq(graphNodes.noteId, validated.id), eq(graphNodes.userId, session.user.id)));
   }
 
   if (Object.keys(updates).length > 0) {
-    await db.update(notes).set(updates).where(
-      and(eq(notes.id, validated.id), eq(notes.userId, session.user.id))
-    );
+    await db
+      .update(notes)
+      .set(updates)
+      .where(and(eq(notes.id, validated.id), eq(notes.userId, session.user.id)));
   }
 
   // Regenerate embeddings if content changed (non-blocking)
@@ -219,19 +271,24 @@ export async function updateNote(input: {
   if (validated.tags !== undefined) {
     await db.delete(noteTags).where(eq(noteTags.noteId, validated.id));
     for (const tagName of validated.tags) {
-      const existingTag = await db.select().from(tags).where(
-        and(eq(tags.userId, session.user.id), eq(tags.name, tagName))
-      ).limit(1);
+      const existingTag = await db
+        .select()
+        .from(tags)
+        .where(and(eq(tags.userId, session.user.id), eq(tags.name, tagName)))
+        .limit(1);
 
       let tagId: string;
       if (existingTag.length > 0 && existingTag[0]) {
         tagId = existingTag[0].id;
       } else {
-        const [newTag] = await db.insert(tags).values({
-          userId: session.user.id,
-          name: tagName,
-          color: "cyan",
-        }).returning();
+        const [newTag] = await db
+          .insert(tags)
+          .values({
+            userId: session.user.id,
+            name: tagName,
+            color: "cyan",
+          })
+          .returning();
 
         if (!newTag) {
           throw new Error("Failed to create tag");
@@ -241,6 +298,9 @@ export async function updateNote(input: {
       }
       await db.insert(noteTags).values({ noteId: validated.id, tagId });
     }
+    
+    // Auto-connect notes when tags change
+    await autoConnectNotesByTags(session.user.id).catch(console.error);
   }
 
   return getNoteById(validated.id);
@@ -249,16 +309,31 @@ export async function updateNote(input: {
 export async function deleteNote(id: string) {
   const session = await getSession();
   const validated = deleteNoteSchema.parse({ id });
-  
-  await db.delete(notes).where(
-    and(eq(notes.id, validated.id), eq(notes.userId, session.user.id))
-  );
+
+  // Delete attachment file if exists (cascade will delete DB record)
+  const [attachment] = await db
+    .select()
+    .from(noteAttachments)
+    .where(eq(noteAttachments.noteId, validated.id))
+    .limit(1);
+
+  if (attachment) {
+    const { deleteFile } = await import("@/lib/storage");
+    await deleteFile(attachment.fileUrl).catch(console.error);
+  }
+
+  // Delete graph node associated with this note
+  await db.delete(graphNodes).where(and(eq(graphNodes.noteId, validated.id), eq(graphNodes.userId, session.user.id)));
+
+  await db.delete(notes).where(and(eq(notes.id, validated.id), eq(notes.userId, session.user.id)));
   return { success: true };
 }
 
 export async function getNoteCount() {
   const session = await getSession();
-  const result = await db.select({ count: sql<number>`count(*)` })
-    .from(notes).where(eq(notes.userId, session.user.id));
+  const result = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(notes)
+    .where(eq(notes.userId, session.user.id));
   return result[0]?.count ?? 0;
 }

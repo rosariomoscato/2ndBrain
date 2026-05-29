@@ -22,7 +22,7 @@ export function Toolbar({ onAction, isReadOnly = false }: ToolbarProps) {
   }
 
   return (
-    <div className="glass-panel border-b border-glass-border px-4 py-2 flex items-center gap-2">
+    <div className="glass-panel border-glass-border flex items-center gap-2 border-b px-4 py-2">
       {toolbarButtons.map((button) => (
         <CyberButton
           key={button.action}

@@ -16,6 +16,7 @@ Software or Data Integrity Failures is #8 in OWASP Top 10:2025. This category co
 ## What to Look For
 
 ### General Patterns
+
 - Deserialization of untrusted data (user-submitted serialized objects)
 - `eval()` or `Function()` executing user-provided code
 - CDN/external scripts loaded without Subresource Integrity (SRI) hashes
@@ -54,6 +55,7 @@ checksum|signature|verify.*hash|gpg.*verify
 ```
 
 ### JavaScript / TypeScript / Node.js
+
 - `eval(req.body.data)` or `new Function(req.body.code)()` — executes arbitrary user code
 - `JSON.parse()` on untrusted input without schema validation (prototype pollution risk)
 - `Object.assign(target, req.body)` — mass assignment allows property injection
@@ -61,11 +63,13 @@ checksum|signature|verify.*hash|gpg.*verify
 - `__proto__` or `constructor.prototype` manipulation via user input
 
 ### Python
+
 - `pickle.load()` or `yaml.load()` (without `Loader=SafeLoader`) on untrusted data
 - `eval()` or `exec()` with user input
 - `marshal.load()` on untrusted data
 
 ### Java
+
 - `ObjectInputStream.readObject()` without input validation — Java deserialization attacks
 - `XMLDecoder` with untrusted XML
 - Libraries like Apache Commons Collections with known gadget chains
@@ -94,6 +98,7 @@ checksum|signature|verify.*hash|gpg.*verify
 ## Fix Examples
 
 **Before (eval with user input):**
+
 ```typescript
 export async function POST(req) {
   const { data } = await req.json();
@@ -103,6 +108,7 @@ export async function POST(req) {
 ```
 
 **After (safe data processing):**
+
 ```typescript
 export async function POST(req) {
   const { data } = await req.json();
@@ -113,12 +119,14 @@ export async function POST(req) {
 ```
 
 **Before (Python pickle deserialization):**
+
 ```python
 import pickle
 data = pickle.loads(request.data)  # Arbitrary code execution
 ```
 
 **After (safe deserialization):**
+
 ```python
 import json
 data = json.loads(request.data)  # JSON cannot execute code

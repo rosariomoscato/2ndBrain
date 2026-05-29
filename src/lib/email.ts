@@ -4,16 +4,10 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 const FROM_EMAIL = "Second Brain <onboarding@resend.dev>";
 
-export async function sendVerificationEmail({
-  to,
-  url,
-}: {
-  to: string;
-  url: string;
-}) {
+export async function sendVerificationEmail({ to, url }: { to: string; url: string }) {
   console.log("📧 Sending verification email to:", to);
   console.log("📧 Verification URL:", url);
-  
+
   const { error } = await resend.emails.send({
     from: FROM_EMAIL,
     to,
@@ -27,23 +21,17 @@ export async function sendVerificationEmail({
       </div>
     `,
   });
-  
+
   if (error) {
     console.error("❌ Failed to send verification email:", error);
   } else {
     console.log("✅ Verification email sent successfully to:", to);
   }
-  
+
   return { error };
 }
 
-export async function sendPasswordResetEmail({
-  to,
-  url,
-}: {
-  to: string;
-  url: string;
-}) {
+export async function sendPasswordResetEmail({ to, url }: { to: string; url: string }) {
   const { error } = await resend.emails.send({
     from: FROM_EMAIL,
     to,

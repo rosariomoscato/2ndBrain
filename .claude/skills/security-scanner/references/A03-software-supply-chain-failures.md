@@ -16,6 +16,7 @@ Software Supply Chain Failures is #3 in OWASP Top 10:2025. This category covers 
 ## What to Look For
 
 ### General Patterns
+
 - Known vulnerable dependency versions in package manifests
 - Unpinned or wildcard dependency versions (`*`, `^`, `~` with major ranges)
 - CDN scripts loaded without Subresource Integrity (SRI) hashes
@@ -48,6 +49,7 @@ package\.json|requirements\.txt|Gemfile|go\.mod|pom\.xml|Cargo\.toml|\.csproj
 ```
 
 ### JavaScript / TypeScript / Node.js
+
 - Check `package.json` dependency versions against known CVEs
 - Look for `<script src="https://cdn...">` without `integrity` attribute in HTML/JSX
 - Run `npm audit` or `yarn audit` mentally — flag packages with known issues
@@ -55,11 +57,13 @@ package\.json|requirements\.txt|Gemfile|go\.mod|pom\.xml|Cargo\.toml|\.csproj
 - Flag use of deprecated packages (e.g., `request`, `querystring`)
 
 ### Python
+
 - Check `requirements.txt` for pinned versions with known CVEs
 - Look for `pip install` without `--require-hashes`
 - Check for `Pipfile.lock` or `poetry.lock`
 
 ### Java
+
 - Check `pom.xml` dependency versions against known CVEs
 - Look for `<repository>` entries pointing to unofficial Maven repos
 - Flag old Spring, Log4j, Jackson, or Apache Commons versions
@@ -88,23 +92,29 @@ package\.json|requirements\.txt|Gemfile|go\.mod|pom\.xml|Cargo\.toml|\.csproj
 ## Fix Examples
 
 **Before (CDN without SRI):**
+
 ```html
 <script src="https://cdn.example.com/lib.min.js"></script>
 ```
 
 **After (CDN with SRI):**
+
 ```html
-<script src="https://cdn.example.com/lib.min.js"
+<script
+  src="https://cdn.example.com/lib.min.js"
   integrity="sha384-abc123..."
-  crossorigin="anonymous"></script>
+  crossorigin="anonymous"
+></script>
 ```
 
 **Before (loose dependency versions):**
+
 ```json
 { "lodash": "^4.17.0", "axios": "*" }
 ```
 
 **After (pinned versions, updated):**
+
 ```json
 { "lodash": "4.17.21", "axios": "1.7.2" }
 ```

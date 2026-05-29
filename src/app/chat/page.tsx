@@ -11,19 +11,31 @@ import { useSession } from "@/lib/auth-client";
 import type { Components } from "react-markdown";
 
 const H1: React.FC<React.HTMLAttributes<HTMLHeadingElement>> = (props) => (
-  <h1 className="mt-2 mb-3 text-xl font-bold text-foreground font-[family-name:var(--font-display)] uppercase tracking-wider" {...props} />
+  <h1
+    className="text-foreground mt-2 mb-3 font-[family-name:var(--font-display)] text-xl font-bold tracking-wider uppercase"
+    {...props}
+  />
 );
 const H2: React.FC<React.HTMLAttributes<HTMLHeadingElement>> = (props) => (
-  <h2 className="mt-2 mb-2 text-lg font-bold text-foreground font-[family-name:var(--font-display)] uppercase tracking-wider" {...props} />
+  <h2
+    className="text-foreground mt-2 mb-2 font-[family-name:var(--font-display)] text-lg font-bold tracking-wider uppercase"
+    {...props}
+  />
 );
 const H3: React.FC<React.HTMLAttributes<HTMLHeadingElement>> = (props) => (
-  <h3 className="mt-2 mb-2 text-base font-bold text-foreground font-[family-name:var(--font-display)] uppercase tracking-wider" {...props} />
+  <h3
+    className="text-foreground mt-2 mb-2 font-[family-name:var(--font-display)] text-base font-bold tracking-wider uppercase"
+    {...props}
+  />
 );
-const Paragraph: React.FC<React.HTMLAttributes<HTMLParagraphElement>> = (
-  props
-) => <p className="mb-3 leading-7 text-sm" {...props} />;
+const Paragraph: React.FC<React.HTMLAttributes<HTMLParagraphElement>> = (props) => (
+  <p className="mb-3 text-sm leading-7" {...props} />
+);
 const UL: React.FC<React.HTMLAttributes<HTMLUListElement>> = (props) => (
-  <ul className="mb-3 ml-5 list-none space-y-1 text-sm [&>li]:flex [&>li]:items-start [&>li]:gap-2" {...props}>
+  <ul
+    className="mb-3 ml-5 list-none space-y-1 text-sm [&>li]:flex [&>li]:items-start [&>li]:gap-2"
+    {...props}
+  >
     {(props as React.HTMLAttributes<HTMLUListElement> & { children: ReactNode }).children}
   </ul>
 );
@@ -31,26 +43,22 @@ const OL: React.FC<React.OlHTMLAttributes<HTMLOListElement>> = (props) => (
   <ol className="mb-3 ml-5 list-none space-y-1 text-sm" {...props} />
 );
 const LI: React.FC<React.LiHTMLAttributes<HTMLLIElement>> = (props) => (
-  <li className="leading-6 flex items-start gap-2">
-    <span className="w-1 h-1 bg-neon mt-2 shrink-0" />
+  <li className="flex items-start gap-2 leading-6">
+    <span className="bg-neon mt-2 h-1 w-1 shrink-0" />
     <span>{props.children}</span>
   </li>
 );
-const Anchor: React.FC<React.AnchorHTMLAttributes<HTMLAnchorElement>> = (
-  props
-) => (
+const Anchor: React.FC<React.AnchorHTMLAttributes<HTMLAnchorElement>> = (props) => (
   <a
-    className="text-neon underline underline-offset-2 decoration-neon/30 hover:decoration-neon transition-colors"
+    className="text-neon decoration-neon/30 hover:decoration-neon underline underline-offset-2 transition-colors"
     target="_blank"
     rel="noreferrer noopener"
     {...props}
   />
 );
-const Blockquote: React.FC<React.BlockquoteHTMLAttributes<HTMLElement>> = (
-  props
-) => (
+const Blockquote: React.FC<React.BlockquoteHTMLAttributes<HTMLElement>> = (props) => (
   <blockquote
-    className="mb-3 border-l-2 border-neon pl-4 text-muted-foreground italic"
+    className="border-neon text-muted-foreground mb-3 border-l-2 pl-4 italic"
     {...props}
   />
 );
@@ -60,37 +68,41 @@ const Code: Components["code"] = ({ children, className, ...props }) => {
 
   if (isInline) {
     return (
-      <code className="px-1.5 py-0.5 bg-surface border border-brutal-border text-neon text-xs font-[family-name:var(--font-display)]" {...props}>
+      <code
+        className="bg-surface border-brutal-border text-neon border px-1.5 py-0.5 font-[family-name:var(--font-display)] text-xs"
+        {...props}
+      >
         {children}
       </code>
     );
   }
   return (
-    <pre className="mb-3 w-full overflow-x-auto border-2 border-brutal-border bg-[#0d0d14] p-4">
-      <code className="text-xs leading-5 font-[family-name:var(--font-display)] text-foreground/90" {...props}>
+    <pre className="border-brutal-border mb-3 w-full overflow-x-auto border-2 bg-[#0d0d14] p-4">
+      <code
+        className="text-foreground/90 font-[family-name:var(--font-display)] text-xs leading-5"
+        {...props}
+      >
         {children}
       </code>
     </pre>
   );
 };
 const HR: React.FC<React.HTMLAttributes<HTMLHRElement>> = (props) => (
-  <hr className="my-4 h-[2px] bg-border" {...props} />
+  <hr className="bg-border my-4 h-[2px]" {...props} />
 );
-const Table: React.FC<React.TableHTMLAttributes<HTMLTableElement>> = (
-  props
-) => (
+const Table: React.FC<React.TableHTMLAttributes<HTMLTableElement>> = (props) => (
   <div className="mb-3 overflow-x-auto">
-    <table className="w-full border-collapse text-sm border-2 border-brutal-border" {...props} />
+    <table className="border-brutal-border w-full border-collapse border-2 text-sm" {...props} />
   </div>
 );
 const TH: React.FC<React.ThHTMLAttributes<HTMLTableCellElement>> = (props) => (
   <th
-    className="border border-brutal-border bg-surface px-3 py-2 text-left font-bold uppercase tracking-wider text-xs font-[family-name:var(--font-display)]"
+    className="border-brutal-border bg-surface border px-3 py-2 text-left font-[family-name:var(--font-display)] text-xs font-bold tracking-wider uppercase"
     {...props}
   />
 );
 const TD: React.FC<React.TdHTMLAttributes<HTMLTableCellElement>> = (props) => (
-  <td className="border border-brutal-border px-3 py-2" {...props} />
+  <td className="border-brutal-border border px-3 py-2" {...props} />
 );
 
 const markdownComponents: Components = {
@@ -121,8 +133,8 @@ function getMessageText(message: MaybePartsMessage): string {
   const parts = Array.isArray(message.parts)
     ? message.parts
     : Array.isArray(message.content)
-    ? message.content
-    : [];
+      ? message.content
+      : [];
   return parts
     .filter((p) => p?.type === "text" && p.text)
     .map((p) => p.text)
@@ -134,8 +146,8 @@ function renderMessageContent(message: MaybePartsMessage): ReactNode {
   const parts = Array.isArray(message.parts)
     ? message.parts
     : Array.isArray(message.content)
-    ? message.content
-    : [];
+      ? message.content
+      : [];
   return parts.map((p, idx) =>
     p?.type === "text" && p.text ? (
       <ReactMarkdown key={idx} components={markdownComponents}>
@@ -170,27 +182,23 @@ function CopyButton({ text }: { text: string }) {
   return (
     <button
       onClick={handleCopy}
-      className="p-1 border border-brutal-border bg-surface hover:bg-neon hover:text-primary-foreground transition-all rounded-none"
+      className="border-brutal-border bg-surface hover:bg-neon hover:text-primary-foreground rounded-none border p-1 transition-all"
       title="Copia negli appunti"
     >
-      {copied ? (
-        <Check className="h-3 w-3" />
-      ) : (
-        <Copy className="h-3 w-3 text-muted-foreground" />
-      )}
+      {copied ? <Check className="h-3 w-3" /> : <Copy className="text-muted-foreground h-3 w-3" />}
     </button>
   );
 }
 
 function ThinkingIndicator() {
   return (
-    <div className="flex items-center gap-3 p-4 border-2 border-neon/30 bg-neon/5 max-w-[80%] ml-0">
+    <div className="border-neon/30 bg-neon/5 ml-0 flex max-w-[80%] items-center gap-3 border-2 p-4">
       <div className="flex gap-1">
-        <span className="w-2 h-2 bg-neon rounded-full animate-bounce [animation-delay:0ms]" />
-        <span className="w-2 h-2 bg-neon rounded-full animate-bounce [animation-delay:150ms]" />
-        <span className="w-2 h-2 bg-neon rounded-full animate-bounce [animation-delay:300ms]" />
+        <span className="bg-neon h-2 w-2 animate-bounce rounded-full [animation-delay:0ms]" />
+        <span className="bg-neon h-2 w-2 animate-bounce rounded-full [animation-delay:150ms]" />
+        <span className="bg-neon h-2 w-2 animate-bounce rounded-full [animation-delay:300ms]" />
       </div>
-      <span className="text-sm text-neon font-[family-name:var(--font-display)] uppercase tracking-wider">
+      <span className="text-neon font-[family-name:var(--font-display)] text-sm tracking-wider uppercase">
         AI sta elaborando...
       </span>
     </div>
@@ -238,8 +246,8 @@ export default function ChatPage() {
 
   if (isPending) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="flex items-center gap-3 text-muted-foreground font-[family-name:var(--font-display)] uppercase tracking-wider text-sm">
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="text-muted-foreground flex items-center gap-3 font-[family-name:var(--font-display)] text-sm tracking-wider uppercase">
           <Loader2 className="h-5 w-5 animate-spin" />
           Caricamento...
         </div>
@@ -250,7 +258,7 @@ export default function ChatPage() {
   if (!session) {
     return (
       <div className="container mx-auto px-4 py-12">
-        <div className="max-w-3xl mx-auto">
+        <div className="mx-auto max-w-3xl">
           <UserProfile />
         </div>
       </div>
@@ -261,29 +269,27 @@ export default function ChatPage() {
 
   return (
     <div className="container mx-auto px-4 py-6">
-      <div className="max-w-4xl mx-auto">
+      <div className="mx-auto max-w-4xl">
         {/* Chat Header */}
-        <div className="flex justify-between items-center mb-6 pb-4 border-b-2 border-brutal-border">
+        <div className="border-brutal-border mb-6 flex items-center justify-between border-b-2 pb-4">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 border-2 border-neon bg-neon/10 flex items-center justify-center">
-              <Terminal className="h-4 w-4 text-neon" />
+            <div className="border-neon bg-neon/10 flex h-8 w-8 items-center justify-center border-2">
+              <Terminal className="text-neon h-4 w-4" />
             </div>
             <div>
-              <h1 className="text-lg font-bold uppercase tracking-wider font-[family-name:var(--font-display)]">
+              <h1 className="font-[family-name:var(--font-display)] text-lg font-bold tracking-wider uppercase">
                 Chat AI
               </h1>
-              <p className="text-xs text-muted-foreground font-[family-name:var(--font-display)] uppercase tracking-wider">
+              <p className="text-muted-foreground font-[family-name:var(--font-display)] text-xs tracking-wider uppercase">
                 Sessione attiva
               </p>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <span className="tag-terminal hidden sm:inline-flex">
-              {session.user.name}
-            </span>
+            <span className="tag-terminal hidden sm:inline-flex">{session.user.name}</span>
             {messages.length > 0 && (
               <Button variant="outline" size="sm" onClick={clearMessages}>
-                <Trash2 className="h-3.5 w-3.5 mr-1.5" />
+                <Trash2 className="mr-1.5 h-3.5 w-3.5" />
                 Cancella
               </Button>
             )}
@@ -292,25 +298,25 @@ export default function ChatPage() {
 
         {/* Error */}
         {error && (
-          <div className="mb-4 p-4 border-2 border-destructive bg-destructive/5 brutal-card">
-            <p className="text-sm text-destructive font-[family-name:var(--font-display)] uppercase tracking-wider">
+          <div className="border-destructive bg-destructive/5 brutal-card mb-4 border-2 p-4">
+            <p className="text-destructive font-[family-name:var(--font-display)] text-sm tracking-wider uppercase">
               Errore: {error.message || "Qualcosa è andato storto"}
             </p>
           </div>
         )}
 
         {/* Messages */}
-        <div className="min-h-[50vh] overflow-y-auto space-y-4 mb-6">
+        <div className="mb-6 min-h-[50vh] space-y-4 overflow-y-auto">
           {messages.length === 0 && (
-            <div className="text-center py-20 space-y-4">
-              <div className="w-16 h-16 border-2 border-neon/30 bg-neon/5 flex items-center justify-center mx-auto">
-                <Terminal className="h-8 w-8 text-neon/50" />
+            <div className="space-y-4 py-20 text-center">
+              <div className="border-neon/30 bg-neon/5 mx-auto flex h-16 w-16 items-center justify-center border-2">
+                <Terminal className="text-neon/50 h-8 w-8" />
               </div>
               <div className="space-y-2">
-                <p className="text-muted-foreground font-[family-name:var(--font-display)] uppercase tracking-wider text-sm">
+                <p className="text-muted-foreground font-[family-name:var(--font-display)] text-sm tracking-wider uppercase">
                   Inizia una conversazione
                 </p>
-                <p className="text-xs text-muted-foreground/60 font-[family-name:var(--font-display)] uppercase tracking-wider">
+                <p className="text-muted-foreground/60 font-[family-name:var(--font-display)] text-xs tracking-wider uppercase">
                   Scrivi un messaggio qui sotto per iniziare
                 </p>
               </div>
@@ -319,42 +325,40 @@ export default function ChatPage() {
           {messages.map((message) => {
             const messageText = getMessageText(message as MaybePartsMessage);
             const createdAt = (message as { createdAt?: Date }).createdAt;
-            const timestamp = createdAt
-              ? formatTimestamp(new Date(createdAt))
-              : null;
+            const timestamp = createdAt ? formatTimestamp(new Date(createdAt)) : null;
 
             return (
               <div
                 key={message.id}
                 className={`group animate-fade-up ${
-                  message.role === "user"
-                    ? "ml-auto max-w-[80%]"
-                    : "mr-auto max-w-[80%]"
+                  message.role === "user" ? "ml-auto max-w-[80%]" : "mr-auto max-w-[80%]"
                 }`}
               >
-                <div className={`border-2 p-4 ${
-                  message.role === "user"
-                    ? "border-neon bg-neon/5 text-foreground"
-                    : "border-brutal-border bg-surface text-foreground"
-                }`}>
-                  <div className="flex items-center justify-between mb-2">
+                <div
+                  className={`border-2 p-4 ${
+                    message.role === "user"
+                      ? "border-neon bg-neon/5 text-foreground"
+                      : "border-brutal-border bg-surface text-foreground"
+                  }`}
+                >
+                  <div className="mb-2 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       {message.role === "user" ? (
-                        <User className="h-3.5 w-3.5 text-neon" />
+                        <User className="text-neon h-3.5 w-3.5" />
                       ) : (
-                        <Terminal className="h-3.5 w-3.5 text-neon" />
+                        <Terminal className="text-neon h-3.5 w-3.5" />
                       )}
-                      <span className="text-xs font-bold uppercase tracking-wider font-[family-name:var(--font-display)]">
+                      <span className="font-[family-name:var(--font-display)] text-xs font-bold tracking-wider uppercase">
                         {message.role === "user" ? "Tu" : "AI"}
                       </span>
                       {timestamp && (
-                        <span className="text-xs text-muted-foreground/60 font-[family-name:var(--font-display)]">
+                        <span className="text-muted-foreground/60 font-[family-name:var(--font-display)] text-xs">
                           {timestamp}
                         </span>
                       )}
                     </div>
                     {message.role === "assistant" && messageText && (
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="opacity-0 transition-opacity group-hover:opacity-100">
                         <CopyButton text={messageText} />
                       </div>
                     )}
@@ -364,9 +368,7 @@ export default function ChatPage() {
               </div>
             );
           })}
-          {isStreaming && messages[messages.length - 1]?.role === "user" && (
-            <ThinkingIndicator />
-          )}
+          {isStreaming && messages[messages.length - 1]?.role === "user" && <ThinkingIndicator />}
         </div>
 
         {/* Input */}
@@ -384,7 +386,7 @@ export default function ChatPage() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Scrivi il tuo messaggio..."
-            className="flex-1 brutal-input"
+            className="brutal-input flex-1"
             disabled={isStreaming}
           />
           <Button type="submit" disabled={!input.trim() || isStreaming} size="lg">

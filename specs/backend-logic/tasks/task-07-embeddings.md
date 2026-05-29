@@ -34,17 +34,20 @@ Build the pipeline that generates vector embeddings for notes using OpenAI's tex
 ### Implementation Steps
 
 1. Install OpenAI provider for AI SDK:
+
 ```bash
 pnpm add @ai-sdk/openai
 ```
 
 2. Add to `src/lib/env.ts` server schema:
+
 ```typescript
 OPENAI_API_KEY: z.string().optional(),
 OPENAI_EMBEDDING_MODEL: z.string().default("text-embedding-3-large"),
 ```
 
 3. Add to `env.example`:
+
 ```
 OPENAI_API_KEY=sk-xxxxxxxxxxxx
 OPENAI_EMBEDDING_MODEL=text-embedding-3-large
@@ -65,7 +68,7 @@ const EMBEDDING_MODEL = process.env.OPENAI_EMBEDDING_MODEL ?? "text-embedding-3-
 
 function chunkText(text: string): string[] {
   if (text.length <= CHUNK_SIZE) return [text];
-  
+
   const chunks: string[] = [];
   let start = 0;
   while (start < text.length) {
@@ -80,7 +83,7 @@ function hashContent(content: string): string {
   let hash = 0;
   for (let i = 0; i < content.length; i++) {
     const char = content.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
+    hash = (hash << 5) - hash + char;
     hash |= 0;
   }
   return Math.abs(hash).toString(36);
@@ -88,28 +91,31 @@ function hashContent(content: string): string {
 
 export async function generateEmbeddings(noteId: string, content: string) {
   if (!process.env.OPENAI_API_KEY) return;
-  
+
   const contentHash = hashContent(content);
-  
-  const existing = await db.select().from(noteEmbeddings)
-    .where(eq(noteEmbeddings.noteId, noteId)).limit(1);
-  
+
+  const existing = await db
+    .select()
+    .from(noteEmbeddings)
+    .where(eq(noteEmbeddings.noteId, noteId))
+    .limit(1);
+
   if (existing.length > 0 && existing[0].contentHash === contentHash) {
     return;
   }
-  
+
   await db.delete(noteEmbeddings).where(eq(noteEmbeddings.noteId, noteId));
-  
+
   const chunks = chunkText(content);
-  
+
   for (let i = 0; i < chunks.length; i++) {
     const { embedding } = await embed({
       model: openai.embedding(EMBEDDING_MODEL),
       value: chunks[i],
     });
-    
+
     const embeddingStr = `[${embedding.join(",")}]`;
-    
+
     await db.insert(noteEmbeddings).values({
       noteId,
       contentHash: i === 0 ? contentHash : `${contentHash}_chunk_${i}`,
@@ -117,14 +123,20 @@ export async function generateEmbeddings(noteId: string, content: string) {
       chunkText: chunks[i],
       embedding: embeddingStr,
     });
-    
-    await db.execute(sql`UPDATE note_embeddings SET embedding_vec = ${embeddingStr}::vector WHERE note_id = ${noteId} AND chunk_index = ${i}`);
+
+    await db.execute(
+      sql`UPDATE note_embeddings SET embedding_vec = ${embeddingStr}::vector WHERE note_id = ${noteId} AND chunk_index = ${i}`
+    );
   }
 }
 
-export async function searchSimilarNotes(queryEmbedding: number[], limit: number = 5, userId?: string) {
+export async function searchSimilarNotes(
+  queryEmbedding: number[],
+  limit: number = 5,
+  userId?: string
+) {
   const embeddingStr = `[${queryEmbedding.join(",")}]`;
-  
+
   const results = await db.execute(sql`
     SELECT 
       ne.note_id,
@@ -137,7 +149,7 @@ export async function searchSimilarNotes(queryEmbedding: number[], limit: number
     ORDER BY ne.embedding_vec <=> ${embeddingStr}::vector
     LIMIT ${limit}
   `);
-  
+
   return results.rows.map((row: Record<string, unknown>) => ({
     noteId: row.note_id as string,
     chunkText: row.chunk_text as string,
@@ -148,17 +160,18 @@ export async function searchSimilarNotes(queryEmbedding: number[], limit: number
 
 export async function getQueryEmbedding(query: string) {
   if (!process.env.OPENAI_API_KEY) return null;
-  
+
   const { embedding } = await embed({
     model: openai.embedding(EMBEDDING_MODEL),
     value: query,
   });
-  
+
   return embedding;
 }
 ```
 
 5. Modify `src/lib/actions/notes.ts`:
+
 - Import `generateEmbeddings` from `@/lib/embeddings`
 - In `createNote` action, after the insert, add: `await generateEmbeddings(note.id, validated.content).catch(console.error);`
 - In `updateNote` action, after the update, add: `if (validated.content !== undefined) { await generateEmbeddings(validated.id, validated.content).catch(console.error); }`

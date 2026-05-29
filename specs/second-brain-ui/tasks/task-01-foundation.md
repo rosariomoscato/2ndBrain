@@ -35,6 +35,7 @@ Install new dependencies for graph visualization, markdown editing, and animatio
 ### Implementation Steps
 
 1. Install dependencies with pnpm:
+
 ```bash
 pnpm add react-flow @xyflow/react d3 framer-motion monaco-editor @monaco-editor/react react-markdown three @react-three/fiber @react-three/drei
 pnpm add -D @types/three
@@ -49,50 +50,50 @@ pnpm add -D @types/three
   /* Primary Neon Colors */
   --color-neon-purple: oklch(0.65 0.25 320);
   --color-neon-cyan: oklch(0.75 0.18 190);
-  --color-neon-blue: oklch(0.60 0.22 250);
-  --color-neon-pink: oklch(0.70 0.20 350);
-  --color-neon-green: oklch(0.70 0.20 140);
+  --color-neon-blue: oklch(0.6 0.22 250);
+  --color-neon-pink: oklch(0.7 0.2 350);
+  --color-neon-green: oklch(0.7 0.2 140);
 
   /* Space Backgrounds */
   --color-space-black: oklch(0.08 0.01 270);
   --color-starfield: oklch(0.12 0.02 270);
   --color-nebula-dark: oklch(0.15 0.04 260);
-  --color-nebula-purple: oklch(0.20 0.06 290);
+  --color-nebula-purple: oklch(0.2 0.06 290);
 
   /* Glass/Surfaces */
-  --color-glass-surface: oklch(0.10 0.03 270 / 0.6);
-  --color-glass-border: oklch(0.50 0.15 190 / 0.4);
-  --color-glass-highlight: oklch(0.60 0.15 190 / 0.2);
+  --color-glass-surface: oklch(0.1 0.03 270 / 0.6);
+  --color-glass-border: oklch(0.5 0.15 190 / 0.4);
+  --color-glass-highlight: oklch(0.6 0.15 190 / 0.2);
 
   /* Text */
   --color-text-primary: oklch(0.95 0.02 270);
-  --color-text-secondary: oklch(0.70 0.02 270);
-  --color-text-dim: oklch(0.50 0.02 270);
+  --color-text-secondary: oklch(0.7 0.02 270);
+  --color-text-dim: oklch(0.5 0.02 270);
 
   /* Status Colors */
-  --color-status-online: oklch(0.70 0.20 140);
+  --color-status-online: oklch(0.7 0.2 140);
   --color-status-processing: oklch(0.75 0.18 190);
   --color-status-error: oklch(0.65 0.25 320);
 
   /* Semantic Tokens (replacing existing ones) */
   --color-background: oklch(0.08 0.01 270);
   --color-foreground: oklch(0.95 0.02 270);
-  --color-card: oklch(0.10 0.03 270 / 0.6);
+  --color-card: oklch(0.1 0.03 270 / 0.6);
   --color-primary: oklch(0.65 0.25 320);
   --color-accent: oklch(0.75 0.18 190);
-  --color-secondary: oklch(0.20 0.06 290 / 0.8);
+  --color-secondary: oklch(0.2 0.06 290 / 0.8);
   --color-muted: oklch(0.15 0.04 260 / 0.64);
-  --color-muted-foreground: oklch(0.70 0.02 270);
-  --color-border: oklch(0.50 0.15 190 / 0.4);
-  --color-ring: oklch(0.80 0.15 178);
+  --color-muted-foreground: oklch(0.7 0.02 270);
+  --color-border: oklch(0.5 0.15 190 / 0.4);
+  --color-ring: oklch(0.8 0.15 178);
   --color-destructive: oklch(0.65 0.25 320);
 
   /* Chart Colors */
   --color-chart-1: oklch(0.65 0.25 320);
   --color-chart-2: oklch(0.75 0.18 190);
-  --color-chart-3: oklch(0.60 0.22 250);
-  --color-chart-4: oklch(0.70 0.20 350);
-  --color-chart-5: oklch(0.70 0.20 140);
+  --color-chart-3: oklch(0.6 0.22 250);
+  --color-chart-4: oklch(0.7 0.2 350);
+  --color-chart-5: oklch(0.7 0.2 140);
 
   /* Fonts */
   --font-display: "Orbitron", system-ui, sans-serif;
@@ -145,8 +146,13 @@ body {
 }
 
 @keyframes grid-pulse {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 0.6; }
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
 }
 
 /* Scan Line Effect */
@@ -154,19 +160,22 @@ body {
   position: absolute;
   width: 100%;
   height: 2px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--color-neon-cyan),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, var(--color-neon-cyan), transparent);
   animation: scan 3s linear infinite;
 }
 
 @keyframes scan {
-  0% { top: 0; opacity: 0; }
-  50% { opacity: 1; }
-  100% { top: 100%; opacity: 0; }
+  0% {
+    top: 0;
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
 }
 
 /* Command Strip Gradient */
@@ -182,16 +191,8 @@ body {
 /* Blueprint Surface */
 .blueprint-surface {
   background:
-    linear-gradient(
-      rgba(96, 247, 252, 0.05) 1px,
-      transparent 1px
-    ),
-    linear-gradient(
-      90deg,
-      rgba(96, 247, 252, 0.05) 1px,
-      transparent 1px
-    ),
-    var(--color-space-black);
+    linear-gradient(rgba(96, 247, 252, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(96, 247, 252, 0.05) 1px, transparent 1px), var(--color-space-black);
   background-size: 40px 40px;
 }
 
@@ -380,6 +381,7 @@ const techFont = JetBrains_Mono({
 ### Code Snippets
 
 Cyberpunk color palette values:
+
 ```css
 /* Reference values for OKLCH colors */
 oklch(0.65 0.25 320)  /* Neon Purple - Magenta hue */

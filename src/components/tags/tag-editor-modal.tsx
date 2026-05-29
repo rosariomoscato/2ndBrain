@@ -75,15 +75,13 @@ export function TagEditorModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-space-black/80 backdrop-blur-sm">
-      <CyberCard className="w-full max-w-md animate-scale-in">
+    <div className="bg-space-black/80 fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm">
+      <CyberCard className="animate-scale-in w-full max-w-md">
         <CardHeader className="relative">
-          <CardTitle className="pr-8">
-            {initialTag ? "Edit Tag" : "Create New Tag"}
-          </CardTitle>
+          <CardTitle className="pr-8">{initialTag ? "Edit Tag" : "Create New Tag"}</CardTitle>
           <button
             onClick={onClose}
-            className="absolute right-6 top-6 h-6 w-6 p-0 flex items-center justify-center rounded-full hover:bg-glass-highlight transition-colors"
+            className="hover:bg-glass-highlight absolute top-6 right-6 flex h-6 w-6 items-center justify-center rounded-full p-0 transition-colors"
           >
             <X className="h-4 w-4" />
           </button>
@@ -112,23 +110,27 @@ export function TagEditorModal({
                   className={cn(
                     "h-10 w-10 rounded-full border-2 transition-all duration-200",
                     color === colorOption
-                      ? `ring-2 ring-neon-cyan scale-105 border-${colorOption}-500`
+                      ? `ring-neon-cyan scale-105 ring-2 border-${colorOption}-500`
                       : `opacity-60 hover:opacity-100 border-${colorOption}-500`,
                     `bg-${colorOption}-500`
                   )}
                   style={
                     color === colorOption
                       ? {
-                          backgroundColor: getComputedStyle(document.documentElement)
-                            .getPropertyValue(`--color-neon-${colorOption}`),
-                          borderColor: getComputedStyle(document.documentElement)
-                            .getPropertyValue(`--color-neon-${colorOption}`),
+                          backgroundColor: getComputedStyle(
+                            document.documentElement
+                          ).getPropertyValue(`--color-neon-${colorOption}`),
+                          borderColor: getComputedStyle(document.documentElement).getPropertyValue(
+                            `--color-neon-${colorOption}`
+                          ),
                         }
                       : {
-                          backgroundColor: getComputedStyle(document.documentElement)
-                            .getPropertyValue(`--color-neon-${colorOption}`),
-                          borderColor: getComputedStyle(document.documentElement)
-                            .getPropertyValue(`--color-neon-${colorOption}`),
+                          backgroundColor: getComputedStyle(
+                            document.documentElement
+                          ).getPropertyValue(`--color-neon-${colorOption}`),
+                          borderColor: getComputedStyle(document.documentElement).getPropertyValue(
+                            `--color-neon-${colorOption}`
+                          ),
                         }
                   }
                   aria-label={`Select ${colorOption} color`}
@@ -146,7 +148,7 @@ export function TagEditorModal({
           )}
 
           {/* Actions */}
-          <div className="flex justify-between pt-4 border-t border-glass-border">
+          <div className="border-glass-border flex justify-between border-t pt-4">
             {onDelete && initialTag && (
               <Button
                 type="button"
@@ -158,11 +160,11 @@ export function TagEditorModal({
                 className="text-destructive"
                 disabled={isSaving}
               >
-                <Trash2 className="h-4 w-4 mr-2" />
+                <Trash2 className="mr-2 h-4 w-4" />
                 Delete
               </Button>
             )}
-            <div className="flex gap-2 ml-auto">
+            <div className="ml-auto flex gap-2">
               <Button type="button" variant="secondary" onClick={onClose} disabled={isSaving}>
                 Cancel
               </Button>
@@ -177,7 +179,7 @@ export function TagEditorModal({
                   <LoadingOrb size="sm" />
                 ) : (
                   <>
-                    <Save className="h-4 w-4 mr-2" />
+                    <Save className="mr-2 h-4 w-4" />
                     Save
                   </>
                 )}

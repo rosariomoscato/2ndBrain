@@ -20,23 +20,25 @@ async function getSession() {
 export async function getGraphData(): Promise<{ nodes: Node[]; edges: Edge[] }> {
   const session = await getSession();
 
-  const nodes = await db.select().from(graphNodes)
-    .where(eq(graphNodes.userId, session.user.id));
+  const nodes = await db.select().from(graphNodes).where(eq(graphNodes.userId, session.user.id));
 
-  const edges = await db.select().from(graphEdges)
-    .where(eq(graphEdges.userId, session.user.id));
+  const edges = await db.select().from(graphEdges).where(eq(graphEdges.userId, session.user.id));
 
-  const nodeIds = nodes.map(n => n.id);
+  const nodeIds = nodes.map((n) => n.id);
 
-  const tagRows = nodeIds.length > 0 ? await db.select({
-    nodeId: graphNodes.id,
-    tagName: tags.name,
-  })
-  .from(graphNodes)
-  .leftJoin(notes, eq(graphNodes.noteId, notes.id))
-  .leftJoin(noteTags, eq(notes.id, noteTags.noteId))
-  .leftJoin(tags, eq(noteTags.tagId, tags.id))
-  .where(eq(graphNodes.userId, session.user.id)) : [];
+  const tagRows =
+    nodeIds.length > 0
+      ? await db
+          .select({
+            nodeId: graphNodes.id,
+            tagName: tags.name,
+          })
+          .from(graphNodes)
+          .leftJoin(notes, eq(graphNodes.noteId, notes.id))
+          .leftJoin(noteTags, eq(notes.id, noteTags.noteId))
+          .leftJoin(tags, eq(noteTags.tagId, tags.id))
+          .where(eq(graphNodes.userId, session.user.id))
+      : [];
 
   const nodeTagMap = new Map<string, string[]>();
   for (const t of tagRows) {
@@ -54,30 +56,38 @@ export async function getGraphData(): Promise<{ nodes: Node[]; edges: Edge[] }> 
   }
 
   const noteDataMap = new Map<string, { title: string; excerpt: string; contentLength: number }>();
-  const nodesWithNotes = nodes.filter(n => n.noteId !== null);
+  const nodesWithNotes = nodes.filter((n) => n.noteId !== null);
   if (nodesWithNotes.length > 0) {
-    const noteRows = await db.select({
-      id: notes.id,
-      title: notes.title,
-      excerpt: notes.excerpt,
-      contentLength: sql<number>`length(${notes.content})`,
-    }).from(notes).where(
-      sql`${notes.id} IN (${sql.join(nodesWithNotes.map(n => n.noteId!), sql`, `)})`
-    );
+    const noteRows = await db
+      .select({
+        id: notes.id,
+        title: notes.title,
+        excerpt: notes.excerpt,
+        contentLength: sql<number>`length(${notes.content})`,
+      })
+      .from(notes)
+      .where(
+        sql`${notes.id} IN (${sql.join(
+          nodesWithNotes.map((n) => n.noteId!),
+          sql`, `
+        )})`
+      );
     for (const r of noteRows) {
       noteDataMap.set(r.id, { title: r.title, excerpt: r.excerpt, contentLength: r.contentLength });
     }
   }
 
-  const reactFlowNodes: Node[] = nodes.map(n => {
+  const reactFlowNodes: Node[] = nodes.map((n) => {
     const noteData = n.noteId ? noteDataMap.get(n.noteId) : undefined;
     const connections = connMap.get(n.id) ?? 0;
     const nodeTags = nodeTagMap.get(n.id) ?? [];
-    const importance = Math.min(5, 1
-      + (connections >= 1 ? 1 : 0)
-      + (connections >= 4 ? 1 : 0)
-      + ((noteData?.contentLength ?? 0) > 200 ? 1 : 0)
-      + (nodeTags.length > 0 ? 1 : 0)
+    const importance = Math.min(
+      5,
+      1 +
+        (connections >= 1 ? 1 : 0) +
+        (connections >= 4 ? 1 : 0) +
+        ((noteData?.contentLength ?? 0) > 200 ? 1 : 0) +
+        (nodeTags.length > 0 ? 1 : 0)
     );
     return {
       id: n.id,
@@ -96,7 +106,7 @@ export async function getGraphData(): Promise<{ nodes: Node[]; edges: Edge[] }> 
     };
   });
 
-  const reactFlowEdges: Edge[] = edges.map(e => ({
+  const reactFlowEdges: Edge[] = edges.map((e) => ({
     id: e.id,
     source: e.sourceId,
     target: e.targetId,
@@ -113,21 +123,26 @@ export async function getGraphData(): Promise<{ nodes: Node[]; edges: Edge[] }> 
  * Checks if a node already exists for the note to prevent duplicates.
  */
 export async function createNodeForNote(noteId: string, title: string, userId: string) {
-  const existing = await db.select().from(graphNodes)
+  const existing = await db
+    .select()
+    .from(graphNodes)
     .where(and(eq(graphNodes.noteId, noteId), eq(graphNodes.userId, userId)))
     .limit(1);
 
   if (existing.length > 0) return existing[0];
 
-  const [node] = await db.insert(graphNodes).values({
-    userId,
-    noteId,
-    label: title,
-    type: "note",
-    importance: 3,
-    positionX: Math.floor(Math.random() * 800),
-    positionY: Math.floor(Math.random() * 600),
-  }).returning();
+  const [node] = await db
+    .insert(graphNodes)
+    .values({
+      userId,
+      noteId,
+      label: title,
+      type: "note",
+      importance: 3,
+      positionX: Math.floor(Math.random() * 800),
+      positionY: Math.floor(Math.random() * 600),
+    })
+    .returning();
 
   await autoConnectNotesByTags(userId).catch(console.error);
 
@@ -140,7 +155,9 @@ export async function createNodeForNote(noteId: string, title: string, userId: s
  */
 export async function updateNodePosition(nodeId: string, x: number, y: number) {
   const session = await getSession();
-  await db.update(graphNodes).set({ positionX: x, positionY: y })
+  await db
+    .update(graphNodes)
+    .set({ positionX: x, positionY: y })
     .where(and(eq(graphNodes.id, nodeId), eq(graphNodes.userId, session.user.id)));
   return { success: true };
 }
@@ -152,23 +169,30 @@ export async function updateNodePosition(nodeId: string, x: number, y: number) {
 export async function createEdge(sourceId: string, targetId: string) {
   const session = await getSession();
 
-  const existing = await db.select().from(graphEdges).where(
-    and(
-      eq(graphEdges.userId, session.user.id),
-      or(
-        and(eq(graphEdges.sourceId, sourceId), eq(graphEdges.targetId, targetId)),
-        and(eq(graphEdges.sourceId, targetId), eq(graphEdges.targetId, sourceId)),
+  const existing = await db
+    .select()
+    .from(graphEdges)
+    .where(
+      and(
+        eq(graphEdges.userId, session.user.id),
+        or(
+          and(eq(graphEdges.sourceId, sourceId), eq(graphEdges.targetId, targetId)),
+          and(eq(graphEdges.sourceId, targetId), eq(graphEdges.targetId, sourceId))
+        )
       )
     )
-  ).limit(1);
+    .limit(1);
 
   if (existing.length > 0) return existing[0];
 
-  const [edge] = await db.insert(graphEdges).values({
-    userId: session.user.id,
-    sourceId,
-    targetId,
-  }).returning();
+  const [edge] = await db
+    .insert(graphEdges)
+    .values({
+      userId: session.user.id,
+      sourceId,
+      targetId,
+    })
+    .returning();
 
   return edge;
 }
@@ -179,9 +203,9 @@ export async function createEdge(sourceId: string, targetId: string) {
  */
 export async function deleteEdge(edgeId: string) {
   const session = await getSession();
-  await db.delete(graphEdges).where(
-    and(eq(graphEdges.id, edgeId), eq(graphEdges.userId, session.user.id))
-  );
+  await db
+    .delete(graphEdges)
+    .where(and(eq(graphEdges.id, edgeId), eq(graphEdges.userId, session.user.id)));
   return { success: true };
 }
 
@@ -191,8 +215,10 @@ export async function deleteEdge(edgeId: string) {
  */
 export async function getNodeCount() {
   const session = await getSession();
-  const result = await db.select({ count: sql<number>`count(*)` })
-    .from(graphNodes).where(eq(graphNodes.userId, session.user.id));
+  const result = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(graphNodes)
+    .where(eq(graphNodes.userId, session.user.id));
   return result[0]?.count ?? 0;
 }
 
@@ -202,21 +228,29 @@ export async function getNodeCount() {
  */
 export async function getEdgeCount() {
   const session = await getSession();
-  const result = await db.select({ count: sql<number>`count(*)` })
-    .from(graphEdges).where(eq(graphEdges.userId, session.user.id));
+  const result = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(graphEdges)
+    .where(eq(graphEdges.userId, session.user.id));
   return result[0]?.count ?? 0;
 }
 
 /**
  * Auto-generates edges between notes that share tags.
  * Called after a note is created/updated to keep the graph connected.
+ * Also removes edges when tags are removed (rebuilds all tag-based connections).
  */
 export async function autoConnectNotesByTags(userId: string) {
-  const userNodes = await db.select().from(graphNodes)
-    .where(eq(graphNodes.userId, userId));
+  const userNodes = await db.select().from(graphNodes).where(eq(graphNodes.userId, userId));
 
   if (userNodes.length < 2) return;
 
+  // Remove all existing tag-based edges for this user
+  await db
+    .delete(graphEdges)
+    .where(and(eq(graphEdges.userId, userId), eq(graphEdges.type, "tag")));
+
+  // Rebuild tag-based connections
   for (let i = 0; i < userNodes.length; i++) {
     for (let j = i + 1; j < userNodes.length; j++) {
       const nodeA = userNodes[i];
@@ -224,51 +258,26 @@ export async function autoConnectNotesByTags(userId: string) {
 
       if (!nodeA.noteId || !nodeB.noteId) continue;
 
-      const existing = await db.select().from(graphEdges).where(
-        and(
-          eq(graphEdges.userId, userId),
-          or(
-            and(eq(graphEdges.sourceId, nodeA.id), eq(graphEdges.targetId, nodeB.id)),
-            and(eq(graphEdges.sourceId, nodeB.id), eq(graphEdges.targetId, nodeA.id)),
-          )
-        )
-      ).limit(1);
-
-      if (existing.length > 0) continue;
-
       let shouldConnect = false;
 
-      const tagsA = await db.select({ tagId: noteTags.tagId })
-        .from(noteTags).where(eq(noteTags.noteId, nodeA.noteId));
-      const tagsB = await db.select({ tagId: noteTags.tagId })
-        .from(noteTags).where(eq(noteTags.noteId, nodeB.noteId));
+      const tagsA = await db
+        .select({ tagId: noteTags.tagId })
+        .from(noteTags)
+        .where(eq(noteTags.noteId, nodeA.noteId));
+      const tagsB = await db
+        .select({ tagId: noteTags.tagId })
+        .from(noteTags)
+        .where(eq(noteTags.noteId, nodeB.noteId));
 
-      const sharedTags = tagsA.filter(t => tagsB.some(b => b.tagId === t.tagId));
+      const sharedTags = tagsA.filter((t) => tagsB.some((b) => b.tagId === t.tagId));
       if (sharedTags.length > 0) shouldConnect = true;
-
-      if (!shouldConnect) {
-        const [noteA] = await db.select({ content: notes.content })
-          .from(notes).where(eq(notes.id, nodeA.noteId)).limit(1);
-        const [noteB] = await db.select({ content: notes.content })
-          .from(notes).where(eq(notes.id, nodeB.noteId)).limit(1);
-
-        if (noteA?.content && noteB?.content) {
-          const keywords = ["react", "component", "typescript", "javascript", "server",
-            "database", "search", "api", "type", "session", "postgres",
-            "authentication", "routing", "caching", "embedding", "vector"];
-          const sharedKeywords = keywords.filter(kw =>
-            noteA.content.toLowerCase().includes(kw) && noteB.content.toLowerCase().includes(kw)
-          );
-          if (sharedKeywords.length >= 2) shouldConnect = true;
-        }
-      }
 
       if (shouldConnect) {
         await db.insert(graphEdges).values({
           userId,
           sourceId: nodeA.id,
           targetId: nodeB.id,
-          type: sharedTags.length > 0 ? "tag" : "semantic",
+          type: "tag",
         });
       }
     }

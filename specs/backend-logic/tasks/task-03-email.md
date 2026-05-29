@@ -34,11 +34,13 @@ Replace the console.log email handlers in Better Auth with real email sending vi
 ### Implementation Steps
 
 1. Install Resend SDK:
+
 ```bash
 pnpm add resend
 ```
 
 2. Create `src/lib/email.ts`:
+
 ```typescript
 import { Resend } from "resend";
 
@@ -46,13 +48,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 const FROM_EMAIL = "2ndBrain <onboarding@yourdomain.com>";
 
-export async function sendVerificationEmail({
-  to,
-  url,
-}: {
-  to: string;
-  url: string;
-}) {
+export async function sendVerificationEmail({ to, url }: { to: string; url: string }) {
   const { error } = await resend.emails.send({
     from: FROM_EMAIL,
     to,
@@ -69,13 +65,7 @@ export async function sendVerificationEmail({
   if (error) console.error("Failed to send verification email:", error);
 }
 
-export async function sendPasswordResetEmail({
-  to,
-  url,
-}: {
-  to: string;
-  url: string;
-}) {
+export async function sendPasswordResetEmail({ to, url }: { to: string; url: string }) {
   const { error } = await resend.emails.send({
     from: FROM_EMAIL,
     to,
@@ -92,10 +82,12 @@ export async function sendPasswordResetEmail({
   if (error) console.error("Failed to send password reset email:", error);
 }
 ```
+
 Note: Replace `yourdomain.com` with the actual domain configured in Resend. For development/testing, Resend provides a default `onboarding@resend.dev` address that can only send to the registered email.
 
 3. Modify `src/lib/auth.ts`:
-Replace the two console.log handlers:
+   Replace the two console.log handlers:
+
 ```typescript
 import { sendVerificationEmail, sendPasswordResetEmail } from "./email";
 
@@ -115,11 +107,13 @@ emailVerification: {
 ```
 
 4. Add to `src/lib/env.ts` server schema:
+
 ```typescript
 RESEND_API_KEY: z.string().optional(),
 ```
 
 5. Add to `env.example`:
+
 ```
 RESEND_API_KEY=re_xxxxxxxxxxxx
 ```

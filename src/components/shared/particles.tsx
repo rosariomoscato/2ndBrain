@@ -120,7 +120,7 @@ export function Particles({ count = 30, interval = 100 }: ParticlesProps) {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 z-0 pointer-events-none"
+      className="pointer-events-none fixed inset-0 z-0"
       style={{ opacity: 0.4 }}
     />
   );

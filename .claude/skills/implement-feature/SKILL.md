@@ -15,6 +15,7 @@ description: >
 Orchestrate the parallel implementation of a feature specification by dispatching coder agents wave-by-wave. This skill reads a spec folder (created by `create-spec`), identifies the next wave of parallelizable work, spawns coder agents for each task, and runs a code review gate before moving to the next wave.
 
 The orchestrator never writes code itself. Its job is to:
+
 1. Parse the spec and determine what to do next
 2. Give each coder agent exactly the context it needs
 3. Verify the results via code review
@@ -24,6 +25,7 @@ The orchestrator never writes code itself. Its job is to:
 ## Prerequisites
 
 A `specs/{feature}/` directory containing:
+
 - `README.md` with wave assignments and task status checkboxes
 - `requirements.md` with feature context
 - `tasks/task-{nn}-*.md` files (one per task, self-contained)
@@ -69,6 +71,7 @@ For each wave starting from the current one, execute Steps 3 through 8 below, th
 For each task in the wave, spawn a coder agent using the `Agent` tool with `subagent_type: "coder"`. Spawn all agents for the wave in a **single message** so they run in parallel.
 
 Read `references/coder-prompt-template.md` and construct each agent's prompt by filling in:
+
 - **{requirements}**: full text of `requirements.md`
 - **{completed_tasks_summary}**: for each previously completed task, a one-paragraph summary of what was implemented and what files were created/modified (extract from the task file's Description section plus any completion notes)
 - **{task_content}**: full text of the task file being assigned
@@ -78,6 +81,7 @@ The coder agents should NOT commit their changes — the orchestrator handles co
 ### Step 5: Collect Results
 
 Wait for all coder agents in the wave to complete. Each agent should report:
+
 - Files created
 - Files modified
 - A summary of what was implemented
@@ -89,12 +93,14 @@ If any agent fails (returns an error or crashes), note the failure and continue 
 Spawn a single review agent using the `Agent` tool with `subagent_type: "code-review"`.
 
 Read `references/review-prompt-template.md` and construct the review prompt by filling in:
+
 - **{wave_number}**: current wave number
 - **{requirements}**: full text of `requirements.md`
 - **{task_summaries}**: for each task in this wave, the task title and the coder agent's completion summary
 - **{verification_commands}**: the project's lint and typecheck commands (e.g., `pnpm lint && pnpm typecheck`)
 
 The review agent should:
+
 1. Run lint and typecheck
 2. Verify acceptance criteria from each task file
 3. Check that files integrate correctly (imports resolve, types match)
@@ -136,6 +142,7 @@ After the wave passes review (or the user chooses to proceed):
    git commit -m "feat({feature}): complete wave {N} — {brief summary}"
    ```
 4. **Report wave completion**:
+
    ```
    Wave {N} of {total} complete.
 
