@@ -25,37 +25,30 @@ export type ModelInfo = {
  * These are the models we support for generating embeddings.
  */
 export const SUPPORTED_EMBEDDING_MODELS: ModelInfo[] = [
-  {
-    id: "openai/text-embedding-3-small",
-    name: "OpenAI text-embedding-3-small",
-    description: "OpenAI's smallest embedding model, 1536 dimensions, optimized for speed",
-  },
-  {
-    id: "openai/text-embedding-3-large",
-    name: "OpenAI text-embedding-3-large",
-    description: "OpenAI's larger embedding model, 1536 dimensions, higher quality",
-  },
+  { id: "openai/text-embedding-3-small", name: "Text Embedding 3 Small", dimension: 1536 },
+  { id: "openai/text-embedding-ada-002", name: "Text Embedding Ada 002", dimension: 1536 },
 ];
 
 /**
  * Default chat models for quick selection.
  * These are high-quality models recommended for general use.
  */
-export const DEFAULT_CHAT_MODELS: string[] = [
-  "openai/gpt-4o",
-  "openai/gpt-4o-mini",
-  "anthropic/claude-3.5-sonnet",
-  "google/gemini-pro-1.5",
+export const DEFAULT_CHAT_MODELS: ModelInfo[] = [
+  { id: "openai/gpt-4o", name: "GPT-4o" },
+  { id: "openai/gpt-4o-mini", name: "GPT-4o Mini" },
+  { id: "anthropic/claude-3.5-sonnet", name: "Claude 3.5 Sonnet" },
+  { id: "google/gemini-2.0-flash-001", name: "Gemini 2.0 Flash" },
 ];
 
 /**
  * Validates an OpenRouter API key by making a lightweight request to the models endpoint.
  *
  * @param apiKey - The OpenRouter API key to validate
- * @returns Promise resolving to true if valid, false otherwise
- * @throws Error if the API request fails (not due to invalid key)
+ * @returns Promise resolving to { valid: boolean, error?: string }
  */
-export async function validateOpenRouterKey(apiKey: string): Promise<boolean> {
+export async function validateOpenRouterKey(
+  apiKey: string
+): Promise<{ valid: boolean; error?: string }> {
   try {
     const response = await fetch("https://openrouter.ai/api/v1/models", {
       method: "GET",
@@ -65,21 +58,17 @@ export async function validateOpenRouterKey(apiKey: string): Promise<boolean> {
       },
     });
 
-    if (response.status === 401) {
-      // Invalid key
-      return false;
+    if (response.status === 401 || response.status === 403) {
+      return { valid: false, error: "Invalid API key" };
     }
 
     if (!response.ok) {
-      // Other error (network, server, etc.)
-      throw new Error(`OpenRouter API returned status ${response.status}: ${response.statusText}`);
+      return { valid: false, error: `OpenRouter API returned status ${response.status}: ${response.statusText}` };
     }
 
-    // Key is valid if we get here
-    return true;
+    return { valid: true };
   } catch (error) {
-    // Re-throw network or other errors
-    throw error;
+    return { valid: false, error: "Could not reach OpenRouter" };
   }
 }
 
