@@ -78,38 +78,29 @@ function GraphCanvasContent({ filtersOpen, onFiltersToggle }: {
   // Apply filters to nodes
   useEffect(() => {
     if (filters.type === "all" && filters.tags.length === 0) {
-      // Show all nodes if no filters
+      setNodes((prev) => prev.map((node) => ({ ...node, hidden: false })));
       return;
     }
 
-    const filteredNodes = nodes.filter((node) => {
-      const nodeData = node.data as unknown as NodeData;
-      
-      // Check type filter
-      if (filters.type !== "all" && nodeData.type !== filters.type) {
-        return false;
-      }
-      
-      // Check tag filter - node must have at least one of the selected tags
-      if (filters.tags.length > 0) {
-        const hasTag = filters.tags.some((tag) => nodeData.tags.includes(tag));
-        if (!hasTag) {
-          return false;
-        }
-      }
-      
-      return true;
-    });
+    const filteredIds = new Set(
+      nodes
+        .filter((node) => {
+          const nodeData = node.data as unknown as NodeData;
+          if (filters.type !== "all" && nodeData.type !== filters.type) return false;
+          if (filters.tags.length > 0) {
+            const hasTag = filters.tags.some((tag) => nodeData.tags.includes(tag));
+            if (!hasTag) return false;
+          }
+          return true;
+        })
+        .map((n) => n.id)
+    );
 
-    // Update node visibility
     setNodes((prev) =>
-      prev.map((node) => {
-        const isVisible = filteredNodes.some((n) => n.id === node.id);
-        return { ...node, hidden: !isVisible };
-      })
+      prev.map((node) => ({ ...node, hidden: !filteredIds.has(node.id) }))
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters.type, filters.tags]); // Only re-run when filters change
+  }, [filters.type, filters.tags]);
 
   const onConnect = useCallback(
     async (params: Connection) => {
