@@ -102,6 +102,8 @@ export const updateSettingsSchema = z.object({
   }).optional(),
   ai: z.object({
     model: z.string().min(1, "AI model cannot be empty").optional(),
+    embeddingModel: z.string().min(1, "Embedding model cannot be empty").optional(),
+    openrouterApiKey: z.string().optional(),
     streamResponses: z.boolean().optional(),
     includeCitations: z.boolean().optional(),
     desktopNotifications: z.boolean().optional(),

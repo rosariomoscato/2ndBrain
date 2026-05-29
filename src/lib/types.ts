@@ -130,9 +130,25 @@ export type UserSystemSettings = {
  */
 export type UserAISettings = {
   model?: string;
+  embeddingModel?: string;
+  openrouterApiKey?: string;  // encrypted JSON string (never sent to client)
   streamResponses?: boolean;
   includeCitations?: boolean;
   desktopNotifications?: boolean;
+};
+
+/**
+ * AI settings response sent to the client.
+ * Never includes the full API key - only the last 4 characters for display.
+ */
+export type AISettingsResponse = {
+  hasKey: boolean;
+  keyLast4: string | null;
+  model: string | null;
+  embeddingModel: string | null;
+  streamResponses: boolean;
+  includeCitations: boolean;
+  desktopNotifications: boolean;
 };
 
 /**

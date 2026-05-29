@@ -23,6 +23,9 @@ const serverEnvSchema = z.object({
   OPENAI_API_KEY: z.string().optional(),
   OPENAI_EMBEDDING_MODEL: z.string().default("text-embedding-3-large"),
 
+  // Encryption
+  ENCRYPTION_KEY: z.string().length(64).optional(),
+
   // Email
   RESEND_API_KEY: z.string().optional(),
 
@@ -111,6 +114,10 @@ export function checkEnv(): void {
 
   if (!process.env.OPENAI_API_KEY) {
     warnings.push("OPENAI_API_KEY is not set. Vector search and AI query will not work.");
+  }
+
+  if (!process.env.ENCRYPTION_KEY) {
+    warnings.push("ENCRYPTION_KEY is not set. Per-user API key encryption will not work. Generate with: node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\"");
   }
 
   if (!process.env.RESEND_API_KEY) {

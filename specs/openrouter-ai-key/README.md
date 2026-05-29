@@ -38,11 +38,11 @@ graph TD
 ## Task Status
 
 ### Wave 1
-- [ ] [task-01-encryption-utility](./tasks/task-01-encryption-utility.md) — AES encryption utility + ENCRYPTION_KEY env var + DB schema update
-- [ ] [task-02-api-key-validation](./tasks/task-02-api-key-validation.md) — Server action to validate OpenRouter key and fetch available models
+- [x] [task-01-encryption-utility](./tasks/task-01-encryption-utility.md) — AES encryption utility + ENCRYPTION_KEY env var + DB schema update
+- [x] [task-02-api-key-validation](./tasks/task-02-api-key-validation.md) — Server action to validate OpenRouter key and fetch available models
 
 ### Wave 2
-- [ ] [task-03-ai-settings-actions](./tasks/task-03-ai-settings-actions.md) — Server actions for save/load AI settings (key, models)
+- [x] [task-03-ai-settings-actions](./tasks/task-03-ai-settings-actions.md) — Server actions for save/load AI settings (key, models)
 
 ### Wave 3
 - [ ] [task-04-settings-ai-tab-ui](./tasks/task-04-settings-ai-tab-ui.md) — Redesign AI settings tab with key input, validation, model dropdowns
