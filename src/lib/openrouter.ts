@@ -14,6 +14,7 @@ export type ModelInfo = {
   name: string;
   description?: string | undefined;
   contextLength?: number | undefined;
+  dimension?: number | undefined;
   pricing?: {
     prompt: string;
     completion: string;

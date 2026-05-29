@@ -45,7 +45,7 @@ graph TD
 - [x] [task-03-ai-settings-actions](./tasks/task-03-ai-settings-actions.md) — Server actions for save/load AI settings (key, models)
 
 ### Wave 3
-- [ ] [task-04-settings-ai-tab-ui](./tasks/task-04-settings-ai-tab-ui.md) — Redesign AI settings tab with key input, validation, model dropdowns
+- [x] [task-04-settings-ai-tab-ui](./tasks/task-04-settings-ai-tab-ui.md) — Redesign AI settings tab with key input, validation, model dropdowns
 
 ### Wave 4
 - [ ] [task-05-wire-backend](./tasks/task-05-wire-backend.md) — Replace all `process.env.OPENROUTER_API_KEY` with per-user decrypted key
