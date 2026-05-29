@@ -8,6 +8,7 @@ import { db } from "@/lib/db";
 import { getQueryEmbedding, searchSimilarNotes } from "@/lib/embeddings";
 import { aiQueries } from "@/lib/schema";
 import type { Citation } from "@/lib/types";
+import { resolveOpenRouterConfig } from "@/lib/actions/ai-settings";
 
 // Zod schema for request validation
 const aiQueryRequestSchema = z.object({
@@ -68,7 +69,7 @@ export async function POST(req: Request) {
   const { query } = parsed.data;
 
   // Generate embedding for the query (uses OpenRouter API)
-  const queryEmbedding = await getQueryEmbedding(query);
+  const queryEmbedding = await getQueryEmbedding(query, session.user.id);
 
   console.log("Query embedding result:", queryEmbedding ? `array of ${Array.isArray(queryEmbedding) ? queryEmbedding.length : 'non-array'} items` : 'null');
 
@@ -107,17 +108,22 @@ export async function POST(req: Request) {
     context = contextParts.join("\n\n");
   }
 
-  // Validate OpenRouter API key is configured
-  const apiKey = process.env.OPENROUTER_API_KEY;
-  if (!apiKey) {
-    return new Response(JSON.stringify({ error: "OpenRouter API key not configured" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+  // Resolve OpenRouter config (user key or env var fallback)
+  const config = await resolveOpenRouterConfig();
+  if (!config) {
+    return new Response(
+      JSON.stringify({
+        error: "OpenRouter API key not configured. Go to Settings > AI to add your key.",
+      }),
+      {
+        status: 403,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   }
 
-  const openrouter = createOpenRouter({ apiKey });
-  const model = process.env.OPENROUTER_MODEL ?? "openai/gpt-5-mini";
+  const openrouter = createOpenRouter({ apiKey: config.apiKey });
+  const model = config.model;
 
   // Construct system prompt with context if available
   const systemPrompt = `You are an AI assistant for a personal knowledge management system called 2ndBrain. Answer questions based on the user's notes and knowledge base. Always cite your sources when referencing specific information from the notes. If the context doesn't contain relevant information, say so honestly.

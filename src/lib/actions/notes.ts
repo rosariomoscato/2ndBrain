@@ -146,7 +146,7 @@ export async function createNote(input: {
   }
 
   // Generate embeddings for the note (non-blocking)
-  generateEmbeddings(note.id, validated.content ?? "").catch(console.error);
+  generateEmbeddings(note.id, validated.content ?? "", session.user.id).catch(console.error);
 
   if (validated.tags && validated.tags.length > 0) {
     for (const tagName of validated.tags) {
@@ -213,7 +213,7 @@ export async function updateNote(input: {
 
   // Regenerate embeddings if content changed (non-blocking)
   if (validated.content !== undefined) {
-    generateEmbeddings(validated.id, validated.content).catch(console.error);
+    generateEmbeddings(validated.id, validated.content, session.user.id).catch(console.error);
   }
 
   if (validated.tags !== undefined) {

@@ -3,6 +3,7 @@ import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { streamText, UIMessage, convertToModelMessages } from "ai";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
+import { resolveOpenRouterConfig } from "@/lib/actions/ai-settings";
 
 // Zod schema for message validation
 const messagePartSchema = z.object({
@@ -64,13 +65,18 @@ export async function POST(req: Request) {
     noteTitle?: string;
   };
 
-  // Initialize OpenRouter with API key from environment
-  const apiKey = process.env.OPENROUTER_API_KEY;
-  if (!apiKey) {
-    return new Response(JSON.stringify({ error: "OpenRouter API key not configured" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+  // Resolve OpenRouter config (user key or env var fallback)
+  const config = await resolveOpenRouterConfig();
+  if (!config) {
+    return new Response(
+      JSON.stringify({
+        error: "OpenRouter API key not configured. Go to Settings > AI to add your key.",
+      }),
+      {
+        status: 403,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   }
 
   // Construct system prompt with context if available
@@ -78,10 +84,10 @@ export async function POST(req: Request) {
     ? `You are an AI assistant helping the user work with their note "${noteTitle || "this note"}". Here is the note content:\n\n${context}\n\nAnswer questions about this note, suggest improvements, help with research, and provide insights.`
     : "You are a helpful AI assistant for 2ndBrain, a personal knowledge management system.";
 
-  const openrouter = createOpenRouter({ apiKey });
+  const openrouter = createOpenRouter({ apiKey: config.apiKey });
 
   const result = streamText({
-    model: openrouter(process.env.OPENROUTER_MODEL || "openai/gpt-5-mini") as any,
+    model: openrouter(config.model) as any,
     system: systemPrompt,
     messages: convertToModelMessages(messages),
   });

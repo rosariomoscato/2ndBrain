@@ -10,6 +10,7 @@ import { db } from "@/lib/db";
 import { getQueryEmbedding, searchSimilarNotes } from "@/lib/embeddings";
 import { aiQueries } from "@/lib/schema";
 import type { Citation, QueryHistoryItem, AIResponse } from "@/lib/types";
+import { resolveOpenRouterConfig } from "@/lib/actions/ai-settings";
 
 /**
  * Helper function to get authenticated session.
@@ -40,7 +41,7 @@ export async function queryWithRAG(query: string): Promise<AIResponse> {
   const session = await getSession();
 
   // Generate embedding for the query (uses OpenAI API)
-  const queryEmbedding = await getQueryEmbedding(query);
+  const queryEmbedding = await getQueryEmbedding(query, session.user.id);
 
   let context = "";
   const citations: Citation[] = [];
@@ -61,7 +62,7 @@ export async function queryWithRAG(query: string): Promise<AIResponse> {
       if (!seenNoteIds.has(result.noteId)) {
         seenNoteIds.add(result.noteId);
         const note = await getNoteById(result.noteId);
-        
+
         if (note) {
           contextParts.push(`--- Note: "${note.title}" ---\n${result.chunkText}`);
           citations.push({
@@ -76,13 +77,14 @@ export async function queryWithRAG(query: string): Promise<AIResponse> {
     context = contextParts.join("\n\n");
   }
 
-  // Validate OpenRouter API key is configured
-  if (!process.env.OPENROUTER_API_KEY) {
-    throw new Error("OpenRouter API key not configured");
+  // Resolve OpenRouter config (user key or env var fallback)
+  const config = await resolveOpenRouterConfig();
+  if (!config) {
+    throw new Error("OpenRouter API key not configured. Go to Settings > AI to add your key.");
   }
 
-  const openrouter = createOpenRouter({ apiKey: process.env.OPENROUTER_API_KEY });
-  const model = process.env.OPENROUTER_MODEL ?? "openai/gpt-5-mini";
+  const openrouter = createOpenRouter({ apiKey: config.apiKey });
+  const model = config.model;
 
   // Construct system prompt with context if available
   const systemPrompt = `You are an AI assistant for a personal knowledge management system called 2ndBrain. Answer questions based on the user's notes and knowledge base. Always cite your sources when referencing specific information from the notes. If the context doesn't contain relevant information, say so honestly.

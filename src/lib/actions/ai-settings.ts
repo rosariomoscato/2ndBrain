@@ -337,3 +337,40 @@ export async function fetchModels(): Promise<{
 
   return fetchAvailableModels(apiKey);
 }
+
+/**
+ * Resolves the OpenRouter configuration for the authenticated user.
+ * Prioritizes the user's decrypted API key and selected model from settings.
+ * Falls back to environment variables if no per-user key is configured.
+ *
+ * @returns Promise resolving to { apiKey: string; model: string } or null if no key is available
+ */
+export async function resolveOpenRouterConfig(): Promise<{
+  apiKey: string;
+  model: string;
+} | null> {
+  try {
+    // Try to get user's per-user API key
+    const apiKey = await getUserOpenRouterKey();
+    if (apiKey) {
+      const settings = await getAISettings();
+      return {
+        apiKey,
+        model: settings.model ?? "openai/gpt-4o-mini",
+      };
+    }
+  } catch (error) {
+    console.error("Error resolving OpenRouter config from user settings:", error);
+  }
+
+  // Fallback to environment variables
+  const envKey = process.env.OPENROUTER_API_KEY;
+  if (envKey) {
+    return {
+      apiKey: envKey,
+      model: process.env.OPENROUTER_MODEL ?? "openai/gpt-4o-mini",
+    };
+  }
+
+  return null;
+}

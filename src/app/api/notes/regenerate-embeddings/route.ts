@@ -21,7 +21,7 @@ export async function POST() {
 
     for (const note of userNotes) {
       try {
-        await generateEmbeddings(note.id, note.content ?? "");
+        await generateEmbeddings(note.id, note.content ?? "", session.user.id);
         generated++;
       } catch (error) {
         console.error(`Failed to generate embedding for note ${note.id}:`, error);
