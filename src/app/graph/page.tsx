@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Network, FileText, Plus, AlertCircle, TrendingUp, RefreshCw } from "lucide-react";
+import { Network, FileText, Plus, AlertCircle, TrendingUp, RefreshCw, Filter } from "lucide-react";
 import { toast } from "sonner";
 import { MainViewport } from "@/components/layout/main-viewport";
 import { CyberButton } from "@/components/ui/cyber-button";
@@ -15,6 +15,7 @@ export default function GraphPage() {
   const [noteCount, setNoteCount] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRegenerating, setIsRegenerating] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   useEffect(() => {
     async function loadData() {
@@ -186,9 +187,19 @@ export default function GraphPage() {
       <div className="glass-panel border-b border-glass-border px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-display font-bold tracking-tight text-text-primary glow-text">
-              KNOWLEDGE GRAPH
-            </h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl font-display font-bold tracking-tight text-text-primary glow-text">
+                KNOWLEDGE GRAPH
+              </h1>
+              <CyberButton
+                variant="ghost"
+                size="icon"
+                onClick={() => setFiltersOpen(!filtersOpen)}
+                className="relative"
+              >
+                <Filter className="w-5 h-5" />
+              </CyberButton>
+            </div>
             <p className="text-text-secondary mt-1">
               Visualizing {noteCount} notes and their connections
             </p>
@@ -217,7 +228,7 @@ export default function GraphPage() {
       </div>
 
       <div className="flex-1 min-h-0">
-        <GraphCanvas />
+        <GraphCanvas filtersOpen={filtersOpen} onFiltersToggle={() => setFiltersOpen(!filtersOpen)} />
       </div>
     </div>
   );

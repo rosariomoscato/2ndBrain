@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Filter, X } from "lucide-react";
+import { X } from "lucide-react";
 import { CyberButton } from "@/components/ui/cyber-button";
 import { NeonBadge } from "@/components/ui/neon-badge";
 
@@ -10,13 +10,16 @@ export type NodeType = "all" | "note" | "concept" | "tag" | "reference";
 interface GraphFiltersProps {
   availableTags: string[];
   onFilterChange?: (filters: { type: NodeType; tags: string[] }) => void;
+  isOpen?: boolean | undefined;
+  onToggle?: (() => void) | undefined;
 }
 
 export function GraphFilters({
   availableTags,
   onFilterChange,
+  isOpen = false,
+  onToggle,
 }: GraphFiltersProps) {
-  const [isOpen, setIsOpen] = useState(false);
   const [filters, setFilters] = useState<{
     type: NodeType;
     tags: string[];
@@ -26,10 +29,6 @@ export function GraphFilters({
   });
 
   const filterCount = (filters.type !== "all" ? 1 : 0) + filters.tags.length;
-
-  const toggleFilter = () => {
-    setIsOpen(!isOpen);
-  };
 
   const setTypeFilter = (type: NodeType) => {
     const newFilters = { ...filters, type };
@@ -54,25 +53,9 @@ export function GraphFilters({
 
   return (
     <div className="absolute top-6 left-6 z-10">
-      {/* Filter Toggle Button */}
-      <CyberButton
-        variant="neon"
-        size="icon"
-        onClick={toggleFilter}
-        className="relative"
-      >
-        <Filter className="w-4 h-4" />
-        {filterCount > 0 && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 bg-neon-purple text-space-black text-xs font-bold rounded-full flex items-center justify-center glow-border">
-            {filterCount}
-          </span>
-        )}
-      </CyberButton>
-
       {/* Filter Panel */}
       {isOpen && (
-        <div className="absolute top-12 left-0 w-72 glass-panel rounded-xl animate-scale-in">
-          {/* Header */}
+        <div className="w-72 glass-panel rounded-xl animate-scale-in">
           <div className="flex items-center justify-between p-4 border-b border-glass-border">
             <h3 className="text-sm font-semibold font-display text-text-primary">
               Filters
@@ -80,7 +63,7 @@ export function GraphFilters({
             <CyberButton
               variant="ghost"
               size="icon"
-              onClick={toggleFilter}
+              onClick={onToggle}
             >
               <X className="w-4 h-4" />
             </CyberButton>

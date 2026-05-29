@@ -28,7 +28,10 @@ import { GraphSearch } from "./graph-search";
 import { NodeDetailsPanel } from "./node-details-panel";
 
 // GraphCanvas component with panels
-function GraphCanvasContent() {
+function GraphCanvasContent({ filtersOpen, onFiltersToggle }: {
+  filtersOpen?: boolean | undefined;
+  onFiltersToggle?: (() => void) | undefined;
+}) {
   const router = useRouter();
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
@@ -284,6 +287,8 @@ function GraphCanvasContent() {
         <GraphFilters
           availableTags={availableTags}
           onFilterChange={handleFilterChange}
+          isOpen={filtersOpen}
+          onToggle={onFiltersToggle}
         />
 
         {/* Graph Search */}
@@ -305,10 +310,13 @@ function GraphCanvasContent() {
 }
 
 // Export with provider wrapper
-export function GraphCanvas() {
+export function GraphCanvas({ filtersOpen, onFiltersToggle }: {
+  filtersOpen?: boolean | undefined;
+  onFiltersToggle?: (() => void) | undefined;
+}) {
   return (
     <ReactFlowProvider>
-      <GraphCanvasContent />
+      <GraphCanvasContent filtersOpen={filtersOpen} onFiltersToggle={onFiltersToggle} />
     </ReactFlowProvider>
   );
 }
